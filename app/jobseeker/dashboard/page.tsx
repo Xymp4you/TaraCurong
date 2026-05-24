@@ -97,14 +97,14 @@ export default function JobseekerDashboardPage() {
         </p>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Stat label="Applications" value="8" delta="+2 this week" helper="3 active" />
         <Stat label="In review" value="4" delta="+1" helper="avg. 3.2 days" />
         <Stat label="Interviews" value="2" delta="next: Fri" helper="Dole HR · 10:00" />
         <Stat label="Referral slips" value="2" delta="1 valid" helper="1 hired" />
       </div>
 
-      <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 20 }}>
+      <div className="mt-6 grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5">
         <div className="gw-card" style={{ padding: 22 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
             <div>

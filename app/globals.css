@@ -884,3 +884,27 @@
   text-transform: uppercase;
 }
 
+/* =========================================================================
+   Responsive safety net — prevents horizontal overflow on small screens
+   ========================================================================= */
+html, body {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+img, video, canvas, svg {
+  max-width: 100%;
+  height: auto;
+}
+
+/* Allow wide content blocks (e.g. kanban boards, wide tables) to scroll */
+.gw .gw-phone { max-width: 100%; }
+
+@media (max-width: 640px) {
+  .gw .gw-phone {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 360 / 760;
+  }
+}
+

@@ -434,16 +434,10 @@ export default function ReferralSlipVerificationPage() {
 
         {/* Main grid: details + QR */}
         <div
-          style={{
-            position: "relative",
-            padding: "0 44px 32px",
-            display: "grid",
-            gridTemplateColumns: "1fr 220px",
-            gap: 36,
-          }}
+          className="grid grid-cols-1 md:grid-cols-[1fr_220px] gap-8 md:gap-9 px-5 sm:px-11 pb-8 relative"
         >
           <div>
-            <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "22px 32px" }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-y-5 gap-x-8">
               <SlipField label="Slip number" value={result.slipNumber} mono />
               <SlipField label="Date issued" value={formatDate(result.issuedAt)} />
               <SlipField

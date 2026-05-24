@@ -68,14 +68,14 @@ export default function EmployerDashboardPage() {
         </Link>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Stat label="Active jobs" value="5" delta="+1 this month" helper="2 pending" />
         <Stat label="New applicants" value="12" delta="+12 today" helper="last 24h" />
         <Stat label="Shortlisted" value="34" delta="+6 this week" />
         <Stat label="Hires (May)" value="5" delta="+2 vs Apr" />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 20, marginTop: 20 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5 mt-5">
         {/* Funnel */}
         <div className="gw-card" style={{ padding: 22 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
@@ -234,7 +234,7 @@ export default function EmployerDashboardPage() {
             Manage all jobs
           </Link>
         </div>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {ACTIVE_JOBS.map((j) => (
             <div key={j.t} style={{ padding: 16, border: "1px solid var(--ink-7)", borderRadius: "var(--r-3)" }}>
               <div

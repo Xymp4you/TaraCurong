@@ -87,7 +87,7 @@ export default function EmployerMatchingPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 420px", gap: 20 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[1fr_420px] gap-5">
         {/* Candidates list */}
         <div className="gw-card" style={{ padding: 0, overflow: "hidden" }}>
           <div

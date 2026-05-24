@@ -42,8 +42,8 @@ export default function JobseekerJobDetailPage() {
 
   return (
     <div
-      className="gw"
-      style={{ display: "grid", gridTemplateColumns: "1fr 320px", gap: 24, maxWidth: 1100 }}
+      className="gw grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-6"
+      style={{ maxWidth: 1100 }}
     >
       <div>
         <div className="gw-card" style={{ padding: 28 }}>
@@ -112,7 +112,7 @@ export default function JobseekerJobDetailPage() {
 
           <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "20px 0" }} />
 
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 14 }}>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
             {DETAIL.facts.map(([k, v]) => (
               <div key={k}>
                 <div

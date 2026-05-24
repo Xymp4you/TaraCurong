@@ -94,7 +94,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* 7 stat cards */}
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10 }}>
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7 gap-2.5">
         {STATS.map((s) => (
           <div
             key={s.l}
@@ -123,7 +123,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Trend + donuts */}
-      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, marginTop: 18 }}>
+      <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr] gap-4 mt-[18px]">
         <div className="gw-card" style={{ padding: 22 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
             <div>
@@ -261,7 +261,7 @@ export default function AdminDashboardPage() {
       </div>
 
       {/* Top employers + audit */}
-      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 18 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-[18px]">
         <div className="gw-card" style={{ padding: 22 }}>
           <div className="tx-h3" style={{ marginBottom: 14 }}>Top hiring employers</div>
           {TOP_EMPLOYERS.map((e, i) => (

@@ -124,24 +124,15 @@ function LoginContent() {
 
   return (
     <div
-      className="gw"
-      style={{
-        display: "grid",
-        gridTemplateColumns: "1fr 1fr",
-        minHeight: "100vh",
-        background: "var(--paper)",
-      }}
+      className="gw grid lg:grid-cols-2 min-h-screen"
+      style={{ background: "var(--paper)" }}
     >
       {/* ===== Left: identity rail ===== */}
       <div
+        className="hidden lg:flex p-14 flex-col justify-between relative"
         style={{
-          padding: 56,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "space-between",
           borderRight: "1px solid var(--ink-7)",
           background: "var(--surface)",
-          position: "relative",
         }}
       >
         <div
@@ -179,17 +170,20 @@ function LoginContent() {
 
       {/* ===== Right: form ===== */}
       <div
-        style={{
-          padding: 56,
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          background: "var(--paper)",
-        }}
+        className="px-5 py-10 sm:px-10 sm:py-12 lg:p-14 flex flex-col justify-center"
+        style={{ background: "var(--paper)" }}
       >
+        {/* Mobile brand header (only on small screens) */}
+        <div className="lg:hidden mb-8">
+          <Link href="/" className="inline-flex items-center gap-3 no-underline text-inherit">
+            <Seal size={32} />
+            <div style={{ font: "600 16px/1 var(--font-ui)" }}>TaraCurong</div>
+          </Link>
+        </div>
         <form
           onSubmit={handleSubmit}
-          style={{ maxWidth: 380, width: "100%", margin: "0 auto" }}
+          className="w-full mx-auto"
+          style={{ maxWidth: 380 }}
           noValidate
         >
           {/* Role toggle */}

@@ -152,7 +152,7 @@ export default function JobseekerJobsPage() {
       </div>
 
       {/* Filter sidebar + results */}
-      <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "240px 1fr", gap: 20 }}>
+      <div className="mt-5 grid grid-cols-1 lg:grid-cols-[240px_1fr] gap-5">
         <aside>
           <div className="gw-card" style={{ padding: 18 }}>
             <div className="tx-h4" style={{ marginBottom: 14 }}>Refine</div>
@@ -186,7 +186,7 @@ export default function JobseekerJobsPage() {
               <span className="tx-mono" style={{ color: "var(--ink)" }}>284</span> jobs in Tacurong
             </span>
           </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             {JOBS.map((j) => <JobCard key={j.title} j={j} />)}
           </div>
         </div>

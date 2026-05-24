@@ -83,7 +83,7 @@ export function ViewEmployerModal({
         </DialogHeader>
 
         <Tabs defaultValue="info" className="flex-1">
-          <TabsList className="grid w-full grid-cols-6 sticky top-0">
+          <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 h-auto gap-1 sticky top-0">
             <TabsTrigger value="info">Basic Info</TabsTrigger>
             <TabsTrigger value="address">Address</TabsTrigger>
             <TabsTrigger value="industry">Industry</TabsTrigger>
@@ -95,7 +95,7 @@ export function ViewEmployerModal({
           <div className="p-4 overflow-y-auto">
             {/* Basic Info Tab */}
             <TabsContent value="info" className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase">ID</p>
                   <p className="text-sm font-mono text-slate-900">{employer.id}</p>
@@ -108,7 +108,7 @@ export function ViewEmployerModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase">Contact Number</p>
                   <p className="text-sm text-slate-900">{employer.contactNumber || "N/A"}</p>
@@ -119,7 +119,7 @@ export function ViewEmployerModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase">Manpower Agency</p>
                   <Badge variant={employer.isManpowerAgency ? "default" : "secondary"}>
@@ -137,7 +137,7 @@ export function ViewEmployerModal({
               <div className="border-t pt-4 mt-4">
                 <h4 className="text-sm font-semibold text-slate-900 mb-3">Contact Person</h4>
                 {employer.contactPerson && (
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-semibold text-slate-500 uppercase">Name</p>
                       <p className="text-sm text-slate-900">{employer.contactPerson.personName || "N/A"}</p>
@@ -166,7 +166,7 @@ export function ViewEmployerModal({
                 <p className="text-sm text-slate-900">{employer.houseStreetVillage || "N/A"}</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <p className="text-xs font-semibold text-slate-500 uppercase">Barangay</p>
                   <p className="text-sm text-slate-900">{employer.barangay || "N/A"}</p>
@@ -184,7 +184,7 @@ export function ViewEmployerModal({
 
               <div className="border-t pt-4 mt-4">
                 <p className="text-xs font-semibold text-slate-500 uppercase">Company Information</p>
-                <div className="grid grid-cols-2 gap-4 mt-3">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-3">
                   <div>
                     <p className="text-xs text-slate-600">Company TIN</p>
                     <p className="text-sm font-mono text-slate-900">{employer.companyTIN || "N/A"}</p>
@@ -225,7 +225,7 @@ export function ViewEmployerModal({
             <TabsContent value="employment" className="space-y-4">
               <div>
                 <h4 className="text-sm font-semibold text-slate-900 mb-3">Employment Statistics (Employer Profile)</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase">No. of Paid Employees</p>
                     <p className="text-2xl font-bold text-teal-700">{employer.numberOfPaidEmployees || 0}</p>
@@ -253,7 +253,7 @@ export function ViewEmployerModal({
             <TabsContent value="geo" className="space-y-4">
               <div>
                 <h4 className="text-sm font-semibold text-slate-900 mb-3">Geographic Identification (Employer Profile)</h4>
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase">Province</p>
                     <p className="text-sm text-slate-900">{employer.province || "N/A"}</p>
@@ -279,7 +279,7 @@ export function ViewEmployerModal({
               <div className="border-t pt-4 mt-4">
                 <h4 className="text-sm font-semibold text-slate-900 mb-3">Barangay Officials</h4>
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-semibold text-slate-500 uppercase">Bgy Chairperson</p>
                       <p className="text-sm text-slate-900">{employer.barangayChairperson || "N/A"}</p>
@@ -290,7 +290,7 @@ export function ViewEmployerModal({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-semibold text-slate-500 uppercase">Bgy Secretary</p>
                       <p className="text-sm text-slate-900">{employer.barangaySecretary || "N/A"}</p>
@@ -306,7 +306,7 @@ export function ViewEmployerModal({
               <div>
                 <h4 className="text-sm font-semibold text-slate-900 mb-3">Prepared By Information</h4>
                 <div className="space-y-3">
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-semibold text-slate-500 uppercase">Name</p>
                       <p className="text-sm text-slate-900">{employer.preparedByName || "N/A"}</p>
@@ -317,7 +317,7 @@ export function ViewEmployerModal({
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <p className="text-xs font-semibold text-slate-500 uppercase">Contact Number</p>
                       <p className="text-sm text-slate-900">{employer.preparedByContact || "N/A"}</p>

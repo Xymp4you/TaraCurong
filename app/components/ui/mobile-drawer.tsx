@@ -50,7 +50,7 @@ export function MobileDrawer({ children, trigger }: MobileDrawerProps) {
 
       {/* Drawer */}
       <div 
-        className={`fixed inset-y-0 left-0 z-50 w-[280px] bg-slate-900 shadow-2xl transition-transform duration-300 ease-in-out transform ${
+        className={`fixed inset-y-0 left-0 z-50 w-[85vw] max-w-[320px] bg-slate-900 shadow-2xl transition-transform duration-300 ease-in-out transform ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         }`}
       >

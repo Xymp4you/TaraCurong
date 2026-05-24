@@ -51,7 +51,7 @@ export default function JobseekerReferralsPage() {
         <Stat label="Expired" value="3" delta="awaiting reissue" down />
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {SLIPS.map((s) => (
           <div
             key={s.num}

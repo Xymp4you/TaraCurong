@@ -183,7 +183,7 @@ export default function AdminApprovalsPage() {
 
               {isExpanded && r.docs && (
                 <div style={{ padding: "0 22px 22px", borderTop: "1px solid var(--ink-7)" }}>
-                  <div style={{ display: "grid", gridTemplateColumns: "1.4fr 1fr 1fr", gap: 24, paddingTop: 18 }}>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-[18px]">
                     <div>
                       <div className="tx-eyebrow" style={{ fontSize: 10.5, marginBottom: 8 }}>
                         About the establishment

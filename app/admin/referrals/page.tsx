@@ -60,14 +60,14 @@ export default function AdminReferralsPage() {
         </div>
       </div>
 
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         <Stat label="Issued this month" value="184" delta="+12% vs Apr" />
         <Stat label="Active right now" value="62" delta="avg. 8.4 days valid" />
         <Stat label="Hires confirmed" value="78" delta="42% conversion" />
         <Stat label="Expired without action" value="14" delta="needs follow-up" down />
       </div>
 
-      <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 16 }}>
+      <div className="mt-[18px] grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-4">
         {/* Issue card (dark) */}
         <div
           className="gw-card"
