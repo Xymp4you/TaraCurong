@@ -214,6 +214,15 @@ export default function EmployerSettingsPage() {
               </CardContent>
             </Card>
 
+            <Card className="border-amber-200 bg-amber-50 p-5">
+              <p className="text-sm font-semibold text-slate-900">Your data rights</p>
+              <p className="mt-1 text-sm text-slate-700">
+                You can export all data tied to your employer account or close it permanently at any
+                time. Closing your account removes your company profile and job postings from
+                public listings and submits a deletion request that processes within 30 days.
+                Applications already received remain visible to the applicants you contacted.
+              </p>
+            </Card>
             <AccountSecurityPanel />
           </div>
         </TabsContent>

@@ -148,7 +148,7 @@ describe("phase-8 security hardening", () => {
 
     assert.equal(res.status, 200);
     assert.ok((res.headers.get("content-type") ?? "").includes("application/json"));
-    assert.ok((res.headers.get("content-disposition") ?? "").includes("gensanworks-account-export"));
+    assert.ok((res.headers.get("content-disposition") ?? "").includes("taracurong-account-export"));
 
     const payload = (await res.json()) as {
       success?: boolean;

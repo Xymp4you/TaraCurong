@@ -33,7 +33,7 @@ export const PATCH = createPatchHandler<UpdateStatusBody>(
       
       if (nextStatus === "active") {
         title = "Job Posting Approved";
-        message = `Good news! Your job posting "${updatedJob.positionTitle}" has been approved and is now live on GensanWorks.`;
+        message = `Good news! Your job posting "${updatedJob.positionTitle}" has been approved and is now live on TaraCurong.`;
       } else if (nextStatus === "rejected") {
         title = "Job Posting Requires Revisions";
         message = `Your job posting "${updatedJob.positionTitle}" requires some changes before it can be approved. Reason: ${rejectionReason || "Please see details."}`;

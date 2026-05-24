@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Mail, MapPin, Phone, Clock, Globe, Send } from "lucide-react";
 
 export const metadata = {
-  title: "Contact Us | PESO General Santos",
-  description: "Get in touch with the Public Employment Service Office (PESO) of General Santos City.",
+  title: "Contact Us | TaraCurong",
+  description: "Get in touch with TaraCurong of Tacurong City.",
 };
 
 export default function ContactPage() {
@@ -20,7 +20,7 @@ export default function ContactPage() {
             Get in Touch
           </h1>
           <p className="text-lg text-blue-100 max-w-2xl mx-auto leading-relaxed">
-            Have questions or need assistance? Our team at the Public Employment Service Office (PESO) is here to help you navigate your employment journey.
+            Have questions or need assistance? Our TaraCurong team is here to help you navigate your employment journey.
           </p>
         </div>
       </section>
@@ -38,10 +38,9 @@ export default function ContactPage() {
               <div>
                 <h3 className="font-semibold text-slate-900 mb-2">Office Location</h3>
                 <p className="text-slate-600 text-sm leading-relaxed">
-                  City Government of General Santos<br />
-                  Public Employment Service Office (PESO)<br />
-                  4th Flr. GSC Investment Action Center Building,<br />
-                  City Hall Compound, GSC
+                  TaraCurong<br />
+                  A community project by John Aerol Tapales<br />
+                  Tacurong City, Sultan Kudarat
                 </p>
               </div>
             </div>
@@ -67,17 +66,13 @@ export default function ContactPage() {
               <div>
                 <h3 className="font-semibold text-slate-900 mb-3">Connect With Us</h3>
                 <div className="space-y-3">
-                  <a href="mailto:peso_gensan@yahoo.com" className="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                  <a href="mailto:helpdesk@taracurong.com" className="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
                     <Mail className="w-4 h-4 mr-3 shrink-0 text-slate-400" />
-                    peso_gensan@yahoo.com
+                    helpdesk@taracurong.com
                   </a>
-                  <a href="tel:+63835533479" className="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
+                  <a href="tel:+63644771234" className="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
                     <Phone className="w-4 h-4 mr-3 shrink-0 text-slate-400" />
-                    (083) 553 3479
-                  </a>
-                  <a href="https://www.facebook.com/PESO.GeneralSantos" target="_blank" rel="noopener noreferrer" className="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
-                    <Globe className="w-4 h-4 mr-3 shrink-0 text-slate-400" />
-                    PESO General Santos
+                    (064) 477-1234
                   </a>
                 </div>
               </div>

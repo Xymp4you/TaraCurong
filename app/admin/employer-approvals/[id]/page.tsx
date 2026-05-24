@@ -85,7 +85,7 @@ export default function AdminEmployerApprovalPage() {
     });
 
     if (res.ok) {
-      setSuccess(action === "approve" ? "Employer SRS profile approved successfully!" : "Employer SRS profile rejected.");
+      setSuccess(action === "approve" ? "Employer employer profile approved successfully!" : "Employer employer profile rejected.");
       setProfile((prev) => prev ? { ...prev, srsStatus: action === "approve" ? "approved" : "rejected", srsRejectionReason: action === "reject" ? rejectionReason : undefined } : null);
       setShowRejectModal(false);
       setTimeout(() => router.push("/admin/employer-approvals"), 1500);
@@ -131,7 +131,7 @@ export default function AdminEmployerApprovalPage() {
           <Card className="p-6">
             <div className="flex items-start justify-between gap-4">
               <div className="flex items-start gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-teal-500 to-violet-600 flex items-center justify-center text-white font-bold text-xl flex-shrink-0">
                   {profile.establishmentName?.charAt(0)}
                 </div>
                 <div>
@@ -199,7 +199,7 @@ export default function AdminEmployerApprovalPage() {
               {/* Business Info */}
               <Card className="p-6">
                 <h2 className="font-bold text-slate-900 flex items-center gap-2 mb-4">
-                  <Building2 className="w-4 h-4 text-blue-500" /> Business Information
+                  <Building2 className="w-4 h-4 text-teal-600" /> Business Information
                 </h2>
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   {[
@@ -220,7 +220,7 @@ export default function AdminEmployerApprovalPage() {
               {/* Uploaded Documents */}
               <Card className="p-6">
                 <h2 className="font-bold text-slate-900 flex items-center gap-2 mb-4">
-                  <FileText className="w-4 h-4 text-blue-500" /> Submitted Documents
+                  <FileText className="w-4 h-4 text-teal-600" /> Submitted Documents
                 </h2>
                 {profile.documents?.length > 0 ? (
                   <div className="space-y-2">
@@ -230,16 +230,16 @@ export default function AdminEmployerApprovalPage() {
                         href={doc.url}
                         target="_blank"
                         rel="noreferrer"
-                        className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:border-blue-300 hover:bg-blue-50 transition-all group"
+                        className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:border-teal-100 hover:bg-teal-50 transition-all group"
                       >
                         <div className="w-8 h-8 rounded-lg bg-slate-100 flex items-center justify-center">
                           <FileText className="w-4 h-4 text-slate-500" />
                         </div>
                         <div className="flex-1">
-                          <p className="font-medium text-slate-900 text-sm group-hover:text-blue-700">{doc.name}</p>
+                          <p className="font-medium text-slate-900 text-sm group-hover:text-teal-700">{doc.name}</p>
                           <p className="text-xs text-slate-400">{doc.type}</p>
                         </div>
-                        <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-blue-500" />
+                        <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-teal-600" />
                       </a>
                     ))}
                   </div>
@@ -251,14 +251,14 @@ export default function AdminEmployerApprovalPage() {
               {/* Admin Note */}
               <Card className="p-6">
                 <h2 className="font-bold text-slate-900 flex items-center gap-2 mb-3">
-                  <StickyNote className="w-4 h-4 text-blue-500" /> Internal Admin Note (Private)
+                  <StickyNote className="w-4 h-4 text-teal-600" /> Internal Admin Note (Private)
                 </h2>
                 <textarea
                   value={adminNote}
                   onChange={(e) => setAdminNote(e.target.value)}
                   placeholder="Add a private note about this employer for internal reference..."
                   rows={3}
-                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none"
+                  className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-teal-500 outline-none resize-none"
                 />
               </Card>
             </div>
@@ -267,7 +267,7 @@ export default function AdminEmployerApprovalPage() {
             <div className="space-y-6">
               <Card className="p-5">
                 <h2 className="font-bold text-slate-900 flex items-center gap-2 mb-4">
-                  <History className="w-4 h-4 text-blue-500" /> Approval History
+                  <History className="w-4 h-4 text-teal-600" /> Approval History
                 </h2>
                 {history.length > 0 ? (
                   <div className="space-y-3">
@@ -307,7 +307,7 @@ export default function AdminEmployerApprovalPage() {
                 <XCircle className="w-5 h-5 text-rose-600" />
               </div>
               <div>
-                <h3 className="font-bold text-slate-900">Reject SRS Profile</h3>
+                <h3 className="font-bold text-slate-900">Reject Employer Profile</h3>
                 <p className="text-xs text-slate-500">The employer will be notified with your reason.</p>
               </div>
             </div>
@@ -316,7 +316,7 @@ export default function AdminEmployerApprovalPage() {
               <textarea
                 value={rejectionReason}
                 onChange={(e) => setRejectionReason(e.target.value)}
-                placeholder="Explain why the SRS profile is being rejected..."
+                placeholder="Explain why the employer profile is being rejected..."
                 rows={4}
                 className="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:ring-2 focus:ring-rose-400 focus:border-rose-400 outline-none resize-none"
               />

@@ -82,7 +82,7 @@ const fallbackServices: ServicesResponse = {
     {
       id: 5,
       title: "Skills Verification",
-      description: "Get your skills certified and verified by PESO-accredited assessors.",
+      description: "Get your skills certified and verified by accredited assessors.",
       icon: "Sparkles",
       iconColor: "text-pink-600",
       bgColor: "bg-pink-50",

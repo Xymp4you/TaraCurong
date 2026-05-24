@@ -26,7 +26,7 @@ Reviewed currently configured API guardrails and endpoint-specific limits used b
 
 - Security and brute-force smoke checks: `tests/phase-8-security.test.ts`
 - Messaging/admin smoke suites: `tests/phase-5-messaging.test.ts`, `tests/phase-6-admin-analytics.test.ts`
-- Load smoke baseline: `scripts/load-smoke.js` (`npm run test:load:smoke`)
+- Load smoke baseline: `scripts/load-smoke.ts` (`npm run test:load:smoke`)
 
 ## Outcome
 

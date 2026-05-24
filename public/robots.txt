@@ -1,4 +1,4 @@
-# robots.txt for GensanWorks
+# robots.txt for TaraCurong
 
 User-agent: *
 Allow: /
@@ -18,7 +18,7 @@ Disallow: /reset-password
 Disallow: /verify-email
 
 # Sitemap
-Sitemap: https://gensanworks.com/sitemap.xml
+Sitemap: https://taracurong.com/sitemap.xml
 
 # Crawl delay (optional, be nice to the server)
 Crawl-delay: 1

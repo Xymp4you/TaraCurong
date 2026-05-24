@@ -1,367 +1,277 @@
 "use client";
-export const dynamic = "force-dynamic";
 
-import { useMemo } from "react";
 import Link from "next/link";
-import { useAuth } from "@/lib/auth-client";
-import { useQuery } from "@tanstack/react-query";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { 
-  TrendingUp, 
-  Clock, 
-  CheckCircle, 
-  AlertCircle, 
-  MapPin, 
-  ArrowRight,
-  Briefcase
+import {
+  Building,
+  Calendar,
+  ChevronRight,
+  Download,
+  Shield,
+  Sparkles,
+  TrendingUp,
+  User,
+  QrCode,
 } from "lucide-react";
-import { queryFetcher } from "@/lib/query-fetcher";
-import { 
-  fetchJobseekerDashboardData,
-  type JobseekerApplication as Application,
-  type JobseekerJob as Job
-} from "@/lib/dashboard-data";
-import { JobSeekingStatusToggle } from "@/components/jobseeker/job-seeking-status-toggle";
-import { formatRelativeTime } from "@/lib/time-utils";
+import { Pill } from "@/components/gw/atoms";
+
+type AppStatus = "submitted" | "under_review" | "shortlisted" | "interview" | "hired" | "rejected" | "withdrawn";
+
+const APP_STATUS: Record<AppStatus, { tone: "slate" | "sky" | "violet" | "amber" | "emerald" | "rose"; label: string }> = {
+  submitted: { tone: "slate", label: "Submitted" },
+  under_review: { tone: "sky", label: "Under review" },
+  shortlisted: { tone: "violet", label: "Shortlisted" },
+  interview: { tone: "amber", label: "Interview" },
+  hired: { tone: "emerald", label: "Hired" },
+  rejected: { tone: "rose", label: "Rejected" },
+  withdrawn: { tone: "slate", label: "Withdrawn" },
+};
+
+const PIPELINE_STEPS = [
+  { key: "submitted", label: "Submitted" },
+  { key: "under_review", label: "Under review" },
+  { key: "shortlisted", label: "Shortlisted" },
+  { key: "interview", label: "Interview" },
+  { key: "hired", label: "Hired" },
+] as const;
+
+function Pipeline({ current }: { current: AppStatus }) {
+  const idx = PIPELINE_STEPS.findIndex((s) => s.key === current);
+  return (
+    <div className="gw-pipeline">
+      {PIPELINE_STEPS.map((s, i) => {
+        const cls = i < idx ? "done" : i === idx ? "current" : "";
+        return (
+          <div key={s.key} className={`step ${cls}`}>
+            <div className="node">{i < idx ? "✓" : i + 1}</div>
+            <div className="label">{s.label}</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+const ACTIVE_APPS: { title: string; company: string; at: string; status: AppStatus; days: string }[] = [
+  { title: "Bookkeeper", company: "Dole Philippines, Inc.", at: "Tacurong", status: "interview", days: "Applied 12 days ago" },
+  { title: "Cannery Line Lead", company: "General Tuna Corporation", at: "Tacurong", status: "shortlisted", days: "Applied 6 days ago" },
+  { title: "Office Clerk", company: "City Treasurer's Office", at: "City Hall", status: "under_review", days: "Applied 4 days ago" },
+];
+
+const RECOMMENDED = [
+  { t: "Account Assistant", c: "RD Pawnshop", m: 94 },
+  { t: "Junior Accountant", c: "Sultan Kudarat CPA", m: 88 },
+  { t: "Records Officer", c: "City Hall Tacurong", m: 81 },
+];
+
+const ACTIVITY: { t: string; s: string; w: string; c: string; icon: React.ReactNode }[] = [
+  { t: "Interview confirmed with Dole Philippines, Inc.", s: "Friday 26 May · 10:00 AM · Tacurong cannery", w: "1h ago", c: "var(--amber)", icon: <Calendar size={13} /> },
+  { t: "Status updated: Cannery Line Lead → Shortlisted", s: "General Tuna Corporation", w: "Yesterday", c: "var(--violet)", icon: <TrendingUp size={13} /> },
+  { t: "Referral slip issued for Bookkeeper", s: "TaraCurong · valid until 06 Jun", w: "2 days ago", c: "var(--sky)", icon: <QrCode size={13} /> },
+  { t: "Profile is 72% complete", s: "Add work experience to reach 90% and unlock priority matching.", w: "3 days ago", c: "var(--ink-3)", icon: <User size={13} /> },
+];
+
+function Stat({ label, value, delta, helper, down }: { label: string; value: string; delta?: string; helper?: string; down?: boolean }) {
+  return (
+    <div className="gw-stat">
+      <div className="label">{label}</div>
+      <div className="value tx-num">{value}</div>
+      {delta && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span className={`delta${down ? " down" : ""}`}>{delta}</span>
+          {helper && <span className="tx-micro" style={{ color: "var(--ink-4)" }}>{helper}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
 
 export default function JobseekerDashboardPage() {
-  const { data: session } = useAuth();
-
-  // 1. Fetch Dashboard Stats & Recent Data
-  const { 
-    data: dashboardData, 
-    isLoading: isDashLoading 
-  } = useQuery({
-    queryKey: ["jobseeker", "dashboard"],
-    queryFn: () => fetchJobseekerDashboardData(),
-  });
-
-  // 2. Fetch Personalized Recommendations
-  const { 
-    data: recsData, 
-    isLoading: isRecsLoading 
-  } = useQuery({
-    queryKey: ["jobseeker", "recommendations"],
-    queryFn: () => queryFetcher<{ jobs: Job[] }>("/api/jobseeker/recommendations"),
-    staleTime: 10 * 60 * 1000, // Recommendations can be stale for longer (10 mins)
-  });
-
-  const jobs = dashboardData?.jobs || [];
-  const applications = dashboardData?.applications || [];
-  const profile = dashboardData?.profile || null;
-  const recommendations = recsData?.jobs || [];
-  const loading = isDashLoading || isRecsLoading;
-
-  const stats = useMemo(() => {
-    return {
-      totalApplications: applications.length,
-      viaReferral: applications.filter((a) => a.source === "referred").length,
-      directApplication: applications.filter((a) => a.source === "direct").length,
-      pendingReferral: applications.filter((a) => a.source === "referred" && (a.status === "pending" || a.status === "under_review")).length,
-      shortlisted: applications.filter((a) => a.status === "shortlisted").length,
-      accepted: applications.filter((a) => a.status === "accepted" || a.status === "hired").length,
-    };
-  }, [applications]);
-
-  const getStatusColor = (status: string) => {
-    switch (status.toLowerCase()) {
-      case "pending": return "bg-amber-100 text-amber-700 border-amber-200";
-      case "shortlisted": return "bg-purple-100 text-purple-700 border-purple-200";
-      case "accepted": case "hired": return "bg-emerald-100 text-emerald-700 border-emerald-200";
-      case "rejected": return "bg-rose-100 text-rose-700 border-rose-200";
-      default: return "bg-slate-100 text-slate-700 border-slate-200";
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    return status.charAt(0).toUpperCase() + status.slice(1);
-  };
-
   return (
-    <div className="space-y-8">
+    <div className="gw" style={{ maxWidth: 1320 }}>
+      <div style={{ marginBottom: 24 }}>
+        <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>
+          Welcome back, Juan
+        </h1>
+        <p className="tx-caption" style={{ marginTop: 4 }}>
+          Tuesday, 23 May · 8 new matches since yesterday
+        </p>
+      </div>
 
-      {/* Job-Seeking Status Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl border border-slate-200 bg-white shadow-sm">
-        <div>
-          <p className="font-semibold text-slate-900 text-sm">Your Job-Seeking Status</p>
-          <p className="text-xs text-slate-500 mt-0.5">Control your visibility in the PESO AI matching pool and referral system</p>
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+        <Stat label="Applications" value="8" delta="+2 this week" helper="3 active" />
+        <Stat label="In review" value="4" delta="+1" helper="avg. 3.2 days" />
+        <Stat label="Interviews" value="2" delta="next: Fri" helper="Dole HR · 10:00" />
+        <Stat label="Referral slips" value="2" delta="1 valid" helper="1 hired" />
+      </div>
+
+      <div style={{ marginTop: 24, display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 20 }}>
+        <div className="gw-card" style={{ padding: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+            <div>
+              <div className="tx-h3">Active applications</div>
+              <div className="tx-caption" style={{ marginTop: 2 }}>Track where you stand in the hiring pipeline.</div>
+            </div>
+            <Link href="/jobseeker/applications" className="tx-body" style={{ color: "var(--teal)", fontSize: 13, textDecoration: "none" }}>
+              View all (8)
+            </Link>
+          </div>
+          {ACTIVE_APPS.map((a, i) => (
+            <div
+              key={a.title}
+              style={{ padding: "16px 0", borderTop: i === 0 ? "none" : "1px solid var(--ink-7)" }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: 12, marginBottom: 14 }}>
+                <div
+                  style={{
+                    background: "var(--paper-2)",
+                    width: 30,
+                    height: 30,
+                    borderRadius: "50%",
+                    display: "grid",
+                    placeItems: "center",
+                    border: "1px solid var(--ink-7)",
+                  }}
+                >
+                  <Building size={14} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div className="tx-h4">{a.title}</div>
+                  <div className="tx-caption" style={{ marginTop: 2 }}>{a.company} · {a.at}</div>
+                </div>
+                <Pill tone={APP_STATUS[a.status].tone}>{APP_STATUS[a.status].label}</Pill>
+                <span className="tx-micro" style={{ color: "var(--ink-4)", minWidth: 140, textAlign: "right" }}>{a.days}</span>
+              </div>
+              <Pipeline current={a.status} />
+            </div>
+          ))}
         </div>
-        <JobSeekingStatusToggle initialStatus={profile?.job_seeking_status as any} />
-      </div>
 
-      {/* Profile Completeness Prompt */}
-      {!loading && profile && profile.profileCompleteness < 80 && (
-        <Card className="p-5 border-amber-200 bg-amber-50/50 shadow-sm animate-in slide-in-from-top duration-500">
-          <div className="flex flex-col md:flex-row md:items-center gap-6">
-            <div className="p-3 bg-white rounded-xl shadow-sm border border-amber-100 flex-shrink-0">
-              <div className="relative h-12 w-12 flex items-center justify-center">
-                <svg className="h-full w-full" viewBox="0 0 36 36">
-                  <path
-                    className="text-slate-200"
-                    strokeWidth="3"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    className="text-amber-500"
-                    strokeWidth="3"
-                    strokeDasharray={`${profile.profileCompleteness}, 100`}
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <span className="absolute text-[10px] font-bold text-amber-700">{profile.profileCompleteness}%</span>
+        <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
+          <div
+            className="gw-card"
+            style={{
+              padding: 0,
+              overflow: "hidden",
+              background: "var(--official-ink)",
+              color: "#fff",
+              borderColor: "var(--official-ink)",
+            }}
+          >
+            <div style={{ padding: 18, display: "flex", alignItems: "center", gap: 12, borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+              <div style={{ width: 28, height: 28, borderRadius: 999, border: "1px solid var(--seal-gold-2)", display: "grid", placeItems: "center" }}>
+                <Shield size={13} color="var(--seal-gold-2)" />
+              </div>
+              <div>
+                <div className="tx-mono" style={{ fontSize: 10, letterSpacing: "0.14em", color: "var(--seal-gold-2)", textTransform: "uppercase" }}>
+                  Active referral
+                </div>
+                <div className="tx-h4" style={{ color: "#fff", fontSize: 14 }}>Ready to show at employer</div>
               </div>
             </div>
-            <div className="flex-1 space-y-1">
-              <h3 className="font-bold text-slate-900 flex items-center gap-2">
-                Complete your profile to unlock more jobs
-                <Badge variant="outline" className="bg-white border-amber-200 text-amber-700 text-[10px] py-0">Recommended</Badge>
-              </h3>
-              <p className="text-sm text-slate-600">
-                Your profile is currently <span className="font-bold text-slate-900">{profile.profileCompleteness}%</span> complete. 
-                Employers prefer jobseekers with complete details.
-              </p>
+            <div style={{ padding: 18, display: "flex", gap: 14, alignItems: "center" }}>
+              <div className="gw-qr sm" style={{ width: 80, height: 80, flexShrink: 0 }}>
+                <span className="br" />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="tx-h4" style={{ color: "#fff" }}>Bookkeeper</div>
+                <div className="tx-caption" style={{ color: "var(--ink-5)", marginTop: 2 }}>Dole Philippines, Inc.</div>
+                <div className="tx-mono" style={{ fontSize: 10, color: "var(--seal-gold-2)", marginTop: 8, letterSpacing: "0.06em" }}>
+                  TC-2026-014872
+                </div>
+                <div className="tx-micro" style={{ color: "var(--ink-5)", marginTop: 4 }}>
+                  Valid until 06 Jun · 09:00 PHT
+                </div>
+              </div>
             </div>
-            <Link href="/jobseeker/profile">
-              <Button className="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white border-none shadow-sm shadow-amber-200">
-                Finish Setup
-              </Button>
-            </Link>
-          </div>
-        </Card>
-      )}
-
-      {/* Stats Grid - 6 cards */}
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-        {isDashLoading ? (
-          <>
-            {[...Array(6)].map((_, i) => <Skeleton key={i} className="h-32 rounded-xl" />)}
-          </>
-        ) : (
-          <>
-            <Card className="p-6 bg-white hover:shadow-md transition-shadow">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-500">Total Applications</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900">
-                    {stats.totalApplications}
-                  </p>
-                </div>
-                <div className="p-2 bg-blue-100 rounded-lg">
-                  <TrendingUp className="h-6 w-6 text-blue-600" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-blue-50 hover:shadow-md transition-shadow border border-blue-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-blue-700">Via Referral</p>
-                  <p className="mt-2 text-3xl font-bold text-blue-900">{stats.viaReferral}</p>
-                </div>
-                <div className="p-2 bg-blue-200 rounded-lg">
-                  <Briefcase className="h-6 w-6 text-blue-700" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-slate-50 hover:shadow-md transition-shadow border border-slate-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-slate-600">Direct Application</p>
-                  <p className="mt-2 text-3xl font-bold text-slate-900">{stats.directApplication}</p>
-                </div>
-                <div className="p-2 bg-slate-200 rounded-lg">
-                  <ArrowRight className="h-6 w-6 text-slate-700" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-amber-50 hover:shadow-md transition-shadow border border-amber-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-amber-700">Pending Referral Review</p>
-                  <p className="mt-2 text-3xl font-bold text-amber-900">{stats.pendingReferral}</p>
-                </div>
-                <div className="p-2 bg-amber-200 rounded-lg">
-                  <Clock className="h-6 w-6 text-amber-700" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-purple-50 hover:shadow-md transition-shadow border border-purple-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-purple-700">Shortlisted</p>
-                  <p className="mt-2 text-3xl font-bold text-purple-900">{stats.shortlisted}</p>
-                </div>
-                <div className="p-2 bg-purple-200 rounded-lg">
-                  <AlertCircle className="h-6 w-6 text-purple-700" />
-                </div>
-              </div>
-            </Card>
-
-            <Card className="p-6 bg-emerald-50 hover:shadow-md transition-shadow border border-emerald-200">
-              <div className="flex items-start justify-between">
-                <div>
-                  <p className="text-sm font-medium text-emerald-700">Accepted Jobs</p>
-                  <p className="mt-2 text-3xl font-bold text-emerald-900">{stats.accepted}</p>
-                </div>
-                <div className="p-2 bg-emerald-200 rounded-lg">
-                  <CheckCircle className="h-6 w-6 text-emerald-700" />
-                </div>
-              </div>
-            </Card>
-          </>
-        )}
-      </div>
-
-      {/* Recommendations Section */}
-      {!isRecsLoading && recommendations.length > 0 && (
-        <div className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
-              <TrendingUp className="w-5 h-5 text-blue-600" />
-              Recommended for You
-            </h2>
-            <Link href="/jobseeker/jobs" className="text-sm font-medium text-blue-600 hover:underline">
-              View all
-            </Link>
-          </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide -mx-2 px-2">
-            {recommendations.map((job) => (
-              <Link key={job.id} href={`/jobseeker/jobs/${job.id}`} className="min-w-[280px] group">
-                <Card className="p-5 h-full hover:shadow-md transition-all border-slate-200 group-hover:border-blue-300">
-                  <div className="flex flex-col h-full">
-                    <Badge variant="secondary" className="w-fit mb-3 text-[10px] py-0">
-                      {job.employmentType}
-                    </Badge>
-                    <h3 className="font-bold text-slate-900 line-clamp-1 mb-1 group-hover:text-blue-600 transition-colors">
-                      {job.positionTitle}
-                    </h3>
-                    <p className="text-sm text-slate-500 line-clamp-1 mb-4">{job.employerName}</p>
-                    <div className="mt-auto pt-4 border-t border-slate-100 flex items-center justify-between text-xs text-slate-500">
-                      <div className="flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {job.city}
-                      </div>
-                      <div className="font-bold text-slate-900">
-                        {job.startingSalary || "Negotiable"}
-                      </div>
-                    </div>
-                  </div>
-                </Card>
+            <div style={{ padding: "0 18px 18px", display: "flex", gap: 8 }}>
+              <Link href="/referral/TC-2026-014872" style={{ flex: 1 }}>
+                <button type="button" className="gw-btn gw-btn--sm" style={{ background: "rgba(255,255,255,0.1)", color: "#fff", width: "100%" }}>
+                  Show QR
+                </button>
               </Link>
+              <button
+                type="button"
+                className="gw-btn gw-btn--sm"
+                style={{ background: "transparent", color: "var(--ink-5)", border: "1px solid rgba(255,255,255,0.1)" }}
+              >
+                <Download size={12} />
+              </button>
+            </div>
+          </div>
+
+          <div className="gw-card" style={{ padding: 22 }}>
+            <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+              <div>
+                <div className="tx-h3">Recommended for you</div>
+                <div className="tx-caption" style={{ marginTop: 2 }}>Based on your skills</div>
+              </div>
+              <Sparkles size={14} style={{ color: "var(--teal)" }} />
+            </div>
+            {RECOMMENDED.map((r, i) => (
+              <div
+                key={r.t}
+                style={{
+                  padding: "12px 0",
+                  borderTop: i === 0 ? "none" : "1px solid var(--ink-7)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                }}
+              >
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div className="tx-h4">{r.t}</div>
+                  <div className="tx-caption" style={{ marginTop: 2 }}>{r.c}</div>
+                </div>
+                <div
+                  className="tx-mono"
+                  style={{
+                    padding: "3px 8px",
+                    borderRadius: 999,
+                    background: "var(--teal-4)",
+                    color: "var(--teal)",
+                    fontSize: 11.5,
+                    letterSpacing: "0.04em",
+                  }}
+                >
+                  {r.m}%
+                </div>
+                <ChevronRight size={14} style={{ color: "var(--ink-4)" }} />
+              </div>
             ))}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* Recent Applications Section */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        <div className="lg:col-span-2 space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-slate-900">Recent Applications</h2>
-            <Link href="/jobseeker/applications">
-              <Button variant="ghost" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
-                View all <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </Link>
-          </div>
-
-          {isDashLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-24 rounded-xl" />
-              <Skeleton className="h-24 rounded-xl" />
-              <Skeleton className="h-24 rounded-xl" />
-            </div>
-          ) : applications.length > 0 ? (
-            <div className="space-y-3">
-              {applications.slice(0, 5).map((app) => (
-                <Link key={app.id} href={`/jobseeker/applications/${app.id}`}>
-                  <Card className="p-4 hover:shadow-md transition-all border border-slate-200 hover:border-blue-300 group">
-                    <div className="flex items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <h3 className="font-semibold text-slate-900 group-hover:text-blue-600 transition-colors">
-                          {app.positionTitle || "Position"}
-                        </h3>
-                        <p className="text-sm text-slate-600">{app.employerName || "Employer"}</p>
-                      </div>
-                      <div className="text-right">
-                        <Badge className={`${getStatusColor(app.status || "pending")} text-xs border`}>
-                          {getStatusLabel(app.status || "pending")}
-                        </Badge>
-                        <p className="text-[10px] text-slate-400 mt-1">
-                          {app.submittedAt ? formatRelativeTime(app.submittedAt) : "N/A"}
-                        </p>
-                      </div>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <Card className="p-12 text-center border border-dashed border-slate-300 bg-slate-50/50">
-              <div className="mx-auto w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mb-4 text-slate-300">
-                <Briefcase className="w-6 h-6" />
+      <div className="gw-card" style={{ padding: 22, marginTop: 20 }}>
+        <div className="tx-h3" style={{ marginBottom: 18 }}>Activity</div>
+        <div style={{ display: "flex", flexDirection: "column" }}>
+          {ACTIVITY.map((a, i) => (
+            <div
+              key={a.t}
+              style={{ display: "flex", gap: 14, padding: "14px 0", borderTop: i === 0 ? "none" : "1px solid var(--ink-7)" }}
+            >
+              <div
+                style={{
+                  width: 28,
+                  height: 28,
+                  borderRadius: 999,
+                  background: "var(--paper)",
+                  color: a.c,
+                  display: "grid",
+                  placeItems: "center",
+                  flexShrink: 0,
+                  border: "1px solid var(--ink-7)",
+                }}
+              >
+                {a.icon}
               </div>
-              <p className="text-slate-600 font-medium">No applications yet</p>
-              <p className="text-sm text-slate-500 mt-1">Start exploring jobs and apply today!</p>
-              <Link href="/jobseeker/jobs">
-                <Button className="mt-6 bg-slate-900 hover:bg-slate-800">Browse Jobs</Button>
-              </Link>
-            </Card>
-          )}
-        </div>
-
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h2 className="text-2xl font-bold text-slate-900">Latest Jobs</h2>
-            <Link href="/jobseeker/jobs">
-              <Button variant="ghost" size="sm">See all</Button>
-            </Link>
-          </div>
-
-          {isDashLoading ? (
-            <div className="space-y-4">
-              <Skeleton className="h-32 rounded-xl" />
-              <Skeleton className="h-32 rounded-xl" />
-              <Skeleton className="h-32 rounded-xl" />
+              <div style={{ flex: 1 }}>
+                <div className="tx-body" style={{ color: "var(--ink)", fontSize: 13.5 }}>{a.t}</div>
+                <div className="tx-caption" style={{ marginTop: 3, fontSize: 12.5 }}>{a.s}</div>
+              </div>
+              <span className="tx-micro" style={{ color: "var(--ink-4)" }}>{a.w}</span>
             </div>
-          ) : jobs.length > 0 ? (
-            <div className="space-y-4">
-              {jobs.slice(0, 3).map((job) => (
-                <Link key={job.id} href={`/jobseeker/jobs/${job.id}`}>
-                  <Card className="p-5 hover:shadow-md transition-all hover:border-blue-300 group">
-                    <h3 className="font-semibold text-slate-900 line-clamp-2 group-hover:text-blue-600 transition-colors">
-                      {job.positionTitle}
-                    </h3>
-                    <p className="text-sm text-slate-600 mt-2">{job.establishmentName}</p>
-                    <div className="mt-4 flex items-center justify-between">
-                      <p className="text-xs text-slate-500 flex items-center gap-1">
-                        <MapPin className="w-3 h-3" />
-                        {job.location}
-                      </p>
-                      <Badge variant="outline" className="text-[10px] py-0 px-2">
-                        {job.createdAt ? formatRelativeTime(job.createdAt) : "New"}
-                      </Badge>
-                    </div>
-                  </Card>
-                </Link>
-              ))}
-            </div>
-          ) : (
-            <Card className="p-8 text-center border border-dashed border-slate-300 bg-slate-50/50">
-              <p className="text-sm text-slate-500">No new jobs at the moment</p>
-            </Card>
-          )}
+          ))}
         </div>
       </div>
     </div>

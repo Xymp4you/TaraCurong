@@ -163,7 +163,7 @@ export default function EmployerJobApplicationsPage() {
                     href={application.resumeUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-sm text-blue-600 hover:underline mt-2 inline-block"
+                    className="text-sm text-teal-700 hover:underline mt-2 inline-block"
                   >
                     Open resume
                   </a>

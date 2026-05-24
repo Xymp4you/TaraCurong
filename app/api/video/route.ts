@@ -16,8 +16,8 @@ type VideoResponse = {
 
 const fallbackVideo: VideoResponse = {
   video: {
-    title: "Empowering GenSan's Workforce Since 1999",
-    description: "Learn how PESO General Santos City has been connecting talent with opportunity for over two decades, creating sustainable employment and driving economic growth in our community.",
+    title: "Empowering Tacurong's Workforce Since 1999",
+    description: "Learn how TaraCurong has been connecting talent with opportunity for over two decades, creating sustainable employment and driving economic growth in our community.",
     successRate: 95,
     videoUrl: "/about", // Fallback to about page if no video
     thumbnailUrl: "https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1600&q=80",

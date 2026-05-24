@@ -136,7 +136,7 @@ export default function AdminEmployersPage() {
         </div>
         <div className="flex items-center gap-2">
           <Link href="/admin/employers/create">
-            <Button className="bg-blue-600 hover:bg-blue-700 text-white gap-2">
+            <Button className="bg-teal-600 hover:bg-teal-700 text-white gap-2">
               <User className="h-4 w-4" />
               Create Employer
             </Button>

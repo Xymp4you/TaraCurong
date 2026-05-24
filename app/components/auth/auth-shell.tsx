@@ -1,6 +1,5 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { BriefcaseBusiness, Building2, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -42,43 +41,46 @@ const roleThemes: Record<
   }
 > = {
   jobseeker: {
+    // teal — primary role accent
     ambient:
-      "bg-[radial-gradient(circle_at_10%_12%,rgba(59,130,246,0.16),transparent_34%),radial-gradient(circle_at_88%_18%,rgba(6,182,212,0.14),transparent_34%),radial-gradient(circle_at_55%_95%,rgba(14,165,233,0.08),transparent_42%)]",
-    ring: "border-sky-100",
-    badgeText: "text-sky-700/90",
-    dot: "bg-blue-500",
-    panelAccent: "from-blue-700 to-sky-600",
-    portalBorder: "border-sky-200",
-    portalActive: "bg-slate-900 text-white shadow-md shadow-slate-300/50",
-    portalPassive: "bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800",
-    portalInactiveBorder: "border-sky-300",
-    titleDot: "text-blue-500",
+      "bg-[radial-gradient(circle_at_10%_12%,rgba(14,124,123,0.16),transparent_34%),radial-gradient(circle_at_88%_18%,rgba(26,149,145,0.12),transparent_34%),radial-gradient(circle_at_55%_95%,rgba(212,236,234,0.4),transparent_42%)]",
+    ring: "border-teal-100",
+    badgeText: "text-teal-700/90",
+    dot: "bg-teal-600",
+    panelAccent: "from-teal-700 to-teal-500",
+    portalBorder: "border-teal-100",
+    portalActive: "bg-ink-900 text-white shadow-md shadow-ink-200/60",
+    portalPassive: "bg-white text-ink-500 hover:bg-ink-50 hover:text-ink-900",
+    portalInactiveBorder: "border-line",
+    titleDot: "text-teal-600",
   },
   employer: {
+    // violet — employer accent
     ambient:
-      "bg-[radial-gradient(circle_at_12%_14%,rgba(245,158,11,0.16),transparent_34%),radial-gradient(circle_at_86%_14%,rgba(251,146,60,0.16),transparent_34%),radial-gradient(circle_at_55%_95%,rgba(250,204,21,0.10),transparent_42%)]",
-    ring: "border-amber-100",
-    badgeText: "text-amber-700/90",
-    dot: "bg-amber-500",
-    panelAccent: "from-amber-600 to-orange-500",
-    portalBorder: "border-amber-200",
-    portalActive: "bg-slate-900 text-white shadow-md shadow-slate-300/50",
-    portalPassive: "bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800",
-    portalInactiveBorder: "border-sky-300",
-    titleDot: "text-amber-500",
+      "bg-[radial-gradient(circle_at_12%_14%,rgba(109,40,217,0.16),transparent_34%),radial-gradient(circle_at_86%_14%,rgba(167,139,250,0.14),transparent_34%),radial-gradient(circle_at_55%_95%,rgba(228,218,248,0.35),transparent_42%)]",
+    ring: "border-violet-100",
+    badgeText: "text-violet-700/90",
+    dot: "bg-violet-600",
+    panelAccent: "from-violet-700 to-violet-500",
+    portalBorder: "border-violet-100",
+    portalActive: "bg-ink-900 text-white shadow-md shadow-ink-200/60",
+    portalPassive: "bg-white text-ink-500 hover:bg-ink-50 hover:text-ink-900",
+    portalInactiveBorder: "border-line",
+    titleDot: "text-violet-600",
   },
   admin: {
+    // oxblood — admin accent
     ambient:
-      "bg-[radial-gradient(circle_at_12%_14%,rgba(16,185,129,0.18),transparent_34%),radial-gradient(circle_at_86%_14%,rgba(20,184,166,0.16),transparent_34%),radial-gradient(circle_at_55%_95%,rgba(45,212,191,0.09),transparent_42%)]",
-    ring: "border-emerald-100",
-    badgeText: "text-emerald-700/90",
-    dot: "bg-emerald-500",
-    panelAccent: "from-emerald-600 to-teal-500",
-    portalBorder: "border-emerald-200",
-    portalActive: "bg-slate-900 text-white shadow-md shadow-slate-300/50",
-    portalPassive: "bg-white text-slate-500 hover:bg-slate-50 hover:text-slate-800",
-    portalInactiveBorder: "border-sky-300",
-    titleDot: "text-emerald-500",
+      "bg-[radial-gradient(circle_at_12%_14%,rgba(134,36,53,0.16),transparent_34%),radial-gradient(circle_at_86%_14%,rgba(180,35,66,0.14),transparent_34%),radial-gradient(circle_at_55%_95%,rgba(244,214,222,0.35),transparent_42%)]",
+    ring: "border-rose-100",
+    badgeText: "text-rose-700/90",
+    dot: "bg-rose-700",
+    panelAccent: "from-rose-700 to-rose-600",
+    portalBorder: "border-rose-100",
+    portalActive: "bg-ink-900 text-white shadow-md shadow-ink-200/60",
+    portalPassive: "bg-white text-ink-500 hover:bg-ink-50 hover:text-ink-900",
+    portalInactiveBorder: "border-line",
+    titleDot: "text-rose-700",
   },
 };
 
@@ -117,30 +119,24 @@ export function AuthShell({
   };
 
   return (
-    <div className="min-h-screen bg-[#f4f7fc] text-slate-900">
+    <div className="gw-app min-h-screen text-ink-900" style={{ background: "var(--gw-bg)" }}>
       <div className="relative overflow-hidden">
         <div className={cn("pointer-events-none absolute inset-0", theme.ambient)} />
 
-        <header className="relative border-b border-slate-100 bg-white sticky top-0 z-50">
+        <header className="relative border-b border-line bg-white sticky top-0 z-50">
           <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
             <Link href="/" className="flex items-center gap-3 cursor-pointer group">
-              <div className="h-14 w-14 bg-transparent flex items-center justify-center transition-transform group-hover:scale-105 duration-200">
-                <Image
-                  src="/peso-gsc-logo.png"
-                  alt="PESO General Santos logo"
-                  width={56}
-                  height={56}
-                  className="h-14 w-auto object-contain"
-                  priority
-                />
-              </div>
-              <div className="flex flex-col">
-                <span className="font-bold text-xl tracking-tight">
-                  <span className="text-red-600">Gensan</span>
-                  <span className="text-blue-600">Works</span>
-                </span>
-                <span className="text-xs text-slate-500">
-                  Public Employment Service Office
+              <img
+                src="/taracurong-logo.svg"
+                alt="TaraCurong"
+                width={40}
+                height={40}
+                style={{ width: 40, height: 40, objectFit: "contain", flexShrink: 0 }}
+              />
+              <div className="flex flex-col leading-tight">
+                <span className="font-semibold text-[18px] tracking-tight text-ink-900">TaraCurong</span>
+                <span className="text-[10px] mt-0.5 font-medium uppercase tracking-[0.12em] text-ink-500">
+                  Tacurong City
                 </span>
               </div>
             </Link>
@@ -226,7 +222,7 @@ export function AuthShell({
               </div>
             </div>
 
-            <p className="mt-10 text-sm text-slate-500">Official Job Assistance Platform of PESO - General Santos City</p>
+            <p className="mt-10 text-sm text-slate-500">A community job platform for Tacurong City · built by John Aerol Tapales</p>
           </section>
 
           <section className="order-1 flex items-center px-6 py-10 sm:px-10 lg:order-2 lg:py-14">

@@ -40,7 +40,7 @@ const supabase = createClient(supabaseUrl, serviceKey);
 const firstNames = ["Juan", "Maria", "Jose", "Andres", "Apolinario", "Emilio", "Manuel", "Sergio", "Ramon", "Diosdado", "Ferdinand", "Corazon", "Fidel", "Joseph", "Gloria", "Benigno", "Rodrigo", "Bongbong", "Sara", "Leni", "Isko", "Manny", "Ping", "Leila", "Risa", "Loren", "Grace", "Nancy", "Cynthia", "Bam", "Kiko", "Antonio", "Alan", "Pia", "Francis", "Richard", "Joel", "Jinggoy", "Bong", "JV", "Win", "Sherwin", "Migz", "Koko", "Ralph", "Tito", "Gringo", "Bato", "Go", "Tol"];
 const lastNames = ["Dela Cruz", "Santos", "Reyes", "Perez", "Bautista", "Garcia", "Lopez", "Rodriguez", "Fernandez", "Gonzales", "Enriquez", "Cortez", "Villanueva", "Santiago", "Ramos", "Arroyo", "Aquino", "Duterte", "Marcos", "Robredo", "Domagoso", "Pacquiao", "Lacson", "De Lima", "Hontiveros", "Legarda", "Poe", "Binay", "Villar", "Aquino", "Pangilinan", "Trillanes", "Cayetano", "Gordon", "Villanueva", "Lapid", "Estrada", "Revilla", "Ejercito", "Gatchalian", "Zubiri", "Pimentel", "Recto", "Sotto", "Honasan", "Dela Rosa", "Go", "Tolentino", "Angara", "Escudero"];
 
-const barangays = ["Apopong", "Baluan", "Batomelong", "Buayan", "Bula", "Calumpang", "City Heights", "Conel", "Dadiangas East", "Dadiangas North", "Dadiangas South", "Dadiangas West", "Fatima", "Katangawan", "Labangal", "Lagao", "Mabuhay", "San Isidro", "San Jose", "Siguel", "Sinawal", "Tambler", "Tinagacan", "Upper Labay"];
+const barangays = ["Poblacion", "Carmen", "Batomelong", "Kalandagan", "Bula", "Tina", "EJC Montilla", "Calean", "San Pablo", "San Emmanuel", "San Rafael", "San Antonio", "Grino", "New Passi", "New Isabela", "Buenaflor", "D'Ledesma", "San Isidro", "San Jose", "Siguel", "Tuka", "Tinago", "New Carmen", "Lower Katungal"];
 const religions = ["Roman Catholic", "Islam", "Iglesia ni Cristo", "Seventh-day Adventist", "Born Again Christian", "Jehovah's Witnesses"];
 const civilStatuses = ["Single", "Married", "Widowed", "Separated"];
 const genders = ["Male", "Female"];
@@ -74,8 +74,8 @@ async function generateData() {
     first_name: "Test",
     last_name: "Jobseeker",
     phone: "09123456789",
-    city: "General Santos City",
-    province: "South Cotabato",
+    city: "Tacurong City",
+    province: "Sultan Kudarat",
     is_active: true,
     profile_complete: true,
     profile_completeness: 100,
@@ -88,9 +88,9 @@ async function generateData() {
     id: testEmployerId,
     email: "test.employer@example.com",
     password_hash: passwordHash,
-    establishment_name: "Test Enterprise GenSan",
-    city: "General Santos City",
-    province: "South Cotabato",
+    establishment_name: "Test Enterprise Tacurong",
+    city: "Tacurong City",
+    province: "Sultan Kudarat",
     industry: "Services",
     is_active: true,
     account_status: "verified"
@@ -129,9 +129,9 @@ async function generateData() {
       phone: `09${Math.floor(100000000 + Math.random() * 900000000)}`,
       house_number: `${Math.floor(1 + Math.random() * 500)}`,
       barangay: barangays[Math.floor(Math.random() * barangays.length)],
-      city: "General Santos City",
-      province: "South Cotabato",
-      zip_code: "9500",
+      city: "Tacurong City",
+      province: "Sultan Kudarat",
+      zip_code: "9800",
       employment_status: employmentStatuses[Math.floor(Math.random() * employmentStatuses.length)],
       employment_type: "Full-time",
       is_pwd: Math.random() > 0.9,
@@ -145,7 +145,7 @@ async function generateData() {
       preferred_occupation_1: occupations[Math.floor(Math.random() * occupations.length)],
       preferred_occupation_2: occupations[Math.floor(Math.random() * occupations.length)],
       preferred_occupation_3: occupations[Math.floor(Math.random() * occupations.length)],
-      preferred_work_location_local: "General Santos City",
+      preferred_work_location_local: "Tacurong City",
       preferred_work_location_overseas: "None",
       other_skills: JSON.stringify(["Communication", "Teamwork", "Problem Solving"]),
       nsrp_id: `NSRP-${Math.floor(100000 + Math.random() * 900000)}`,
@@ -237,8 +237,8 @@ async function generateData() {
       email: email,
       password_hash: passwordHash,
       barangay: barangays[Math.floor(Math.random() * barangays.length)],
-      city: "General Santos City",
-      province: "South Cotabato",
+      city: "Tacurong City",
+      province: "Sultan Kudarat",
       address: `Purok ${Math.floor(1 + Math.random() * 10)}, ${barangays[Math.floor(Math.random() * barangays.length)]}`,
       industry: industries[Math.floor(Math.random() * industries.length)],
       contact_person: `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`,

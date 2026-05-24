@@ -121,7 +121,7 @@ export function JobSeekingStatusToggle({ initialStatus = "not_looking" }: JobSee
             </div>
             <div className="px-4 py-2.5 border-t border-slate-100 bg-slate-50/50">
               <p className="text-[10px] text-slate-400">
-                💡 Set to <strong>Actively Looking</strong> to appear in the AI matching pool and receive referrals from PESO.
+                💡 Set to <strong>Actively Looking</strong> to appear in the AI matching pool and receive referrals from TaraCurong.
               </p>
             </div>
           </div>

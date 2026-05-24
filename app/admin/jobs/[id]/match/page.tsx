@@ -46,7 +46,7 @@ type MatchingData = {
 function GradeBadge({ grade }: { grade: string }) {
   const styles = {
     Excellent: "bg-emerald-100 text-emerald-700",
-    Strong: "bg-blue-100 text-blue-700",
+    Strong: "bg-teal-100 text-teal-700",
     Good: "bg-amber-100 text-amber-700",
     Fair: "bg-orange-100 text-orange-700",
     Weak: "bg-rose-100 text-rose-700",
@@ -174,8 +174,8 @@ export default function JobMatchingDashboard() {
           </Link>
           <div>
             <div className="flex items-center gap-2">
-              <div className="p-2 bg-indigo-100 rounded-lg">
-                <Brain className="w-6 h-6 text-indigo-600" />
+              <div className="p-2 bg-violet-100 rounded-lg">
+                <Brain className="w-6 h-6 text-violet-600" />
               </div>
               <h1 className="text-3xl font-black text-slate-900 tracking-tight">AI Matching Dashboard</h1>
             </div>
@@ -197,7 +197,7 @@ export default function JobMatchingDashboard() {
           <Button 
             onClick={runMatching} 
             disabled={running}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white rounded-xl shadow-lg shadow-indigo-100"
+            className="bg-violet-600 hover:bg-violet-700 text-white rounded-xl shadow-lg shadow-indigo-100"
           >
             <Zap className={`w-4 h-4 mr-2 ${running ? "animate-pulse" : ""}`} />
             {running ? "Analyzing Candidates..." : "Run AI Matching"}
@@ -246,7 +246,7 @@ export default function JobMatchingDashboard() {
                       <div className="flex-1 min-w-0">
                         <div className="flex items-start justify-between">
                           <div>
-                            <h4 className="font-bold text-slate-900 group-hover:text-indigo-600 transition-colors">{score.name}</h4>
+                            <h4 className="font-bold text-slate-900 group-hover:text-violet-600 transition-colors">{score.name}</h4>
                             <p className="text-xs text-slate-500">{score.email}</p>
                           </div>
                           <div className="text-right">
@@ -278,11 +278,11 @@ export default function JobMatchingDashboard() {
 
         <div className="col-span-4 space-y-6">
           <Card className="rounded-3xl border-slate-200 shadow-sm overflow-hidden">
-            <div className="p-6 bg-gradient-to-br from-indigo-600 to-purple-700 text-white">
+            <div className="p-6 bg-gradient-to-br from-violet-600 to-purple-700 text-white">
               <h3 className="text-lg font-bold flex items-center gap-2">
                 < Zap className="w-5 h-5" /> Matching Engine
               </h3>
-              <p className="text-indigo-100 text-sm mt-1">Utility Model v3 (Llama 3.3 70B)</p>
+              <p className="text-violet-100 text-sm mt-1">Utility Model v3 (Llama 3.3 70B)</p>
               
               <div className="mt-6 space-y-4">
                 <div className="flex justify-between items-end border-b border-white/20 pb-2">

@@ -1,284 +1,270 @@
 "use client";
-export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import {
-  ArrowRight,
-  Briefcase,
-  MessageSquare,
-  Settings,
-  Users,
-} from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { DashboardStatGrid } from "@/components/dashboard-cards";
-import {
-  fetchEmployerApplicationsPreview,
-  fetchEmployerDashboardData,
-  type EmployerApplicationPreview,
-  type EmployerJob,
-  type EmployerSummary,
-} from "@/lib/dashboard-data";
-import { useAuth } from "@/lib/auth-client";
+import { Plus, Sparkles } from "lucide-react";
+import { Pill, type PillTone } from "@/components/gw/atoms";
 
-function formatDate(value?: string | null) {
-  if (!value) return "—";
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-  return date.toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+type JobStatus = "draft" | "pending" | "active" | "closed" | "archived" | "rejected" | "suspended";
+const JOB_STATUS: Record<JobStatus, { tone: PillTone; label: string }> = {
+  draft: { tone: "slate", label: "Draft" },
+  pending: { tone: "amber", label: "Pending review" },
+  active: { tone: "emerald", label: "Active" },
+  closed: { tone: "slate", label: "Closed" },
+  archived: { tone: "outline", label: "Archived" },
+  rejected: { tone: "rose", label: "Rejected" },
+  suspended: { tone: "rose", label: "Suspended" },
+};
 
-function statusTone(status: string | null | undefined) {
-  switch ((status || "").toLowerCase()) {
-    case "active":
-    case "hired":
-      return "bg-emerald-50 text-emerald-700 border-emerald-200";
-    case "shortlisted":
-    case "reviewed":
-      return "bg-sky-50 text-sky-700 border-sky-200";
-    case "pending":
-      return "bg-amber-50 text-amber-700 border-amber-200";
-    case "rejected":
-      return "bg-rose-50 text-rose-700 border-rose-200";
-    case "archived":
-      return "bg-slate-100 text-slate-600 border-slate-200";
-    default:
-      return "bg-slate-100 text-slate-600 border-slate-200";
-  }
-}
+const FUNNEL = [
+  { l: "Applied", n: 142, w: 100 },
+  { l: "Reviewed", n: 87, w: 61 },
+  { l: "Shortlisted", n: 34, w: 24 },
+  { l: "Interview", n: 12, w: 8.5 },
+  { l: "Hired", n: 5, w: 3.5 },
+];
 
-function normalizeJobStatus(status: string | null | undefined) {
-  if (!status) return "draft";
-  return status.toLowerCase();
+const TOP_MATCHES = [
+  { n: "Juan M. Cruz", b: "5y · bookkeeping · QuickBooks", m: 94, ini: "JC" },
+  { n: "Andrea L. Sanchez", b: "3y · payroll · Tacurong", m: 91, ini: "AS" },
+  { n: "Mark T. Reyes", b: "4y · BIR filing · CPA board", m: 89, ini: "MR" },
+  { n: "Cristina P. Dela Cruz", b: "6y · finance team lead", m: 85, ini: "CD" },
+];
+
+const ACTIVE_JOBS: { t: string; n: number; h: number; p: string; s: JobStatus }[] = [
+  { t: "Bookkeeper", n: 47, h: 1, p: "Posted 2d ago", s: "active" },
+  { t: "Forklift Operator (×3)", n: 28, h: 2, p: "Posted 1w ago", s: "active" },
+  { t: "QA Supervisor", n: 18, h: 0, p: "Closing 30 May", s: "active" },
+];
+
+function Stat({ label, value, delta, helper, down }: { label: string; value: string; delta?: string; helper?: string; down?: boolean }) {
+  return (
+    <div className="gw-stat">
+      <div className="label">{label}</div>
+      <div className="value tx-num">{value}</div>
+      {delta && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span className={`delta${down ? " down" : ""}`}>{delta}</span>
+          {helper && <span className="tx-micro" style={{ color: "var(--ink-4)" }}>{helper}</span>}
+        </div>
+      )}
+    </div>
+  );
 }
 
 export default function EmployerDashboardPage() {
-  const { user } = useAuth();
-  const [summary, setSummary] = useState<EmployerSummary | null>(null);
-  const [jobs, setJobs] = useState<EmployerJob[]>([]);
-  const [applications, setApplications] = useState<EmployerApplicationPreview[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let mounted = true;
-
-    const load = async () => {
-      try {
-        const [workspaceData, appData] = await Promise.all([
-          fetchEmployerDashboardData(),
-          fetchEmployerApplicationsPreview(),
-        ]);
-
-        if (!mounted) return;
-
-        setSummary(workspaceData.summary);
-        setJobs(workspaceData.jobs);
-        setApplications(appData);
-      } finally {
-        if (mounted) setLoading(false);
-      }
-    };
-
-    void load();
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  const welcomeName = user?.company || user?.name || "Employer";
-
   return (
-    <div className="space-y-8">
-      <section className="overflow-hidden rounded-[2rem] border border-slate-200 bg-gradient-to-br from-slate-950 via-slate-900 to-sky-950 text-white shadow-[0_24px_80px_rgba(15,23,42,0.18)]">
-        <div className="grid gap-8 px-6 py-7 md:px-8 lg:grid-cols-[minmax(0,1fr)_360px] lg:px-10 lg:py-10">
-          <div className="space-y-4">
-            <p className="text-xs font-semibold uppercase tracking-[0.28em] text-slate-300">Employer workspace</p>
-            <h2 className="text-3xl font-semibold tracking-tight md:text-4xl">Welcome back, {welcomeName}</h2>
-            <p className="max-w-2xl text-sm text-slate-300 md:text-base">
-              Manage postings, shortlist applicants, coordinate feedback, and keep account operations in one place.
-            </p>
-            <div className="flex flex-wrap gap-3">
-              <Button asChild className="bg-white text-slate-950 hover:bg-slate-100">
-                <Link href="/employer/jobs">
-                  <Briefcase className="mr-2 h-4 w-4" />
-                  Manage jobs
-                </Link>
-              </Button>
-              <Button asChild variant="outline" className="border-white/20 bg-white/5 text-white hover:bg-white/10 hover:text-white">
-                <Link href="/employer/applications">
-                  <Users className="mr-2 h-4 w-4" />
-                  Review applications
-                </Link>
-              </Button>
+    <div className="gw" style={{ maxWidth: 1320 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24, gap: 16, flexWrap: "wrap" }}>
+        <div>
+          <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>
+            Hello, Dole Philippines
+          </h1>
+          <p className="tx-caption" style={{ marginTop: 4 }}>5 active jobs · 12 new applicants overnight</p>
+        </div>
+        <Link href="/employer/jobs/new">
+          <button type="button" className="gw-btn gw-btn--primary">
+            <Plus size={14} /> Post a job
+          </button>
+        </Link>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+        <Stat label="Active jobs" value="5" delta="+1 this month" helper="2 pending" />
+        <Stat label="New applicants" value="12" delta="+12 today" helper="last 24h" />
+        <Stat label="Shortlisted" value="34" delta="+6 this week" />
+        <Stat label="Hires (May)" value="5" delta="+2 vs Apr" />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: 20, marginTop: 20 }}>
+        {/* Funnel */}
+        <div className="gw-card" style={{ padding: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 18 }}>
+            <div>
+              <div className="tx-h3">Hiring funnel</div>
+              <div className="tx-caption" style={{ marginTop: 2 }}>Across all 5 active job posts · This month</div>
+            </div>
+            <div className="gw-toggle">
+              <button type="button">Week</button>
+              <button type="button" className="active">Month</button>
+              <button type="button">Quarter</button>
             </div>
           </div>
 
-          <div className="rounded-[1.75rem] border border-white/10 bg-white/10 p-5 backdrop-blur">
-            <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-1">
-              <Link href="/employer/profile" className="group rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium text-white">Profile completeness</p>
-                    <p className="mt-1 text-xs text-slate-300">Keep company details and documents current.</p>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5" />
+          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+            {FUNNEL.map((s) => (
+              <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 16 }}>
+                <div style={{ width: 90 }}>
+                  <div className="tx-h4" style={{ fontSize: 13 }}>{s.l}</div>
+                  <div className="tx-micro tx-mono" style={{ color: "var(--ink-3)" }}>{s.w.toFixed(1)}%</div>
                 </div>
-              </Link>
-              <Link href="/employer/messages" className="group rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium text-white">Messages</p>
-                    <p className="mt-1 text-xs text-slate-300">Track employer feedback and conversations.</p>
-                  </div>
-                  <MessageSquare className="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5" />
+                <div
+                  style={{
+                    flex: 1,
+                    height: 26,
+                    background: "var(--paper)",
+                    borderRadius: 4,
+                    overflow: "hidden",
+                    position: "relative",
+                  }}
+                >
+                  <div
+                    style={{
+                      height: "100%",
+                      width: `${s.w}%`,
+                      background: "var(--role-employer)",
+                      transition: "width 600ms ease",
+                    }}
+                  />
+                  <span
+                    className="tx-mono"
+                    style={{
+                      position: "absolute",
+                      right: 10,
+                      top: "50%",
+                      transform: "translateY(-50%)",
+                      fontSize: 11.5,
+                      color: "var(--ink-3)",
+                    }}
+                  >
+                    {s.n}
+                  </span>
                 </div>
-              </Link>
-              <Link href="/employer/settings" className="group rounded-2xl border border-white/10 bg-white/5 p-4 transition hover:bg-white/10">
-                <div className="flex items-center justify-between gap-3">
-                  <div>
-                    <p className="text-sm font-medium text-white">Settings</p>
-                    <p className="mt-1 text-xs text-slate-300">Company, privacy, team, and security controls.</p>
-                  </div>
-                  <Settings className="h-4 w-4 text-slate-300 transition group-hover:translate-x-0.5" />
-                </div>
-              </Link>
+              </div>
+            ))}
+          </div>
+
+          <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "20px 0 16px" }} />
+          <div style={{ display: "flex", gap: 20 }}>
+            <div>
+              <div className="tx-eyebrow" style={{ fontSize: 10.5 }}>Time to hire</div>
+              <div className="tx-h3 tx-mono" style={{ marginTop: 4 }}>9.2 days</div>
+            </div>
+            <div style={{ width: 1, background: "var(--ink-7)", alignSelf: "stretch" }} />
+            <div>
+              <div className="tx-eyebrow" style={{ fontSize: 10.5 }}>Offer accept rate</div>
+              <div className="tx-h3 tx-mono" style={{ marginTop: 4 }}>83%</div>
+            </div>
+            <div style={{ width: 1, background: "var(--ink-7)", alignSelf: "stretch" }} />
+            <div>
+              <div className="tx-eyebrow" style={{ fontSize: 10.5 }}>Top source</div>
+              <div className="tx-h3" style={{ marginTop: 4 }}>TaraCurong referrals</div>
             </div>
           </div>
         </div>
-      </section>
 
-      <DashboardStatGrid
-        items={[
-          {
-            label: "Total job postings",
-            value: loading ? "—" : summary?.jobsCount ?? 0,
-          },
-          {
-            label: "Active jobs",
-            value: loading ? "—" : summary?.activeJobsCount ?? 0,
-          },
-          {
-            label: "Applications",
-            value: loading ? "—" : summary?.applicationsCount ?? 0,
-          },
-          {
-            label: "Pending applications",
-            value: loading ? "—" : summary?.pendingApplicationsCount ?? 0,
-          },
-          {
-            label: "Total Hired",
-            value: loading ? "—" : summary?.hiredCount ?? 0,
-          },
-          {
-            label: "Total Rejected",
-            value: loading ? "—" : summary?.rejectedCount ?? 0,
-          },
-        ]}
-      />
+        {/* Top matches */}
+        <div className="gw-card" style={{ padding: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+            <div>
+              <div className="tx-h3">AI top matches</div>
+              <div className="tx-caption" style={{ marginTop: 2 }}>
+                For Bookkeeper · Tacurong ·{" "}
+                <span
+                  style={{ borderBottom: "1px dotted var(--ink-4)", cursor: "help" }}
+                  title="Scores are software estimates (LLM + skill/location overlap). Review profiles directly before deciding."
+                >
+                  what is this?
+                </span>
+              </div>
+            </div>
+            <Pill tone="violet" dot={false}>
+              <Sparkles size={10} /> AI
+            </Pill>
+          </div>
+          {TOP_MATCHES.map((p, i) => (
+            <div
+              key={p.n}
+              style={{
+                padding: "12px 0",
+                borderTop: i === 0 ? "none" : "1px solid var(--ink-7)",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
+            >
+              <div
+                style={{
+                  width: 30,
+                  height: 30,
+                  borderRadius: "50%",
+                  background: i === 0 ? "var(--violet-bg)" : "var(--paper-2)",
+                  color: i === 0 ? "var(--violet)" : "var(--ink-2)",
+                  display: "grid",
+                  placeItems: "center",
+                  font: "600 11px/1 var(--font-ui)",
+                  border: "1px solid var(--ink-7)",
+                }}
+              >
+                {p.ini}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div className="tx-h4" style={{ fontSize: 13.5 }}>{p.n}</div>
+                <div className="tx-micro" style={{ marginTop: 2 }}>{p.b}</div>
+              </div>
+              <div
+                className="tx-mono"
+                style={{
+                  padding: "3px 8px",
+                  borderRadius: 999,
+                  background: "var(--violet-bg)",
+                  color: "var(--violet)",
+                  fontSize: 11.5,
+                }}
+              >
+                {p.m}%
+              </div>
+            </div>
+          ))}
+          <Link href="/employer/matching">
+            <button type="button" className="gw-btn gw-btn--ghost gw-btn--block" style={{ marginTop: 14 }}>
+              Open AI matching console
+            </button>
+          </Link>
+        </div>
+      </div>
 
-      <Tabs defaultValue="applications" className="space-y-5">
-        <TabsList className="grid w-full grid-cols-2 bg-slate-100 p-1 text-slate-600">
-          <TabsTrigger value="applications">Recent applications</TabsTrigger>
-          <TabsTrigger value="jobs">Recent jobs</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="applications">
-          <Card className="border-slate-200 shadow-sm">
-            <CardHeader className="border-b border-slate-100">
-              <CardTitle>Recent Applications</CardTitle>
-              <CardDescription>Review and manage the newest applicant activity.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 p-6">
-              {loading ? (
-                <p className="text-sm text-slate-500">Loading applications...</p>
-              ) : applications.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
-                  <p className="font-medium text-slate-900">No applications yet</p>
-                  <p className="mt-1 text-sm text-slate-500">Applications will appear here after candidates apply.</p>
+      <div className="gw-card" style={{ padding: 22, marginTop: 20 }}>
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <div className="tx-h3">Active jobs</div>
+          <Link
+            href="/employer/jobs"
+            className="tx-body"
+            style={{ color: "var(--role-employer)", fontSize: 13, textDecoration: "none" }}
+          >
+            Manage all jobs
+          </Link>
+        </div>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12 }}>
+          {ACTIVE_JOBS.map((j) => (
+            <div key={j.t} style={{ padding: 16, border: "1px solid var(--ink-7)", borderRadius: "var(--r-3)" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "flex-start",
+                  justifyContent: "space-between",
+                  marginBottom: 14,
+                }}
+              >
+                <div>
+                  <div className="tx-h4">{j.t}</div>
+                  <div className="tx-micro" style={{ marginTop: 4 }}>{j.p}</div>
                 </div>
-              ) : (
-                applications.map((application) => (
-                  <div
-                    key={application.id}
-                    className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:bg-white md:flex-row md:items-center md:justify-between"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-slate-950">{application.applicantName || "Unknown applicant"}</p>
-                        <Badge className={statusTone(application.status)}>{application.status || "pending"}</Badge>
-                      </div>
-                      <p className="text-sm text-slate-600">{application.applicantEmail || "No email on file"}</p>
-                      <p className="text-xs text-slate-500">
-                        {application.job?.positionTitle || "Job"} · Applied {formatDate(application.createdAt)}
-                      </p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button asChild variant="outline" size="sm">
-                        <Link href="/employer/applications">Open applications</Link>
-                      </Button>
-                      {application.jobId ? (
-                        <Button asChild size="sm">
-                          <Link href={`/employer/jobs/${application.jobId}/applications`}>View job</Link>
-                        </Button>
-                      ) : null}
-                    </div>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="jobs">
-          <Card className="border-slate-200 shadow-sm">
-            <CardHeader className="border-b border-slate-100">
-              <CardTitle>Recent Job Posts</CardTitle>
-              <CardDescription>Track the current state of your postings and quickly jump to edits.</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-3 p-6">
-              {loading ? (
-                <p className="text-sm text-slate-500">Loading jobs...</p>
-              ) : jobs.length === 0 ? (
-                <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-8 text-center">
-                  <p className="font-medium text-slate-900">No jobs posted yet</p>
-                  <p className="mt-1 text-sm text-slate-500">Create a job to start receiving applicants.</p>
+                <Pill tone={JOB_STATUS[j.s].tone}>{JOB_STATUS[j.s].label}</Pill>
+              </div>
+              <div style={{ display: "flex", gap: 16 }}>
+                <div>
+                  <div className="tx-micro" style={{ color: "var(--ink-3)" }}>Applicants</div>
+                  <div className="tx-h3 tx-mono" style={{ marginTop: 2 }}>{j.n}</div>
                 </div>
-              ) : (
-                jobs.map((job) => (
-                  <div
-                    key={job.id}
-                    className="flex flex-col gap-4 rounded-2xl border border-slate-200 bg-slate-50 p-4 transition hover:bg-white md:flex-row md:items-center md:justify-between"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="font-semibold text-slate-950">{job.positionTitle}</p>
-                        <Badge className={statusTone(normalizeJobStatus(job.status))}>{normalizeJobStatus(job.status)}</Badge>
-                      </div>
-                      <p className="text-xs text-slate-500">Created {formatDate(job.createdAt)}</p>
-                    </div>
-                    <div className="flex flex-wrap gap-2">
-                      <Button asChild variant="outline" size="sm">
-                        <Link href="/employer/jobs">Manage jobs</Link>
-                      </Button>
-                      <Button asChild size="sm">
-                        <Link href={`/employer/jobs/${job.id}/applications`}>View applicants</Link>
-                      </Button>
-                    </div>
-                  </div>
-                ))
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+                <div>
+                  <div className="tx-micro" style={{ color: "var(--ink-3)" }}>Hired</div>
+                  <div className="tx-h3 tx-mono" style={{ marginTop: 2, color: "var(--emerald)" }}>{j.h}</div>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
     </div>
   );
 }

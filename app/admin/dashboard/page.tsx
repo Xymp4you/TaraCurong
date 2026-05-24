@@ -1,487 +1,347 @@
 "use client";
-export const dynamic = "force-dynamic";
 
-import { useEffect, useMemo, useState } from "react";
-import { useQueryClient } from "@tanstack/react-query";
-import {
-  CartesianGrid,
-  Cell,
-  Legend,
-  Line,
-  LineChart,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-  XAxis,
-  YAxis,
-} from "recharts";
-import {
-  Activity,
-  RefreshCw,
-  Users,
-  Briefcase,
-  FileText,
-  UserPlus,
-  Shield,
-  Clock,
-  TrendingUp,
-  LogOut,
-} from "lucide-react";
-import { signOut } from "@/lib/auth-client";
-import { useRouter } from "next/navigation";
-import { formatDate } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { AccountSecurityPanel } from "@/components/account-security-panel";
-import {
-  useAdminSummary,
-  useAdminJobs,
-  useAdminAnalytics,
-  useAdminReferralsAnalytics,
-  useUpdateJobStatus,
-} from "@/hooks/use-admin";
-import type { AdminJob } from "@/lib/dashboard-data";
+import Link from "next/link";
+import { ArrowRight, Building } from "lucide-react";
+import { Pill } from "@/components/gw/atoms";
 
-const STATUS_OPTIONS: AdminJob["status"][] = [
-  "draft",
-  "pending",
-  "active",
-  "closed",
-  "archived",
+type DonutDatum = { v: number; c: string };
+
+function Donut({ data, size = 92, thickness = 14 }: { data: DonutDatum[]; size?: number; thickness?: number }) {
+  const total = data.reduce((a, b) => a + b.v, 0);
+  const r = (size - thickness) / 2;
+  const c = 2 * Math.PI * r;
+  let acc = 0;
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
+      <circle cx={size / 2} cy={size / 2} r={r} fill="none" stroke="var(--ink-7)" strokeWidth={thickness} />
+      {data.map((d, i) => {
+        const frac = d.v / total;
+        const offset = c * (1 - acc);
+        const dash = `${c * frac} ${c}`;
+        acc += frac;
+        return (
+          <circle
+            key={i}
+            cx={size / 2}
+            cy={size / 2}
+            r={r}
+            fill="none"
+            stroke={d.c}
+            strokeWidth={thickness}
+            strokeDasharray={dash}
+            strokeDashoffset={offset}
+            transform={`rotate(-90 ${size / 2} ${size / 2})`}
+          />
+        );
+      })}
+    </svg>
+  );
+}
+
+const STATS: { l: string; v: string; d: string; action?: boolean }[] = [
+  { l: "Jobseekers", v: "12,840", d: "+184 this week" },
+  { l: "Employers", v: "486", d: "+12 verified" },
+  { l: "Active jobs", v: "1,284", d: "+47 today" },
+  { l: "Applications", v: "8,431", d: "+312 today" },
+  { l: "Pending employers", v: "7", d: "Needs review", action: true },
+  { l: "Pending jobs", v: "14", d: "In moderation", action: true },
+  { l: "Admin requests", v: "3", d: "Officer access", action: true },
 ];
 
-const REFERRAL_COLORS = ["#8b5cf6", "#06b6d4", "#10b981", "#f59e0b", "#ef4444"];
-const STATUS_COLORS = ["#0ea5e9", "#10b981", "#f59e0b", "#ef4444", "#6b7280"];
-const STATUS_LABELS: Record<string, string> = {
-  draft: "Draft",
-  pending: "Pending",
-  active: "Active",
-  closed: "Closed",
-  archived: "Archived",
-};
+const JOB_STATUS_DATA = [
+  { l: "Active", v: 719, p: "56%", c: "var(--emerald)" },
+  { l: "Pending", v: 231, p: "18%", c: "var(--amber)" },
+  { l: "Closed", v: 205, p: "16%", c: "var(--slate)" },
+  { l: "Archived", v: 129, p: "10%", c: "var(--ink-4)" },
+];
 
-type AnalyticsPayload = {
-  overview: {
-    usersCount: number;
-    employersCount: number;
-    jobsCount: number;
-    applicationsCount: number;
-  };
-  jobStatusCounts: Array<{ status: string; count: number }>;
-  applicationStatusCounts: Array<{ status: string; count: number }>;
-  employerStatusCounts: Array<{ status: string; count: number }>;
-  monthlyTrends: Array<{ month: string; jobs: number; applications: number }>;
-};
+const REFERRAL_DATA = [
+  { l: "Hired", v: 524, p: "42%", c: "var(--emerald)" },
+  { l: "Issued", v: 349, p: "28%", c: "var(--sky)" },
+  { l: "Not hired", v: 250, p: "20%", c: "var(--rose)" },
+  { l: "Expired", v: 124, p: "10%", c: "var(--slate)" },
+];
 
-type ReferralsPayload = {
-  totalReferrals: number;
-  referralsByStatus: Array<{ status: string; count: number }>;
-  topEmployers: Array<{
-    employerId: string;
-    employerName: string;
-    count: number;
-  }>;
-};
+const TOP_EMPLOYERS = [
+  { n: "Dole Philippines, Inc.", h: 47, j: 12 },
+  { n: "General Tuna Corporation", h: 38, j: 8 },
+  { n: "Sykes Asia (Tacurong)", h: 29, j: 14 },
+  { n: "City Government of Tacurong", h: 22, j: 6 },
+  { n: "RD Pawnshop", h: 18, j: 4 },
+];
+
+const AUDIT_EVENTS = [
+  { t: "Employer approved", w: "Marigold Manpower Inc.", a: "L. Sandoval", c: "var(--emerald)", time: "08:42" },
+  { t: "Referral slip issued", w: "TC-2026-014872 · Bookkeeper / Dole", a: "M. Velasquez", c: "var(--sky)", time: "08:14" },
+  { t: "Admin access requested", w: "Ronaldo Aquino · Officer III", a: "—", c: "var(--amber)", time: "07:58" },
+  { t: "Job rejected", w: "Sales Rep · BBA Marketing — missing TIN", a: "L. Sandoval", c: "var(--rose)", time: "Yesterday" },
+  { t: "Hire outcome confirmed", w: "Records Officer · City Hall Tacurong", a: "system", c: "var(--emerald)", time: "Yesterday" },
+];
+
+const MONTHS = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May"];
 
 export default function AdminDashboardPage() {
-  const router = useRouter();
-  const [statusFilter, setStatusFilter] = useState<string>("all");
-  const [lastUpdatedLabel, setLastUpdatedLabel] = useState("");
-  
-  // TanStack Query Hooks
-  const summaryQuery = useAdminSummary();
-  const jobsQuery = useAdminJobs({ status: statusFilter, limit: 20 });
-  const analyticsQuery = useAdminAnalytics();
-  const referralsQuery = useAdminReferralsAnalytics();
-  const updateJobStatusMutation = useUpdateJobStatus();
-
-  const summary = summaryQuery.data;
-  const jobs = jobsQuery.data?.data || [];
-  const analytics = analyticsQuery.data;
-  const referrals = referralsQuery.data;
-  
-  const loading = summaryQuery.isLoading || jobsQuery.isLoading;
-  const isRefreshing = summaryQuery.isFetching || jobsQuery.isFetching;
-  const error = summaryQuery.error || jobsQuery.error ? "Failed to load dashboard data" : "";
-
-  const queryClient = useQueryClient();
-  const handleRefresh = () => {
-    summaryQuery.refetch();
-    jobsQuery.refetch();
-    analyticsQuery.refetch();
-    referralsQuery.refetch();
-    setLastUpdatedLabel(new Date().toLocaleString());
-  };
-
-  useEffect(() => {
-    if (!isRefreshing) {
-      setLastUpdatedLabel(new Date().toLocaleString());
-    }
-  }, [isRefreshing]);
-
-  const jobStatusData = analytics?.jobStatusCounts ?? [];
-  const employerStatusData = analytics?.employerStatusCounts ?? [];
-  const getJobCount = (status: string) => jobStatusData.find((j: any) => j.status === status)?.count ?? 0;
-  const getEmpCount = (status: string) => employerStatusData.find((e: any) => e.status === status)?.count ?? 0;
-
-  const statCards = useMemo(
-    () => [
-      {
-        label: "Job Seekers",
-        value: summary?.usersCount ?? 0,
-        icon: Users,
-        color: "text-cyan-600",
-        bg: "bg-cyan-50",
-      },
-      {
-        label: "Employers",
-        value: summary?.employersCount ?? 0,
-        icon: Briefcase,
-        color: "text-violet-600",
-        bg: "bg-violet-50",
-      },
-      {
-        label: "Jobs",
-        value: summary?.jobsCount ?? 0,
-        icon: FileText,
-        color: "text-emerald-600",
-        bg: "bg-emerald-50",
-      },
-      {
-        label: "Pending Employers",
-        value: summary?.pendingEmployerCount ?? 0,
-        icon: Clock,
-        color: "text-orange-600",
-        bg: "bg-orange-50",
-      },
-      {
-        label: "Pending Admin Requests",
-        value: summary?.pendingAdminRequests ?? 0,
-        icon: Shield,
-        color: "text-rose-600",
-        bg: "bg-rose-50",
-      },
-      {
-        label: "Pending Jobs",
-        value: summary?.pendingJobs ?? 0,
-        icon: TrendingUp,
-        color: "text-blue-600",
-        bg: "bg-blue-50",
-      },
-    ],
-    [summary],
-  );
-
-  const trendData = analytics?.monthlyTrends ?? [];
-  const referralData = referrals?.referralsByStatus ?? [];
-  const topEmployers = referrals?.topEmployers ?? [];
-  const referralTotal = referrals?.totalReferrals ?? 0;
-
-  const updateJobStatus = async (jobId: string, status: AdminJob["status"]) => {
-    try {
-      await updateJobStatusMutation.mutateAsync({ jobId, status });
-    } catch (err: any) {
-      // Error handling is managed by mutation but we can set a local error if needed
-      console.error(err);
-    }
-  };
-
-  function getStatusBadgeVariant(
-    status: string,
-  ): "default" | "secondary" | "destructive" | "outline" {
-    switch (status) {
-      case "active":
-        return "default";
-      case "pending":
-        return "secondary";
-      case "draft":
-        return "outline";
-      case "closed":
-        return "destructive";
-      case "archived":
-        return "secondary";
-      default:
-        return "outline";
-    }
-  }
-
   return (
-    <div className="space-y-8">
-      {error ? (
-        <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700 flex items-center gap-2">
-          <Activity className="h-4 w-4" />
-          {error}
-        </div>
-      ) : null}
-
-      {/* Header Section */}
-      <div className="border-b border-slate-200 pb-6 flex items-center justify-between">
+    <div className="gw" style={{ maxWidth: 1380 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
         <div>
-          <h1 className="text-3xl font-bold text-slate-900">Overview</h1>
-          <p className="mt-1 text-sm text-slate-500">Welcome back! Here&apos;s what&apos;s happening today.</p>
+          <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>
+            TaraCurong operations · Tacurong City
+          </h1>
+          <p className="tx-caption" style={{ marginTop: 4 }}>Tuesday, 23 May · 9:14 PHT</p>
         </div>
-        <div className="flex items-center gap-3">
-          <p className="text-xs text-slate-400">
-            Last updated: {lastUpdatedLabel}
-          </p>
-          <Button
-            size="sm"
-            onClick={handleRefresh}
-            disabled={isRefreshing}
-            className="gap-2"
-          >
-            <RefreshCw
-              className={`h-4 w-4 ${isRefreshing ? "animate-spin" : ""}`}
-            />
-            {isRefreshing ? "Refreshing..." : "Refresh"}
-          </Button>
-        </div>
+        <Pill tone="emerald">All systems normal</Pill>
       </div>
 
-      {/* Stats Cards - Modern Grid */}
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
-        {statCards.map((card) => (
+      {/* 7 stat cards */}
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(7, 1fr)", gap: 10 }}>
+        {STATS.map((s) => (
           <div
-            key={card.label}
-            className="relative overflow-hidden rounded-xl border border-slate-200 bg-white p-5 shadow-sm transition-all hover:shadow-md hover:border-slate-300"
+            key={s.l}
+            className="gw-stat"
+            style={{
+              borderColor: s.action ? "var(--amber)" : "var(--ink-7)",
+              background: s.action ? "var(--amber-bg)" : "var(--surface)",
+            }}
           >
-            <div className="flex items-start justify-between">
-              <div className="space-y-1">
-                <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-                  {card.label}
-                </p>
-                <p className="text-3xl font-bold tracking-tight text-slate-900">
-                  {card.value}
-                </p>
-              </div>
-              <div className={`rounded-lg p-2.5 ${card.bg}`}>
-                <card.icon className={`h-5 w-5 ${card.color}`} />
-              </div>
+            <div className="label">{s.l}</div>
+            <div className="value tx-num" style={{ fontSize: 26 }}>{s.v}</div>
+            <div
+              className="tx-micro"
+              style={{
+                color: s.action ? "var(--amber)" : "var(--ink-3)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              {s.action && <ArrowRight size={10} />}
+              {s.d}
             </div>
           </div>
         ))}
       </div>
 
-      {/* Charts Section */}
-      <div className="grid gap-6 xl:grid-cols-2">
-        {/* Monthly Trends Chart */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Monthly Trends
-            </h3>
-            <p className="text-sm text-slate-500">
-              Job postings and applications over time.
-            </p>
+      {/* Trend + donuts */}
+      <div style={{ display: "grid", gridTemplateColumns: "2fr 1fr", gap: 16, marginTop: 18 }}>
+        <div className="gw-card" style={{ padding: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 20 }}>
+            <div>
+              <div className="tx-h3">Activity trend</div>
+              <div className="tx-caption" style={{ marginTop: 2 }}>
+                Applications, hires, referrals · Last 12 months
+              </div>
+            </div>
+            <div className="gw-toggle">
+              <button type="button">3M</button>
+              <button type="button">6M</button>
+              <button type="button" className="active">12M</button>
+              <button type="button">All</button>
+            </div>
           </div>
-          <div className="h-72">
-            <ResponsiveContainer width="100%" height="100%">
-              <LineChart
-                data={trendData}
-                margin={{ top: 5, right: 20, left: 0, bottom: 5 }}
-              >
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 12 }}
-                  stroke="#64748b"
+
+          <div style={{ height: 200, position: "relative", padding: "0 8px" }}>
+            <svg width="100%" height="200" viewBox="0 0 600 200" preserveAspectRatio="none">
+              {[0, 50, 100, 150, 200].map((y) => (
+                <line
+                  key={y}
+                  x1="0"
+                  x2="600"
+                  y1={y}
+                  y2={y}
+                  stroke="var(--ink-7)"
+                  strokeWidth="1"
+                  strokeDasharray={y === 200 ? "0" : "3 4"}
                 />
-                <YAxis tick={{ fontSize: 12 }} stroke="#64748b" />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#fff",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "8px",
-                    fontSize: "12px",
+              ))}
+              <path
+                d="M0,170 C50,150 100,160 150,140 S250,90 300,80 S400,70 450,60 S550,40 600,30"
+                fill="none"
+                stroke="var(--teal)"
+                strokeWidth="2"
+              />
+              <path
+                d="M0,170 C50,150 100,160 150,140 S250,90 300,80 S400,70 450,60 S550,40 600,30 L600,200 L0,200 Z"
+                fill="var(--teal-4)"
+                opacity="0.5"
+              />
+              <path
+                d="M0,180 C80,170 150,160 220,150 S380,130 450,120 S550,110 600,90"
+                fill="none"
+                stroke="var(--violet)"
+                strokeWidth="1.5"
+                strokeDasharray="4 4"
+              />
+              <path
+                d="M0,190 C100,185 180,180 250,170 S400,150 470,145 S560,135 600,125"
+                fill="none"
+                stroke="var(--ink-2)"
+                strokeWidth="1.5"
+              />
+              <circle cx="600" cy="30" r="3.5" fill="var(--teal)" />
+              <circle cx="600" cy="90" r="3.5" fill="var(--violet)" />
+              <circle cx="600" cy="125" r="3.5" fill="var(--ink-2)" />
+            </svg>
+          </div>
+          <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, color: "var(--ink-4)" }}>
+            {MONTHS.map((m) => (
+              <span key={m} className="tx-micro tx-mono">{m}</span>
+            ))}
+          </div>
+
+          <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "20px 0 16px" }} />
+          <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+            {[
+              { c: "var(--teal)", l: "Applications", v: "8,431", d: "+18% MoM" },
+              { c: "var(--violet)", l: "Referrals issued", v: "1,247", d: "+9% MoM", dash: true },
+              { c: "var(--ink-2)", l: "Hires confirmed", v: "612", d: "+5% MoM" },
+            ].map((s) => (
+              <div key={s.l} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                <span
+                  style={{
+                    display: "block",
+                    width: 12,
+                    height: 2,
+                    marginTop: 8,
+                    background: s.dash
+                      ? `repeating-linear-gradient(90deg, ${s.c} 0 3px, transparent 3px 6px)`
+                      : s.c,
                   }}
                 />
-                <Legend
-                  wrapperStyle={{ fontSize: "12px", paddingTop: "10px" }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="jobs"
-                  stroke="#0f172a"
-                  strokeWidth={2.5}
-                  dot={{ r: 4, fill: "#0f172a" }}
-                  activeDot={{ r: 6 }}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="applications"
-                  stroke="#0ea5e9"
-                  strokeWidth={2.5}
-                  dot={{ r: 4, fill: "#0ea5e9" }}
-                  activeDot={{ r: 6 }}
-                />
-              </LineChart>
-            </ResponsiveContainer>
+                <div>
+                  <div className="tx-micro" style={{ color: "var(--ink-3)" }}>{s.l}</div>
+                  <div className="tx-mono" style={{ fontSize: 16, color: "var(--ink)", marginTop: 2, letterSpacing: "-0.01em" }}>
+                    {s.v}
+                  </div>
+                  <div className="tx-micro" style={{ color: "var(--emerald)" }}>{s.d}</div>
+                </div>
+              </div>
+            ))}
           </div>
         </div>
 
-        {/* Job Status Distribution */}
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Job Status Distribution
-            </h3>
-            <p className="text-sm text-slate-500">
-              Current moderation state of all postings.
-            </p>
+        {/* Donut stack */}
+        <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
+          <div className="gw-card" style={{ padding: 20 }}>
+            <div className="tx-h3">Job status</div>
+            <div className="tx-caption" style={{ marginTop: 2, marginBottom: 12 }}>1,284 jobs total</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <Donut data={JOB_STATUS_DATA.map((d) => ({ v: parseInt(d.p), c: d.c }))} />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                {JOB_STATUS_DATA.map((s) => (
+                  <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ width: 8, height: 8, background: s.c, borderRadius: 2 }} />
+                    <span className="tx-body" style={{ fontSize: 12.5, flex: 1 }}>{s.l}</span>
+                    <span className="tx-mono" style={{ fontSize: 12, color: "var(--ink-2)" }}>{s.v}</span>
+                    <span className="tx-mono" style={{ fontSize: 11, color: "var(--ink-4)", width: 32, textAlign: "right" }}>{s.p}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
-          <div className="h-64">
-            <ResponsiveContainer width="100%" height="100%">
-              <PieChart>
-                <Pie
-                  data={jobStatusData}
-                  dataKey="count"
-                  nameKey="status"
-                  cx="50%"
-                  cy="50%"
-                  innerRadius={55}
-                  outerRadius={85}
-                  paddingAngle={3}
-                  label={({ status, percent }) =>
-                    `${(percent * 100).toFixed(0)}%`
-                  }
-                  labelLine={false}
-                >
-                  {jobStatusData.map((entry: { status: string; count: number }, index: number) => (
-                    <Cell
-                      key={entry.status}
-                      fill={STATUS_COLORS[index % STATUS_COLORS.length]}
-                    />
-                  ))}
-                </Pie>
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: "#fff",
-                    border: "1px solid #e2e8f0",
-                    borderRadius: "8px",
-                    fontSize: "12px",
-                  }}
-                />
-                <Legend
-                  layout="horizontal"
-                  verticalAlign="bottom"
-                  wrapperStyle={{ fontSize: "11px", paddingTop: "10px" }}
-                />
-              </PieChart>
-            </ResponsiveContainer>
+
+          <div className="gw-card" style={{ padding: 20 }}>
+            <div className="tx-h3">Referral outcomes</div>
+            <div className="tx-caption" style={{ marginTop: 2, marginBottom: 12 }}>1,247 slips issued</div>
+            <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+              <Donut data={REFERRAL_DATA.map((d) => ({ v: parseInt(d.p), c: d.c }))} />
+              <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
+                {REFERRAL_DATA.map((s) => (
+                  <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <span style={{ width: 8, height: 8, background: s.c, borderRadius: 2 }} />
+                    <span className="tx-body" style={{ fontSize: 12.5, flex: 1 }}>{s.l}</span>
+                    <span className="tx-mono" style={{ fontSize: 12, color: "var(--ink-2)" }}>{s.v}</span>
+                    <span className="tx-mono" style={{ fontSize: 11, color: "var(--ink-4)", width: 32, textAlign: "right" }}>{s.p}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Referral Summary */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-4 flex items-center justify-between">
-          <div>
-            <h3 className="text-lg font-semibold text-slate-900">
-              Referral Summary
-            </h3>
-            <p className="text-sm text-slate-500">
-              Breakdown by referral status.
-            </p>
-          </div>
-          <Badge variant="secondary" className="text-xs">
-            Total: {referralTotal}
-          </Badge>
-        </div>
-        <div className="grid gap-3 md:grid-cols-5">
-          {referralData.map((item: { status: string; count: number }, index: number) => (
+      {/* Top employers + audit */}
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 16, marginTop: 18 }}>
+        <div className="gw-card" style={{ padding: 22 }}>
+          <div className="tx-h3" style={{ marginBottom: 14 }}>Top hiring employers</div>
+          {TOP_EMPLOYERS.map((e, i) => (
             <div
-              key={item.status}
-              className="group relative overflow-hidden rounded-xl border border-slate-100 bg-slate-50 p-4 transition-all hover:border-slate-200 hover:bg-slate-100"
+              key={e.n}
+              style={{
+                padding: "10px 0",
+                borderTop: i === 0 ? "none" : "1px solid var(--ink-7)",
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+              }}
             >
+              <span className="tx-mono" style={{ width: 22, color: "var(--ink-4)", fontSize: 11 }}>#{i + 1}</span>
               <div
-                className="absolute bottom-0 left-0 h-1 w-full opacity-0 transition-opacity group-hover:opacity-100"
                 style={{
-                  backgroundColor:
-                    REFERRAL_COLORS[index % REFERRAL_COLORS.length],
+                  width: 24,
+                  height: 24,
+                  borderRadius: "50%",
+                  background: "var(--paper-2)",
+                  border: "1px solid var(--ink-7)",
+                  display: "grid",
+                  placeItems: "center",
                 }}
-              />
-              <p className="text-xs font-medium uppercase tracking-wider text-slate-500">
-                {item.status}
-              </p>
-              <p className="mt-1 text-2xl font-bold text-slate-900">
-                {item.count}
-              </p>
+              >
+                <Building size={11} />
+              </div>
+              <div style={{ flex: 1 }}>
+                <div className="tx-h4" style={{ fontSize: 13 }}>{e.n}</div>
+                <div className="tx-micro" style={{ marginTop: 2, color: "var(--ink-3)" }}>{e.j} active jobs</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div className="tx-mono" style={{ fontSize: 14, color: "var(--emerald)" }}>{e.h}</div>
+                <div className="tx-micro" style={{ color: "var(--ink-4)" }}>hires</div>
+              </div>
             </div>
           ))}
         </div>
-      </div>
 
-      {/* Top Employers */}
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-        <div className="mb-4">
-          <h3 className="text-lg font-semibold text-slate-900">
-            Top Employers
-          </h3>
-          <p className="text-sm text-slate-500">
-            By referral volume this period.
-          </p>
-        </div>
-        <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-5">
-          {topEmployers.length > 0 ? (
-            topEmployers.map((item: { employerId: string; employerName: string; count: number }, index: number) => (
-              <div
-                key={item.employerId}
-                className="group relative overflow-hidden rounded-xl border border-slate-100 bg-white p-4 transition-all hover:border-slate-200 hover:shadow-sm"
-              >
-                <div
-                  className="absolute bottom-0 left-0 h-1 w-full opacity-0 transition-opacity group-hover:opacity-100"
-                  style={{
-                    backgroundColor:
-                      REFERRAL_COLORS[index % REFERRAL_COLORS.length],
-                  }}
-                />
-                <p className="truncate text-sm font-medium text-slate-900">
-                  {item.employerName}
-                </p>
-                <p className="mt-1 text-xs font-medium text-slate-500">
-                  {item.count} referrals
-                </p>
-              </div>
-            ))
-          ) : (
-            <p className="col-span-full text-sm text-slate-500">
-              No employer referral data available.
-            </p>
-          )}
-        </div>
-      </div>
-
-
-
-      {/* Security & Account Section */}
-      <div className="grid gap-6 xl:grid-cols-2">
-        <AccountSecurityPanel />
-        
-        <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm">
-          <div className="mb-4">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Account Actions
-            </h3>
-            <p className="text-sm text-slate-500">Manage your admin session</p>
+        <div className="gw-card" style={{ padding: 22 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <div className="tx-h3">Recent audit events</div>
+            <Link
+              href="/admin/audit-logs"
+              className="tx-micro"
+              style={{ color: "var(--role-admin)", textDecoration: "none" }}
+            >
+              Full log →
+            </Link>
           </div>
-          <Button
-            variant="destructive"
-            onClick={async () => {
-              try {
-                await signOut();
-                router.push("/login/admin");
-                router.refresh();
-              } catch (error) {
-                console.error("Logout failed:", error);
-              }
-            }}
-            className="gap-2"
-          >
-            <LogOut className="h-4 w-4" />
-            Logout
-          </Button>
+          {AUDIT_EVENTS.map((e, i) => (
+            <div
+              key={`${e.t}-${i}`}
+              style={{
+                padding: "10px 0",
+                borderTop: i === 0 ? "none" : "1px solid var(--ink-7)",
+                display: "flex",
+                gap: 12,
+              }}
+            >
+              <span
+                style={{
+                  width: 6,
+                  height: 6,
+                  borderRadius: 999,
+                  background: e.c,
+                  marginTop: 7,
+                  flexShrink: 0,
+                }}
+              />
+              <div style={{ flex: 1 }}>
+                <div className="tx-body" style={{ fontSize: 13 }}>{e.t}</div>
+                <div className="tx-caption" style={{ marginTop: 2, fontSize: 12 }}>{e.w}</div>
+              </div>
+              <div style={{ textAlign: "right" }}>
+                <div className="tx-micro tx-mono" style={{ color: "var(--ink-3)" }}>{e.time}</div>
+                <div className="tx-micro" style={{ color: "var(--ink-4)" }}>{e.a}</div>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>

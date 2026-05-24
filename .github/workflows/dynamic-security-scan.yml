@@ -5,7 +5,7 @@ on:
   pull_request:
     paths:
       - "app/**"
-      - "scripts/dynamic-security-scan.js"
+      - "scripts/dynamic-security-scan.ts"
       - ".github/workflows/dynamic-security-scan.yml"
 
 jobs:

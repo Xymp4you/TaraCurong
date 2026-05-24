@@ -22,7 +22,7 @@ const fallbackExperience: ExperienceResponse = {
     },
     { 
       title: "Career Coaching", 
-      description: "PESO counselors help polish resumes and prep interviews.",
+      description: "Career counselors help polish resumes and prep interviews.",
       icon: "GraduationCap" 
     },
     { 

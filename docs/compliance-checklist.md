@@ -37,8 +37,8 @@ This checklist tracks Phase 8 compliance evidence from repository-controlled che
 
 ## Secrets and Operational Hygiene
 
-- [x] Environment validation script present (`scripts/validate-env.js`)
-- [x] Secret leak scan script present (`scripts/security-secrets-scan.js`)
+- [x] Environment validation script present (`scripts/validate-env.ts`)
+- [x] Secret leak scan script present (`scripts/security-secrets-scan.ts`)
 - [x] Security policy documented (`SECURITY.md`)
 
 ## Data Protection and Recovery

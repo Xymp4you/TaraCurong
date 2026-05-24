@@ -54,7 +54,7 @@ export function ReferralSlipGenerator({
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string | null>(null);
   const printRef = useRef<HTMLDivElement>(null);
 
-  // Search applicants from NSRP pool
+  // Search applicants from applicant pool
   const searchApplicants = async (q: string) => {
     if (q.length < 2) { setResults([]); return; }
     setSearching(true);
@@ -165,10 +165,10 @@ export function ReferralSlipGenerator({
           {(["search", "preview", "done"] as const).map((s, i) => (
             <div key={s} className="flex items-center gap-2">
               <div className={`w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold transition-all ${
-                step === s ? "bg-blue-600 text-white" :
+                step === s ? "bg-teal-600 text-white" :
                 ["search", "preview", "done"].indexOf(step) > i ? "bg-emerald-500 text-white" : "bg-slate-200 text-slate-500"
               }`}>{i + 1}</div>
-              <span className={`text-xs capitalize ${step === s ? "text-blue-700 font-semibold" : "text-slate-400"}`}>{s}</span>
+              <span className={`text-xs capitalize ${step === s ? "text-teal-700 font-semibold" : "text-slate-400"}`}>{s}</span>
               {i < 2 && <div className="w-8 h-px bg-slate-200 mx-1" />}
             </div>
           ))}
@@ -179,13 +179,13 @@ export function ReferralSlipGenerator({
           {step === "search" && (
             <div className="p-6 space-y-4">
               <div>
-                <label className="text-sm font-semibold text-slate-700 block mb-2">Search Applicant from NSRP Pool</label>
+                <label className="text-sm font-semibold text-slate-700 block mb-2">Search Applicant from applicant pool</label>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
                   <Input
                     value={query}
                     onChange={(e) => setQuery(e.target.value)}
-                    placeholder="Search by name, NSRP ID, or contact..."
+                    placeholder="Search by name, Profile ID, or contact..."
                     className="pl-9"
                   />
                   {searching && <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 animate-spin text-slate-400" />}
@@ -199,10 +199,10 @@ export function ReferralSlipGenerator({
                       key={r.id}
                       onClick={() => setSelected(selected?.id === r.id ? null : r)}
                       className={`w-full flex items-center gap-4 px-4 py-3 text-left transition-all ${
-                        selected?.id === r.id ? "bg-blue-50 border-l-2 border-l-blue-500" : "hover:bg-slate-50"
+                        selected?.id === r.id ? "bg-teal-50 border-l-2 border-l-blue-500" : "hover:bg-slate-50"
                       }`}
                     >
-                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
+                      <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm flex-shrink-0">
                         {r.name?.charAt(0)?.toUpperCase()}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -213,7 +213,7 @@ export function ReferralSlipGenerator({
                         </div>
                       </div>
                       {selected?.id === r.id && (
-                        <div className="w-5 h-5 rounded-full bg-blue-600 flex items-center justify-center flex-shrink-0">
+                        <div className="w-5 h-5 rounded-full bg-teal-600 flex items-center justify-center flex-shrink-0">
                           <svg className="w-3 h-3 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                           </svg>
@@ -248,12 +248,12 @@ export function ReferralSlipGenerator({
                 <div className="bg-slate-50 border-b-2 border-slate-200 p-5">
                   <div className="flex items-start justify-between">
                     <div className="flex items-start gap-4">
-                      <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center text-xs text-slate-500 font-bold">SEAL</div>
+                      <div className="w-16 h-16 bg-slate-200 rounded-full flex items-center justify-center text-xs text-slate-500 font-bold">TC</div>
                       <div>
-                        <p className="text-[10px] text-slate-500 uppercase tracking-wider">Republic of the Philippines</p>
-                        <p className="font-bold text-slate-900 text-base leading-tight">OFFICE OF THE CITY MAYOR</p>
-                        <p className="text-sm text-slate-700">Public Employment Service Office</p>
-                        <p className="text-sm text-slate-600">General Santos City</p>
+                        <p className="text-[10px] text-slate-500 uppercase tracking-wider">Community Job Platform</p>
+                        <p className="font-bold text-slate-900 text-base leading-tight">TARACURONG</p>
+                        <p className="text-sm text-slate-700">A community project by an IT student</p>
+                        <p className="text-sm text-slate-600">Tacurong City</p>
                       </div>
                     </div>
                     <div className="text-right space-y-1 flex flex-col items-end">
@@ -293,13 +293,13 @@ export function ReferralSlipGenerator({
                 <div className="px-6 py-4 space-y-4">
                   <p className="text-sm text-slate-700 font-semibold">Dear Sir/Madam:</p>
                   <p className="text-sm text-slate-700 leading-relaxed">
-                    This office has arranged for the following applicant to call on you regarding your opening:
+                    TaraCurong has referred the following applicant for your opening:
                   </p>
 
                   {/* Applicant box */}
                   <div className="border border-slate-300 rounded-lg p-4 bg-slate-50/50 grid grid-cols-2 gap-x-6 gap-y-1.5 text-sm">
                     <div><span className="text-slate-500">Name:</span> <span className="font-bold text-slate-900">{slipData.applicant.name}</span></div>
-                    {slipData.applicant.nsrpId && <div><span className="text-slate-500">NSRP ID:</span> <span className="font-semibold">{slipData.applicant.nsrpId}</span></div>}
+                    {slipData.applicant.nsrpId && <div><span className="text-slate-500">Profile ID:</span> <span className="font-semibold">{slipData.applicant.nsrpId}</span></div>}
                     {slipData.applicant.age && <div><span className="text-slate-500">Age:</span> <span className="font-semibold">{slipData.applicant.age}</span></div>}
                     {slipData.applicant.sex && <div><span className="text-slate-500">Sex:</span> <span className="font-semibold">{slipData.applicant.sex}</span></div>}
                     {slipData.applicant.contact && <div><span className="text-slate-500">Contact:</span> <span className="font-semibold">{slipData.applicant.contact}</span></div>}
@@ -308,7 +308,7 @@ export function ReferralSlipGenerator({
                   </div>
 
                   {/* Job box */}
-                  <div className="border border-slate-300 rounded-lg p-4 bg-blue-50/30 text-sm">
+                  <div className="border border-slate-300 rounded-lg p-4 bg-teal-50/30 text-sm">
                     <p className="text-slate-500 text-xs uppercase tracking-wide mb-1.5">Position Applied For</p>
                     <p className="font-bold text-slate-900 text-base">{slipData.job.title}</p>
                     {slipData.job.psocCode && <p className="text-xs text-slate-500 mt-0.5">PSOC Code: {slipData.job.psocCode}</p>}
@@ -319,26 +319,19 @@ export function ReferralSlipGenerator({
                   </p>
                 </div>
 
-                {/* Signatures */}
+                {/* Signature */}
                 <div className="px-6 pb-4">
-                  <p className="text-sm text-slate-700 mb-6">Very Truly Yours,</p>
-                  <div className="grid grid-cols-2 gap-8">
-                    <div>
-                      <p className="font-bold text-slate-900 text-sm border-b border-slate-400 pb-1 inline-block">LORELIE GERONIMO PACQUIAO</p>
-                      <p className="text-xs text-slate-600 mt-1">CITY MAYOR</p>
-                      <p className="text-xs text-slate-500">By Authority of the City Mayor</p>
-                    </div>
-                    <div>
-                      <p className="font-bold text-slate-900 text-sm border-b border-slate-400 pb-1 inline-block">NURHASAN A. JUANDAY</p>
-                      <p className="text-xs text-slate-600 mt-1">SUPERVISING LABOR AND EMPLOYMENT OFFICER</p>
-                      <p className="text-xs text-slate-500">PESO GENSAN</p>
-                    </div>
+                  <p className="text-sm text-slate-700 mb-6">Sincerely,</p>
+                  <div className="max-w-xs">
+                    <p className="font-bold text-slate-900 text-sm border-b border-slate-400 pb-1 inline-block">John Aerol Tapales</p>
+                    <p className="text-xs text-slate-600 mt-1">Project Owner</p>
+                    <p className="text-xs text-slate-500">TaraCurong (community project)</p>
                   </div>
                 </div>
 
                 {/* Feedback Stub */}
                 <div className="mx-4 mb-4 border-2 border-dashed border-slate-300 rounded-xl p-4 bg-slate-50">
-                  <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">✂ Employer Feedback Stub — Please return to PESO Gensan</p>
+                  <p className="text-xs font-bold text-slate-600 uppercase tracking-wider mb-2">✂ Employer Feedback Stub — Please return to TaraCurong</p>
                   <div className="grid grid-cols-2 gap-3 text-xs text-slate-700">
                     <p><span className="font-semibold">Applicant:</span> {slipData.applicant.name}</p>
                     <p><span className="font-semibold">Slip No:</span> {slipData.slipNumber}</p>
@@ -354,8 +347,8 @@ export function ReferralSlipGenerator({
 
                 {/* Footer */}
                 <div className="bg-slate-800 px-6 py-3 text-center">
-                  <p className="text-xs text-slate-300">📍 4th Floor General Santos City Investment Action Center, City Hall Drive, General Santos City, 9500</p>
-                  <p className="text-xs text-slate-400 mt-0.5">📞 (083) 533-3479 &nbsp;|&nbsp; ✉ peso_gensan@yahoo.com</p>
+                  <p className="text-xs text-slate-300">TaraCurong · A community job platform for Tacurong City, Sultan Kudarat</p>
+                  <p className="text-xs text-slate-400 mt-0.5">✉ helpdesk@taracurong.com</p>
                 </div>
               </div>
             </div>

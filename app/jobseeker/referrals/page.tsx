@@ -1,179 +1,132 @@
 "use client";
-export const dynamic = "force-dynamic";
 
-import { useEffect, useState } from "react";
 import Link from "next/link";
-import { 
-  FileText, 
-  MapPin, 
-  Building2, 
-  QrCode,
-  Calendar,
-  ExternalLink,
-  ChevronRight,
-  AlertCircle
-} from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { Check, MoreHorizontal } from "lucide-react";
+import { Pill, type PillTone } from "@/components/gw/atoms";
 
-type ReferralSlip = {
-  id: string;
-  slipNumber: string;
-  issuedAt: string;
-  validUntil: string;
-  status: "issued" | "hired" | "not_hired";
-  qrCodeUrl: string | null;
-  jobTitle: string;
-  employerName: string;
-  employerAddress: string;
+type RefStatus = "issued" | "hired" | "not_hired" | "expired";
+
+const REF_STATUS: Record<RefStatus, { tone: PillTone; label: string }> = {
+  issued: { tone: "sky", label: "Issued" },
+  hired: { tone: "emerald", label: "Hired" },
+  not_hired: { tone: "rose", label: "Not hired" },
+  expired: { tone: "slate", label: "Expired" },
 };
 
-export default function JobseekerReferralsPage() {
-  const [slips, setSlips] = useState<ReferralSlip[]>([]);
-  const [loading, setLoading] = useState(true);
+type Slip = { num: string; job: string; emp: string; valid: string; status: RefStatus };
 
-  useEffect(() => {
-    const fetchSlips = async () => {
-      setLoading(true);
-      try {
-        const res = await fetch("/api/jobseeker/referrals");
-        if (res.ok) {
-          const data = await res.json() as { slips?: ReferralSlip[] };
-          setSlips(data.slips ?? []);
-        }
-      } catch (err) {
-        console.error("Failed to fetch referral slips", err);
-      } finally {
-        setLoading(false);
-      }
-    };
-    void fetchSlips();
-  }, []);
+const SLIPS: Slip[] = [
+  { num: "TC-2026-014872", job: "Bookkeeper", emp: "Dole Philippines, Inc.", valid: "06 Jun 2026", status: "issued" },
+  { num: "TC-2026-013904", job: "Records Officer", emp: "City Hall Tacurong", valid: "Hired 18 Apr", status: "hired" },
+  { num: "TC-2026-012211", job: "Office Clerk", emp: "Marigold Manpower", valid: "Expired 02 Apr", status: "expired" },
+];
 
-  const formatDate = (iso: string) => {
-    return new Date(iso).toLocaleDateString("en-PH", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-    });
-  };
-
-  const isExpired = (validUntil: string) => {
-    return new Date(validUntil) < new Date();
-  };
-
+function Stat({ label, value, delta, helper, down }: { label: string; value: string; delta?: string; helper?: string; down?: boolean }) {
   return (
-    <div className="space-y-6 animate-in fade-in duration-500">
-      <div className="border-b border-slate-200 pb-4">
-        <h1 className="text-2xl font-bold text-slate-900">My Referral Slips</h1>
-        <p className="text-sm text-slate-500 mt-1">
-          Official PESO referral slips issued to you for job applications. Present these to employers.
-        </p>
-      </div>
-
-      {loading ? (
-        <div className="grid gap-4 md:grid-cols-2">
-          {[...Array(4)].map((_, i) => (
-            <Skeleton key={i} className="h-48 rounded-2xl" />
-          ))}
-        </div>
-      ) : slips.length === 0 ? (
-        <Card className="p-16 text-center border-dashed">
-          <div className="w-16 h-16 bg-blue-50 rounded-full flex items-center justify-center mx-auto mb-4">
-            <FileText className="w-8 h-8 text-blue-400" />
-          </div>
-          <h3 className="text-lg font-semibold text-slate-900">No referral slips yet</h3>
-          <p className="text-sm text-slate-500 mt-1 max-w-sm mx-auto">
-            You don't have any active referral slips. PESO Admin will issue a slip when you are referred to an employer.
-          </p>
-          <Button asChild className="mt-6 bg-blue-600 hover:bg-blue-700">
-            <Link href="/jobseeker/jobs">Browse Jobs</Link>
-          </Button>
-        </Card>
-      ) : (
-        <div className="grid gap-4 md:grid-cols-2">
-          {slips.map((slip) => {
-            const expired = isExpired(slip.validUntil);
-            
-            return (
-              <Card key={slip.id} className={`overflow-hidden transition-all ${expired ? 'opacity-75' : 'hover:shadow-md border-blue-100'}`}>
-                {/* Header */}
-                <div className={`p-4 border-b ${expired ? 'bg-slate-50 border-slate-100' : 'bg-blue-50/50 border-blue-100'}`}>
-                  <div className="flex items-start justify-between mb-2">
-                    <Badge variant="outline" className={`font-mono text-xs ${expired ? 'text-slate-500 border-slate-300' : 'text-blue-700 border-blue-300 bg-blue-50'}`}>
-                      {slip.slipNumber}
-                    </Badge>
-                    <Badge className={`
-                      ${slip.status === 'hired' ? 'bg-emerald-100 text-emerald-700 border-emerald-200' :
-                        slip.status === 'not_hired' ? 'bg-rose-100 text-rose-700 border-rose-200' :
-                        expired ? 'bg-slate-100 text-slate-600 border-slate-200' :
-                        'bg-blue-100 text-blue-700 border-blue-200'}
-                    `}>
-                      {slip.status === 'hired' ? 'Hired' :
-                       slip.status === 'not_hired' ? 'Not Hired' :
-                       expired ? 'Expired' : 'Active'}
-                    </Badge>
-                  </div>
-                  <h3 className={`font-bold text-lg line-clamp-1 ${expired ? 'text-slate-700' : 'text-slate-900'}`}>
-                    {slip.jobTitle}
-                  </h3>
-                </div>
-
-                {/* Body */}
-                <div className="p-4 space-y-3">
-                  <div className="flex items-start gap-3 text-sm">
-                    <Building2 className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="font-medium text-slate-800">{slip.employerName}</p>
-                    </div>
-                  </div>
-                  
-                  <div className="flex items-start gap-3 text-sm">
-                    <MapPin className="w-4 h-4 text-slate-400 mt-0.5 flex-shrink-0" />
-                    <div>
-                      <p className="text-slate-600 line-clamp-2">{slip.employerAddress}</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-center gap-3 text-sm pt-2 border-t border-slate-100">
-                    <Calendar className="w-4 h-4 text-slate-400" />
-                    <div className="flex-1 flex justify-between items-center text-xs text-slate-500">
-                      <span>Issued: {formatDate(slip.issuedAt)}</span>
-                      <span className={expired ? 'text-rose-600 font-medium' : ''}>
-                        Valid till: {formatDate(slip.validUntil)}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Footer/Action */}
-                <div className="px-4 py-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    {slip.qrCodeUrl ? (
-                      <Badge variant="outline" className="gap-1.5 bg-white">
-                        <QrCode className="w-3 h-3 text-slate-500" />
-                        <span className="text-xs text-slate-600">QR Ready</span>
-                      </Badge>
-                    ) : (
-                      <Badge variant="outline" className="gap-1.5 bg-white text-amber-600 border-amber-200">
-                        <AlertCircle className="w-3 h-3" />
-                        <span className="text-xs">No QR</span>
-                      </Badge>
-                    )}
-                  </div>
-                  <Button asChild size="sm" variant={expired ? "outline" : "default"} className={!expired ? "bg-blue-600 hover:bg-blue-700" : ""}>
-                    <Link href={`/referral/${slip.slipNumber}`} className="gap-1">
-                      View Slip <ChevronRight className="w-3 h-3" />
-                    </Link>
-                  </Button>
-                </div>
-              </Card>
-            );
-          })}
+    <div className="gw-stat" style={{ flex: 1 }}>
+      <div className="label">{label}</div>
+      <div className="value tx-num">{value}</div>
+      {delta && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span className={`delta${down ? " down" : ""}`}>{delta}</span>
+          {helper && <span className="tx-micro" style={{ color: "var(--ink-4)" }}>{helper}</span>}
         </div>
       )}
+    </div>
+  );
+}
+
+export default function JobseekerReferralsPage() {
+  return (
+    <div className="gw" style={{ maxWidth: 1200 }}>
+      <div style={{ marginBottom: 18 }}>
+        <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>Referral slips</h1>
+        <p className="tx-caption" style={{ marginTop: 4 }}>QR-coded endorsements issued by TaraCurong</p>
+      </div>
+
+      <div style={{ display: "flex", gap: 14, marginBottom: 24 }}>
+        <Stat label="Total issued" value="6" />
+        <Stat label="Valid right now" value="1" delta="6 days left" helper="exp. 06 Jun" />
+        <Stat label="Resulted in hire" value="1" delta="17% rate" />
+        <Stat label="Expired" value="3" delta="awaiting reissue" down />
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 16 }}>
+        {SLIPS.map((s) => (
+          <div
+            key={s.num}
+            className="gw-card gw-card--hover"
+            style={{
+              padding: 0,
+              overflow: "hidden",
+              display: "flex",
+              borderColor: s.status === "issued" ? "var(--seal-gold)" : "var(--ink-7)",
+            }}
+          >
+            {/* Left: QR + slip number */}
+            <div
+              style={{
+                width: 132,
+                padding: 16,
+                background: s.status === "issued" ? "var(--parchment)" : "var(--paper)",
+                borderRight: "1px dashed var(--ink-6)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                gap: 10,
+              }}
+            >
+              <div className="gw-qr sm" style={{ width: 92, height: 92 }}>
+                <span className="br" />
+              </div>
+              <div
+                className="tx-mono"
+                style={{
+                  fontSize: 9.5,
+                  color: "var(--official-ink)",
+                  textAlign: "center",
+                  letterSpacing: "0.04em",
+                  lineHeight: 1.4,
+                }}
+              >
+                GW-TC<br />
+                2026-{s.num.slice(-6)}
+              </div>
+            </div>
+
+            {/* Right: details */}
+            <div style={{ flex: 1, padding: 18, display: "flex", flexDirection: "column" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <Pill tone={REF_STATUS[s.status].tone}>{REF_STATUS[s.status].label}</Pill>
+                <span style={{ flex: 1 }} />
+                <MoreHorizontal size={14} style={{ color: "var(--ink-4)" }} />
+              </div>
+              <div className="tx-h3" style={{ marginTop: 12 }}>{s.job}</div>
+              <div className="tx-caption" style={{ marginTop: 2 }}>{s.emp}</div>
+              <div style={{ flex: 1 }} />
+              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginTop: 14 }}>
+                <div className="tx-micro tx-mono" style={{ color: "var(--ink-3)" }}>Valid: {s.valid}</div>
+                {s.status === "issued" && (
+                  <Link href={`/referral/${s.num}`}>
+                    <button type="button" className="gw-btn gw-btn--sm gw-btn--primary">Show QR</button>
+                  </Link>
+                )}
+                {s.status === "hired" && (
+                  <span
+                    className="tx-micro"
+                    style={{ color: "var(--emerald)", display: "inline-flex", alignItems: "center", gap: 4 }}
+                  >
+                    <Check size={11} /> Hire confirmed
+                  </span>
+                )}
+                {s.status === "expired" && (
+                  <button type="button" className="gw-btn gw-btn--sm gw-btn--ghost">Request new slip</button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }

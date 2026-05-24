@@ -1,4 +1,4 @@
-# 🎯 GensanWorks-Next: READY TO RUN
+# 🎯 TaraCurong-Next: READY TO RUN
 
 **Status**: ✅ Implementation Complete | 🚀 System Ready to Test | 📋 Execution Path Clear
 
@@ -39,7 +39,7 @@ npm run dev
 
 ### What You'll See
 - Dev server starts on http://localhost:3000
-- Homepage loads with GensanWorks branding
+- Homepage loads with TaraCurong branding
 - Browse jobs button visible (no login needed)
 - Sign up options for different roles
 
@@ -258,7 +258,7 @@ After Phase 9 completion, the system will support:
 ## 🎓 Architecture
 
 ```
-GensanWorks-Next (Next.js 15 + TypeScript)
+TaraCurong-Next (Next.js 15 + TypeScript)
 ├── Authentication (NextAuth.js v5)
 ├── API Endpoints (100+)
 ├── Database (Drizzle ORM + PostgreSQL)

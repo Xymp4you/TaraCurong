@@ -4,7 +4,7 @@ export const dynamic = "force-dynamic";
 import { useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 
-const STORAGE_KEY = "gensanworks-admin-notification-preferences";
+const STORAGE_KEY = "taracurong-admin-notification-preferences";
 
 const preferenceOptions = [
   ["email", "Email updates"],

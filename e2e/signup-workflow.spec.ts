@@ -47,8 +47,8 @@ test.describe("signup workflows", () => {
     await page.locator('label:has-text("Contact Phone") + input').fill("09179876543");
     await page.locator('label:has-text("Establishment Name") + input').fill(`E2E Employer ${Date.now()}`);
     await page.locator('label:has-text("Address") + input').fill("Pioneer Avenue");
-    await page.locator('label:has-text("City") + input').fill("General Santos City");
-    await page.locator('label:has-text("Province") + input').fill("South Cotabato");
+    await page.locator('label:has-text("City") + input').fill("Tacurong City");
+    await page.locator('label:has-text("Province") + input').fill("Sultan Kudarat");
     await page.locator('label:has-text("Email") + input').fill(uniqueEmail("employer"));
     await page.locator('label:has-text("Password") + input').fill("Abcd1234!");
 

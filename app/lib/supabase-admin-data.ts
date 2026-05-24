@@ -388,7 +388,7 @@ export async function createReferral(payload: { jobId: string; jobseekerId: stri
     userId: jobseekerId,
     role: "jobseeker",
     title: "You Have Been Referred",
-    message: `PESO has referred you to the position of ${job.position_title}. Check your applications for details and the referral slip.`,
+    message: `TaraCurong has referred you to the position of ${job.position_title}. Check your applications for details and the referral slip.`,
     type: "referral",
     relatedId: data.id,
     relatedType: "referral"
@@ -399,7 +399,7 @@ export async function createReferral(payload: { jobId: string; jobseekerId: stri
     try {
       const employer = job.employers as any;
       const establishmentName = employer?.establishment_name ?? "a verified employer";
-      const adminMessage = `Hello ${seekerName}, I am from PESO - General Santos City. I have referred you to the position of ${job.position_title} at ${establishmentName}. Please check your applications and be ready for potential contact from the employer. Good luck!`;
+      const adminMessage = `Hello ${seekerName}, I am from TaraCurong - Tacurong City. I have referred you to the position of ${job.position_title} at ${establishmentName}. Please check your applications and be ready for potential contact from the employer. Good luck!`;
       await supabaseAdmin.from("messages").insert({
         sender_id: adminId,
         recipient_id: jobseekerId,

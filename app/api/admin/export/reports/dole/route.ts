@@ -91,7 +91,7 @@ export async function GET(req: Request) {
     const summaryRow: ReportRow = {
       report_type: "DOLE Statistical Report",
       reporting_period: reportDate,
-      generated_by: "GensanWorks PESO Admin",
+      generated_by: "TaraCurong Admin",
       total_job_seekers: totalJobSeekers,
       total_employers: totalEmployers,
       total_job_postings: totalJobs,

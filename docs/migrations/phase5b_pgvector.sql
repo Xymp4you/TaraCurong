@@ -1,5 +1,5 @@
 -- ============================================================
--- GensanWorks Phase 5B Migration
+-- TaraCurong Phase 5B Migration
 -- Run this AFTER phase1_migration.sql
 -- Requires Supabase pgvector extension
 -- ============================================================

@@ -3,11 +3,11 @@ import "./globals.css";
 import { Providers } from "@/components/providers";
 
 export const metadata: Metadata = {
-  title: "GensanWorks - Job Matching Platform",
+  title: "TaraCurong - Job Matching Platform",
   description:
-    "Connect job seekers with employers. PESO job matching and recruitment platform.",
+    "Connect job seekers with employers. TaraCurong job matching and recruitment platform.",
   icons: {
-    icon: "/peso-gsc-logo.png",
+    icon: "/taracurong-logo.svg",
   },
 };
 

@@ -24,29 +24,39 @@ export default async function AdminLayout({
   };
 
   return (
-    <div className="fixed inset-0 flex overflow-hidden bg-slate-900 p-5 lg:p-6">
+    <div className="gw-app fixed inset-0 flex overflow-hidden" style={{ background: "var(--gw-bg)" }}>
       <style dangerouslySetInnerHTML={{ __html: `body { overflow: hidden !important; }` }} />
       <div className="hidden lg:flex lg:h-full lg:shrink-0">
         <AdminSidebar user={user} />
       </div>
-      <div className="flex flex-1 flex-col bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
+        <div
+          className="hidden lg:flex items-center gap-3 px-7 bg-white"
+          style={{ height: 56, borderBottom: "1px solid var(--line)" }}
+        >
+          <div className="gw-role-bar" style={{ background: "var(--role-admin)" }} />
+          <div>
+            <div className="gw-eyebrow">Admin</div>
+            <div style={{ fontWeight: 600, fontSize: 15, marginTop: 1, color: "var(--ink-900)" }}>Console</div>
+          </div>
+        </div>
         <div className="border-b border-slate-200 bg-white px-4 py-3 lg:hidden">
           <div className="flex items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <Image 
-                src="/peso-gsc-logo.png" 
-                alt="GensanWorks" 
+              <Image
+                src="/taracurong-logo.svg"
+                alt="TaraCurong"
                 width={40}
                 height={40}
                 className="h-10 w-auto object-contain"
               />
               <div className="flex flex-col">
                 <span className="text-base font-bold tracking-tight leading-none">
-                  <span className="text-red-600">Gensan</span>
-                  <span className="text-blue-600">Works</span>
+                  <span className="text-red-600">Tara</span>
+                  <span className="text-teal-700">Curong</span>
                 </span>
                 <span className="text-[10px] text-slate-500 font-medium">
-                  Public Employment Service Office
+                  Tacurong City
                 </span>
               </div>
             </div>

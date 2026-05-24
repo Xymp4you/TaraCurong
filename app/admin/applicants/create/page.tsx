@@ -126,7 +126,7 @@ export default function AdminCreateJobseekerPage() {
 
       <Card className="p-6 rounded-[2rem] border-slate-200 shadow-sm">
         <h2 className="text-lg font-black text-slate-900 uppercase tracking-tight mb-4 flex items-center gap-2">
-          <UserPlus className="h-5 w-5 text-indigo-600" /> Account Credentials
+          <UserPlus className="h-5 w-5 text-violet-600" /> Account Credentials
         </h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1.5">
@@ -135,7 +135,7 @@ export default function AdminCreateJobseekerPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-indigo-500 outline-none"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-violet-600 outline-none"
               placeholder="e.g. juan@example.com"
               required
             />
@@ -146,7 +146,7 @@ export default function AdminCreateJobseekerPage() {
               type="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-indigo-500 outline-none"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3 text-sm focus:border-violet-600 outline-none"
               placeholder="Minimum 8 characters"
               required
             />
@@ -166,7 +166,7 @@ export default function AdminCreateJobseekerPage() {
       {creating && (
         <div className="fixed inset-0 bg-white/50 backdrop-blur-sm z-50 flex items-center justify-center">
           <div className="bg-white p-6 rounded-2xl shadow-xl flex items-center gap-3 border border-slate-200">
-            <div className="h-5 w-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" />
+            <div className="h-5 w-5 border-2 border-violet-600 border-t-transparent rounded-full animate-spin" />
             <span className="font-bold text-slate-700">Provisioning Jobseeker Profile...</span>
           </div>
         </div>

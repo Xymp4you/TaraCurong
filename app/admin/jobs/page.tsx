@@ -424,7 +424,7 @@ export default function AdminJobsPage() {
                 {/* Left Panel: Description */}
                 <div className="col-span-7 flex flex-col gap-5 overflow-hidden">
                   <div className="flex items-center gap-2 text-slate-900">
-                    <FileText className="h-5 w-5 text-indigo-600" />
+                    <FileText className="h-5 w-5 text-violet-600" />
                     <h3 className="text-xs font-black uppercase tracking-[0.15em]">Job Description</h3>
                   </div>
                   <div className="flex-1 bg-slate-50/50 rounded-[2rem] p-8 border border-slate-100 overflow-y-auto scrollbar-thin scrollbar-thumb-slate-200">
@@ -448,7 +448,7 @@ export default function AdminJobsPage() {
                 <div className="col-span-5 flex flex-col gap-8 overflow-y-auto pr-2 scrollbar-none">
                   <div className="grid grid-cols-2 gap-4">
                     <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3 text-indigo-600">
+                      <div className="flex items-center gap-2 mb-3 text-violet-600">
                         <DollarSign className="h-4 w-4" />
                         <span className="text-[10px] font-black uppercase tracking-wider">Salary</span>
                       </div>
@@ -457,7 +457,7 @@ export default function AdminJobsPage() {
                       </p>
                     </div>
                     <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex items-center gap-2 mb-3 text-blue-600">
+                      <div className="flex items-center gap-2 mb-3 text-teal-700">
                         <Users className="h-4 w-4" />
                         <span className="text-[10px] font-black uppercase tracking-wider">Vacancies</span>
                       </div>
@@ -471,7 +471,7 @@ export default function AdminJobsPage() {
                         <span className="text-[10px] font-black uppercase tracking-wider">Location</span>
                       </div>
                       <p className="text-base font-black text-slate-900 truncate">
-                        {selectedJob.location || "General Santos"}
+                        {selectedJob.location || "Tacurong City"}
                       </p>
                     </div>
                     <div className="bg-white rounded-3xl p-5 border border-slate-100 shadow-sm hover:shadow-md transition-shadow">
@@ -543,7 +543,7 @@ export default function AdminJobsPage() {
                     )}
                     <Link href={`/admin/jobs/${selectedJob.id}/match`} className="w-full">
                       <Button 
-                        className="w-full rounded-[1.25rem] h-14 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-sm shadow-xl shadow-indigo-100 transition-all hover:-translate-y-0.5 active:translate-y-0"
+                        className="w-full rounded-[1.25rem] h-14 bg-violet-600 hover:bg-violet-700 text-white font-black text-sm shadow-xl shadow-indigo-100 transition-all hover:-translate-y-0.5 active:translate-y-0"
                       >
                         <Brain className="mr-2 h-5 w-5" />
                         AI Matching Dashboard

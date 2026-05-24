@@ -1,308 +1,332 @@
 "use client";
-export const dynamic = "force-dynamic";
 
-import { useEffect, useMemo, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { formatDate } from "@/lib/utils";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Badge } from "@/components/ui/badge";
-import { supabase } from "@/lib/supabase";
+import { useState } from "react";
+import Link from "next/link";
+import { Briefcase, ChevronDown, Download, Plus, QrCode, Sparkles } from "lucide-react";
+import { Pill, type PillTone } from "@/components/gw/atoms";
 
-type Referral = {
-  id: string;
-  applicant: string;
-  employer: string;
-  vacancy: string;
-  status: string;
-  dateReferred: string | null;
+type RefStatus = "issued" | "hired" | "not_hired" | "expired";
+const REF_STATUS: Record<RefStatus, { tone: PillTone; label: string }> = {
+  issued: { tone: "sky", label: "Issued" },
+  hired: { tone: "emerald", label: "Hired" },
+  not_hired: { tone: "rose", label: "Not hired" },
+  expired: { tone: "slate", label: "Expired" },
 };
 
-type ResponsePayload = {
-  referrals: Referral[];
-  totalReferrals?: number;
-  limit?: number;
-  offset?: number;
-};
+const SLIPS: { s: string; j: string; job: string; i: string; st: RefStatus }[] = [
+  { s: "TC-2026-014872", j: "Juan M. Cruz", job: "Bookkeeper · Dole", i: "23 May", st: "issued" },
+  { s: "TC-2026-014871", j: "Andrea L. Sanchez", job: "Payroll Clerk · Sultan Kudarat Foods", i: "23 May", st: "issued" },
+  { s: "TC-2026-014866", j: "Mark T. Reyes", job: "QA Supervisor · Dole", i: "22 May", st: "hired" },
+  { s: "TC-2026-014812", j: "Lourdes M. Mendoza", job: "Records · City Hall", i: "20 May", st: "hired" },
+  { s: "TC-2026-014744", j: "Patrick C. Yu", job: "CSR · Sykes", i: "18 May", st: "not_hired" },
+  { s: "TC-2026-014680", j: "Rene G. Galicia", job: "Driver · Cebu Pacific", i: "15 May", st: "expired" },
+];
 
-type ReferralSlip = {
-  id: string;
-  slip_number: string;
-  status: string;
-  issued_at: string;
-  valid_until: string;
-  users: { name: string; email: string };
-  jobs: { position_title: string; employers: { establishment_name: string } };
-};
+function Stat({ label, value, delta, helper, down }: { label: string; value: string; delta?: string; helper?: string; down?: boolean }) {
+  return (
+    <div className="gw-stat">
+      <div className="label">{label}</div>
+      <div className="value tx-num">{value}</div>
+      {delta && (
+        <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <span className={`delta${down ? " down" : ""}`}>{delta}</span>
+          {helper && <span className="tx-micro" style={{ color: "var(--ink-4)" }}>{helper}</span>}
+        </div>
+      )}
+    </div>
+  );
+}
 
-const STATUS_OPTIONS = ["all", "Pending", "For Interview", "Hired", "Rejected", "Withdrawn"] as const;
-
-export default function AdminReferralsManagementPage() {
-  const [referrals, setReferrals] = useState<Referral[]>([]);
-  const [slips, setSlips] = useState<ReferralSlip[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<(typeof STATUS_OPTIONS)[number]>("all");
-  const [updatingId, setUpdatingId] = useState<string | null>(null);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-
-  useEffect(() => {
-    const load = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const [response, slipsResponse] = await Promise.all([
-          fetch("/api/referrals?limit=200", { cache: "no-store" }),
-          supabase.from("referral_slips").select(`
-            id, slip_number, status, issued_at, valid_until,
-            users!referral_slips_applicant_id_fkey ( name, email ),
-            jobs ( position_title, employers ( establishment_name ) )
-          `).order("issued_at", { ascending: false }).limit(200)
-        ]);
-
-        if (response.ok) {
-          const payload = (await response.json()) as ResponsePayload;
-          setReferrals(payload.referrals ?? []);
-        }
-
-        if (!slipsResponse.error) {
-          setSlips((slipsResponse.data as unknown as ReferralSlip[]) ?? []);
-        }
-      } catch {
-        setError("Unable to load referrals");
-        setReferrals([]);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    void load();
-  }, []);
-
-  const filtered = useMemo(() => {
-    const searchTerm = search.trim().toLowerCase();
-    return referrals.filter((referral) => {
-      const matchesSearch =
-        !searchTerm ||
-        [referral.applicant, referral.employer, referral.vacancy].some((value) =>
-          value.toLowerCase().includes(searchTerm)
-        );
-      const matchesStatus = status === "all" || referral.status === status;
-      return matchesSearch && matchesStatus;
-    });
-  }, [referrals, search, status]);
-
-  const updateStatus = async (referralId: string, nextStatus: string) => {
-    setUpdatingId(referralId);
-    try {
-      const response = await fetch(`/api/referrals/${referralId}/status`, {
-        method: "PATCH",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: nextStatus }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to update referral");
-      }
-
-      const updated = (await response.json()) as Referral;
-      setReferrals((current) => current.map((item) => (item.id === referralId ? { ...item, status: updated.status } : item)));
-    } catch {
-      setError("Unable to update referral status");
-    } finally {
-      setUpdatingId(null);
-    }
-  };
-
-  const deleteReferral = async (referralId: string) => {
-    const confirmed = window.confirm("Delete this referral record? This also removes the linked application.");
-    if (!confirmed) return;
-
-    setDeletingId(referralId);
-    try {
-      const response = await fetch(`/api/referrals/${referralId}`, { method: "DELETE" });
-      if (!response.ok) {
-        throw new Error("Failed to delete referral");
-      }
-
-      setReferrals((current) => current.filter((item) => item.id !== referralId));
-    } catch {
-      setError("Unable to delete referral");
-    } finally {
-      setDeletingId(null);
-    }
-  };
+export default function AdminReferralsPage() {
+  const [validity, setValidity] = useState(1); // index 0..2
+  const [filter, setFilter] = useState(0);
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-wrap items-end justify-between gap-3 border-b border-slate-200 pb-4">
+    <div className="gw" style={{ maxWidth: 1320 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 18, gap: 16, flexWrap: "wrap" }}>
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">Referrals Management</h1>
-          <p className="mt-1 text-sm text-slate-600">Track referral outcomes and export records.</p>
+          <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>
+            Referral slips
+          </h1>
+          <p className="tx-caption" style={{ marginTop: 4 }}>Issue, track, and audit endorsements</p>
         </div>
-        <Button
-          variant="outline"
-          type="button"
-          onClick={async () => {
-            const response = await fetch("/api/admin/export/referrals?format=csv", { cache: "no-store" });
-            if (!response.ok) return;
-            const blob = await response.blob();
-            const url = URL.createObjectURL(blob);
-            const anchor = document.createElement("a");
-            anchor.href = url;
-            anchor.download = "referrals.csv";
-            anchor.click();
-            URL.revokeObjectURL(url);
+        <div style={{ display: "flex", gap: 10 }}>
+          <button type="button" className="gw-btn gw-btn--ghost">
+            <Download size={13} /> Export
+          </button>
+          <button type="button" className="gw-btn gw-btn--primary">
+            <Plus size={14} /> Issue new slip
+          </button>
+        </div>
+      </div>
+
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: 12 }}>
+        <Stat label="Issued this month" value="184" delta="+12% vs Apr" />
+        <Stat label="Active right now" value="62" delta="avg. 8.4 days valid" />
+        <Stat label="Hires confirmed" value="78" delta="42% conversion" />
+        <Stat label="Expired without action" value="14" delta="needs follow-up" down />
+      </div>
+
+      <div style={{ marginTop: 18, display: "grid", gridTemplateColumns: "1fr 1.6fr", gap: 16 }}>
+        {/* Issue card (dark) */}
+        <div
+          className="gw-card"
+          style={{
+            padding: 22,
+            background: "var(--official-ink)",
+            color: "#fff",
+            borderColor: "var(--official-ink)",
           }}
         >
-          Export CSV
-        </Button>
-      </div>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div
+              style={{
+                width: 24,
+                height: 24,
+                borderRadius: 999,
+                border: "1px solid var(--seal-gold-2)",
+                display: "grid",
+                placeItems: "center",
+              }}
+            >
+              <span className="tx-mono" style={{ fontSize: 10, color: "var(--seal-gold-2)" }}>+</span>
+            </div>
+            <div
+              className="tx-mono"
+              style={{
+                fontSize: 10,
+                color: "var(--seal-gold-2)",
+                letterSpacing: "0.14em",
+                textTransform: "uppercase",
+              }}
+            >
+              Issue a new slip
+            </div>
+          </div>
+          <div
+            className="tx-serif"
+            style={{
+              marginTop: 14,
+              color: "#fff",
+              fontWeight: 400,
+              fontSize: 22,
+              lineHeight: 1.18,
+              letterSpacing: "-0.02em",
+            }}
+          >
+            Endorse a jobseeker
+          </div>
+          <div className="tx-body" style={{ color: "var(--ink-5)", marginTop: 6, fontSize: 13 }}>
+            Slips are valid for 14 days and signed with HMAC-SHA256.
+          </div>
 
-      <div className="grid gap-3 md:grid-cols-[1fr_auto]">
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder="Search applicant, employer, or vacancy"
-          className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm shadow-sm outline-none focus:border-slate-400"
-        />
-        <select
-          className="rounded-xl border border-slate-300 bg-white px-4 py-3 text-sm"
-          value={status}
-          onChange={(event) => setStatus(event.target.value as typeof status)}
-        >
-          {STATUS_OPTIONS.map((option) => (
-            <option key={option} value={option}>
-              {option}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      {error ? <Card className="border-red-200 bg-red-50 p-4 text-sm text-red-700">{error}</Card> : null}
-
-      <Tabs defaultValue="slips" className="w-full">
-        <TabsList className="mb-4">
-          <TabsTrigger value="slips">Generated Slips</TabsTrigger>
-          <TabsTrigger value="records">Referral Records</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="slips">
-          <Card className="overflow-hidden border-slate-200 bg-white shadow-sm">
-            {loading ? (
-              <div className="p-6 text-sm text-slate-600">Loading slips...</div>
-            ) : slips.length === 0 ? (
-              <div className="p-6 text-sm text-slate-600">No generated referral slips found.</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                  <thead className="bg-slate-50 text-xs uppercase tracking-[0.18em] text-slate-500">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Slip No.</th>
-                      <th className="px-4 py-3 font-semibold">Applicant</th>
-                      <th className="px-4 py-3 font-semibold">Job & Employer</th>
-                      <th className="px-4 py-3 font-semibold">Issued At</th>
-                      <th className="px-4 py-3 font-semibold">Status</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {slips.map((slip) => {
-                      const isExpired = new Date(slip.valid_until) <= new Date();
-                      return (
-                        <tr key={slip.id} className="hover:bg-slate-50/80">
-                          <td className="px-4 py-4 align-top font-mono font-medium text-slate-900">{slip.slip_number}</td>
-                          <td className="px-4 py-4 align-top">
-                            <p className="font-medium text-slate-900">{slip.users?.name || "Unknown"}</p>
-                            <p className="text-xs text-slate-500">{slip.users?.email}</p>
-                          </td>
-                          <td className="px-4 py-4 align-top">
-                            <p className="font-medium text-slate-900">{slip.jobs?.position_title || "Unknown Job"}</p>
-                            <p className="text-xs text-slate-500">{slip.jobs?.employers?.establishment_name || "Unknown Employer"}</p>
-                          </td>
-                          <td className="px-4 py-4 align-top text-slate-700">
-                            {formatDate(slip.issued_at)}
-                          </td>
-                          <td className="px-4 py-4 align-top">
-                            {isExpired ? (
-                              <Badge variant="outline" className="bg-rose-50 text-rose-700 border-rose-200">Expired</Badge>
-                            ) : (
-                              <Badge variant="outline" className="bg-emerald-50 text-emerald-700 border-emerald-200">Valid</Badge>
-                            )}
-                          </td>
-                        </tr>
-                      );
-                    })}
-                  </tbody>
-                </table>
+          <div style={{ marginTop: 22, display: "flex", flexDirection: "column", gap: 12 }}>
+            <div>
+              <div className="tx-micro" style={{ color: "var(--ink-5)", marginBottom: 5 }}>Jobseeker</div>
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: "50%",
+                    background: "var(--seal-gold)",
+                    color: "#fff",
+                    display: "grid",
+                    placeItems: "center",
+                    fontSize: 10,
+                    fontWeight: 600,
+                  }}
+                >
+                  JC
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ font: "500 13px/1 var(--font-ui)", color: "#fff" }}>Juan Miguel A. Cruz</div>
+                  <div className="tx-mono" style={{ fontSize: 10, color: "var(--ink-5)", marginTop: 2 }}>
+                    NSRP-2026-000182
+                  </div>
+                </div>
+                <ChevronDown size={13} style={{ color: "var(--ink-5)" }} />
               </div>
-            )}
-          </Card>
-        </TabsContent>
+            </div>
 
-        <TabsContent value="records">
-          <Card className="overflow-hidden border-slate-200 bg-white shadow-sm">
-            {loading ? (
-              <div className="p-6 text-sm text-slate-600">Loading referrals...</div>
-            ) : filtered.length === 0 ? (
-              <div className="p-6 text-sm text-slate-600">No referral records found.</div>
-            ) : (
-              <div className="overflow-x-auto">
-                <table className="min-w-full divide-y divide-slate-200 text-left text-sm">
-                  <thead className="bg-slate-50 text-xs uppercase tracking-[0.18em] text-slate-500">
-                    <tr>
-                      <th className="px-4 py-3 font-semibold">Applicant</th>
-                      <th className="px-4 py-3 font-semibold">Employer</th>
-                      <th className="px-4 py-3 font-semibold">Position</th>
-                      <th className="px-4 py-3 font-semibold">Status</th>
-                      <th className="px-4 py-3 font-semibold">Referred</th>
-                      <th className="px-4 py-3 font-semibold text-right">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-slate-100">
-                    {filtered.map((referral) => (
-                      <tr key={referral.id} className="hover:bg-slate-50/80">
-                        <td className="px-4 py-4 align-top font-medium text-slate-950">{referral.applicant}</td>
-                        <td className="px-4 py-4 align-top text-slate-700">{referral.employer}</td>
-                        <td className="px-4 py-4 align-top text-slate-700">{referral.vacancy}</td>
-                        <td className="px-4 py-4 align-top text-slate-700">{referral.status}</td>
-                        <td className="px-4 py-4 align-top text-slate-700">
-                          {referral.dateReferred ? formatDate(referral.dateReferred) : "Unknown"}
-                        </td>
-                        <td className="px-4 py-4 align-top">
-                          <div className="flex justify-end gap-2">
-                            <select
-                              className="rounded-lg border border-slate-300 bg-white px-3 py-2 text-xs"
-                              value={referral.status}
-                              disabled={updatingId === referral.id}
-                              onChange={(event) => void updateStatus(referral.id, event.target.value)}
-                            >
-                              {STATUS_OPTIONS.filter((option) => option !== "all").map((option) => (
-                                <option key={option} value={option}>
-                                  {option}
-                                </option>
-                              ))}
-                            </select>
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              type="button"
-                              disabled={deletingId === referral.id}
-                              onClick={() => void deleteReferral(referral.id)}
-                            >
-                              {deletingId === referral.id ? "Deleting..." : "Delete"}
-                            </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
+            <div>
+              <div className="tx-micro" style={{ color: "var(--ink-5)", marginBottom: 5 }}>Job</div>
+              <div
+                style={{
+                  background: "rgba(255,255,255,0.05)",
+                  border: "1px solid rgba(255,255,255,0.08)",
+                  borderRadius: 8,
+                  padding: "8px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 10,
+                }}
+              >
+                <div
+                  style={{
+                    width: 24,
+                    height: 24,
+                    borderRadius: 6,
+                    background: "rgba(255,255,255,0.06)",
+                    display: "grid",
+                    placeItems: "center",
+                  }}
+                >
+                  <Briefcase size={11} color="var(--ink-5)" />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ font: "500 13px/1 var(--font-ui)", color: "#fff" }}>Bookkeeper</div>
+                  <div className="tx-micro" style={{ color: "var(--ink-5)", marginTop: 2 }}>
+                    Dole Philippines, Inc.
+                  </div>
+                </div>
+                <ChevronDown size={13} style={{ color: "var(--ink-5)" }} />
               </div>
-            )}
-          </Card>
-        </TabsContent>
-      </Tabs>
+            </div>
+
+            <div>
+              <div className="tx-micro" style={{ color: "var(--ink-5)", marginBottom: 5 }}>Validity</div>
+              <div className="gw-toggle" style={{ background: "rgba(255,255,255,0.05)" }}>
+                {["7 days", "14 days", "30 days"].map((d, i) => (
+                  <button
+                    key={d}
+                    type="button"
+                    onClick={() => setValidity(i)}
+                    className={validity === i ? "active" : ""}
+                    style={
+                      validity === i
+                        ? { background: "var(--seal-gold)", color: "#fff" }
+                        : { color: "var(--ink-5)" }
+                    }
+                  >
+                    {d}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <div
+            style={{
+              marginTop: 18,
+              padding: 12,
+              background: "rgba(255,255,255,0.04)",
+              borderRadius: "var(--r-2)",
+              display: "flex",
+              gap: 10,
+              alignItems: "center",
+            }}
+          >
+            <div
+              style={{
+                width: 32,
+                height: 32,
+                borderRadius: 6,
+                background: "var(--seal-gold)",
+                color: "#fff",
+                display: "grid",
+                placeItems: "center",
+                flexShrink: 0,
+              }}
+            >
+              <Sparkles size={14} />
+            </div>
+            <div className="tx-caption" style={{ color: "var(--ink-5)", fontSize: 12.5 }}>
+              Match score for this pairing is{" "}
+              <span className="tx-mono" style={{ color: "var(--seal-gold-2)" }}>94%</span>. Recommended.
+            </div>
+          </div>
+
+          <button
+            type="button"
+            className="gw-btn gw-btn--lg gw-btn--block"
+            style={{ marginTop: 18, background: "var(--seal-gold)", color: "#fff" }}
+          >
+            <QrCode size={14} /> Generate slip
+          </button>
+        </div>
+
+        {/* Track table */}
+        <div className="gw-card" style={{ padding: 0, overflow: "hidden" }}>
+          <div
+            style={{
+              padding: "16px 20px",
+              borderBottom: "1px solid var(--ink-7)",
+              display: "flex",
+              alignItems: "center",
+              gap: 12,
+              flexWrap: "wrap",
+            }}
+          >
+            <div className="tx-h3">Recent slips</div>
+            <span style={{ flex: 1 }} />
+            <div className="gw-toggle">
+              {["All", "Issued", "Hired", "Not hired", "Expired"].map((t, i) => (
+                <button
+                  key={t}
+                  type="button"
+                  className={filter === i ? "active" : ""}
+                  onClick={() => setFilter(i)}
+                >
+                  {t}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <table style={{ width: "100%", borderCollapse: "collapse", fontSize: 13 }}>
+            <thead>
+              <tr style={{ background: "var(--surface-2)", borderBottom: "1px solid var(--ink-7)" }}>
+                {["Slip #", "Jobseeker", "Job · Employer", "Issued", "Status"].map((h) => (
+                  <th
+                    key={h}
+                    style={{
+                      textAlign: "left",
+                      padding: "10px 16px",
+                      font: "500 11px/1 var(--font-ui)",
+                      color: "var(--ink-3)",
+                      letterSpacing: "0.04em",
+                      textTransform: "uppercase",
+                    }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {SLIPS.map((r, i) => (
+                <tr
+                  key={r.s}
+                  style={{ borderBottom: i < SLIPS.length - 1 ? "1px solid var(--ink-7)" : "none", cursor: "pointer" }}
+                >
+                  <td style={{ padding: "12px 16px" }}>
+                    <Link href={`/referral/${r.s}`} style={{ color: "inherit", textDecoration: "none" }}>
+                      <span className="tx-mono" style={{ fontSize: 11.5, color: "var(--ink-2)" }}>{r.s}</span>
+                    </Link>
+                  </td>
+                  <td style={{ padding: "12px 16px" }}>{r.j}</td>
+                  <td style={{ padding: "12px 16px", color: "var(--ink-2)" }}>{r.job}</td>
+                  <td style={{ padding: "12px 16px", color: "var(--ink-3)", fontSize: 12.5 }}>{r.i}</td>
+                  <td style={{ padding: "12px 16px" }}>
+                    <Pill tone={REF_STATUS[r.st].tone}>{REF_STATUS[r.st].label}</Pill>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   );
 }

@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# GensanWorks-Next: Complete Demo & Testing Setup
+# TaraCurong-Next: Complete Demo & Testing Setup
 # This script sets up the system for end-to-end testing with mock data
 # Run this to see the full system working immediately
 
 set -e
 
-echo "🚀 GensanWorks-Next: Complete System Demo Setup"
+echo "🚀 TaraCurong-Next: Complete System Demo Setup"
 echo "=================================================="
 echo ""
 
@@ -131,7 +131,7 @@ echo "✓ Test credentials setup (see TEST_CREDENTIALS.md)"
 echo ""
 echo "📖 Step 8: Creating quick start guide..."
 cat > DEMO_QUICK_START.md << 'EOF'
-# GensanWorks-Next: Quick Start Demo
+# TaraCurong-Next: Quick Start Demo
 
 Get the full system running in 2 minutes:
 

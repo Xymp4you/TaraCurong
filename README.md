@@ -1,8 +1,8 @@
-# GensanWorks - Next.js Rebuild
+# TaraCurong - Next.js Rebuild
 
 A comprehensive job matching platform rebuilt with **Next.js 15**, **TypeScript**, **Tailwind CSS**, and **Supabase**.
 
-This is a phased rebuild of GensanWorks, transitioning from Express + React (Vite) to modern Next.js architecture with serverless deployment.
+This is a phased rebuild of TaraCurong, transitioning from Express + React (Vite) to modern Next.js architecture with serverless deployment.
 
 ## 🚀 Quick Start
 
@@ -16,7 +16,7 @@ This is a phased rebuild of GensanWorks, transitioning from Express + React (Vit
 
 ```bash
 git clone <repo-url>
-cd GensanWorks-Next
+cd TaraCurong-Next
 npm install
 ```
 
@@ -131,10 +131,10 @@ app/
 
 - **admins** - System administrators
 - **users** - Jobseeker profiles (NSRP)
-- **employers** - Employer/establishment info (SRS Form 2)
-- **jobs** - Job postings (SRS Form 2A)
+- **employers** - Employer/establishment info (Employer Profile)
+- **jobs** - Job postings (Job Posting)
 - **applications** - Job applications with status workflow
-- **referrals** - PESO referral slips
+- **referrals** - TaraCurong referral slips
 - **messages** - In-app messaging
 - **notifications** - System notifications
 - **admin_access_requests** - Admin account requests
@@ -146,11 +146,11 @@ app/
 
 ### Key Features
 
-- Full NSRP profile fields for jobseekers
-- SRS Form 2 & 2A integration for employers
+- Full profile fields for jobseekers
+- Employer Profile & 2A integration for employers
 - Status workflow: pending → reviewed → shortlisted → interview → hired
 - AI-powered job matching via Groq LLM
-- PESO officer tracking & referral slip generation
+- Admin officer tracking & referral slip generation
 - Profile completeness scoring
 
 ## 🔐 Authentication
@@ -304,7 +304,7 @@ NEXT_PUBLIC_ENABLE_REALTIME      # Enable WebSocket (true/false)
 NEXT_PUBLIC_ENABLE_PWA           # Enable PWA (true/false)
 
 # App Settings
-NEXT_PUBLIC_APP_NAME             # "GensanWorks"
+NEXT_PUBLIC_APP_NAME             # "TaraCurong"
 NEXT_PUBLIC_APP_URL              # Production URL
 NODE_ENV                         # "development" or "production"
 ```
@@ -403,7 +403,7 @@ npm run test:e2e
 
 - **Issues**: Report bugs on GitHub
 - **Discussions**: Feature requests & ideas
-- **Email**: support@gensanworks.com
+- **Email**: support@taracurong.com
 
 ## 📄 License
 

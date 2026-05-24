@@ -25,13 +25,23 @@ export default async function EmployerLayout({
   };
 
   return (
-    <div className="fixed inset-0 flex overflow-hidden bg-slate-900 p-5 lg:p-6">
+    <div className="gw-app fixed inset-0 flex overflow-hidden" style={{ background: "var(--gw-bg)" }}>
       <style dangerouslySetInnerHTML={{ __html: `body { overflow: hidden !important; }` }} />
       <div className="hidden lg:flex lg:h-full lg:shrink-0">
         <EmployerSidebar user={userData} />
       </div>
-      <div className="flex flex-1 flex-col bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <MobileHeader user={userData} />
+        <div
+          className="hidden lg:flex items-center gap-3 px-7 bg-white"
+          style={{ height: 56, borderBottom: "1px solid var(--line)" }}
+        >
+          <div className="gw-role-bar" style={{ background: "var(--role-employer)" }} />
+          <div>
+            <div className="gw-eyebrow">Employer</div>
+            <div style={{ fontWeight: 600, fontSize: 15, marginTop: 1, color: "var(--ink-900)" }}>Portal</div>
+          </div>
+        </div>
         <main className="min-h-0 flex-1 overflow-auto p-6 lg:p-8">
           <Breadcrumbs />
           {children}

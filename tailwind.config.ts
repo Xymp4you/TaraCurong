@@ -9,8 +9,10 @@ const config: Config = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["Satoshi", ...defaultTheme.fontFamily.sans],
-        display: ["Satoshi", ...defaultTheme.fontFamily.sans],
+        sans: ["Inter Tight", "Satoshi", ...defaultTheme.fontFamily.sans],
+        display: ["Inter Tight", "Satoshi", ...defaultTheme.fontFamily.sans],
+        serif: ["Source Serif 4", ...defaultTheme.fontFamily.serif],
+        mono: ["JetBrains Mono", ...defaultTheme.fontFamily.mono],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -45,6 +47,39 @@ const config: Config = {
         card: {
           DEFAULT: "hsl(var(--card))",
           foreground: "hsl(var(--card-foreground))",
+        },
+        // ===== TaraCurong redesign palette — Quiet Official =====
+        ink: {
+          50:  "#F5F5F2",
+          100: "#EDEDE7",
+          200: "#E8E8E2",
+          300: "#DADCDF",
+          400: "#B5B8BD",
+          500: "#8A8F98",
+          600: "#5C6470",
+          700: "#3F4651",
+          800: "#2A3038",
+          900: "#0B0F14",
+        },
+        teal: {
+          50:  "#EAF3F2",
+          100: "#CDE5E3",
+          500: "#1A9591",
+          600: "#0E7C7B",
+          700: "#0B5F5E",
+        },
+        parchment: {
+          DEFAULT: "#F7F2E6",
+          200:     "#EFE7D2",
+        },
+        seal: {
+          gold:  "#8E6F1F",
+          gold2: "#C8A14A",
+        },
+        role: {
+          jobseeker: "#0B5F5E",
+          employer:  "#4A33A8",
+          admin:     "#862435",
         },
       },
       borderRadius: {

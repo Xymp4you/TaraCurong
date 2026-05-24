@@ -44,20 +44,20 @@ export function ImpactMetricsSection({
   return (
     <section className="w-full bg-slate-50 py-32 relative overflow-hidden">
       {/* Decorative Orbs */}
-      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-blue-100/50 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-teal-100/50 rounded-full blur-[120px] -translate-y-1/2 translate-x-1/3 pointer-events-none" />
       <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-green-100/50 rounded-full blur-[100px] translate-y-1/3 -translate-x-1/3 pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-blue-600 text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white border border-slate-200 text-teal-700 text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
             <BarChart3 className="w-4 h-4" />
             Our Track Record
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-4">
-            Our Impact in <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Numbers</span>
+            Our Impact in <span className="text-transparent bg-clip-text bg-gradient-to-r from-ink-800 to-violet-600">Numbers</span>
           </h2>
           <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            Real-time data-driven results connecting talent with opportunity in General Santos City.
+            Real-time data-driven results connecting talent with opportunity in Tacurong City.
           </p>
         </div>
 
@@ -65,11 +65,11 @@ export function ImpactMetricsSection({
         <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Jobseekers */}
           <div className="group bg-white rounded-3xl p-8 shadow-sm hover:shadow-xl border border-slate-200/60 transition-all duration-500 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+            <div className="absolute inset-0 bg-gradient-to-br from-teal-50/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             <div className="relative z-10 flex flex-col h-full">
               <div className="flex items-center justify-between mb-8">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform duration-500">
-                  <Users className="w-6 h-6 text-blue-600" />
+                <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-teal-500/10 to-violet-600/10 flex items-center justify-center border border-teal-500/20 group-hover:scale-110 transition-transform duration-500">
+                  <Users className="w-6 h-6 text-teal-700" />
                 </div>
                 <div className="px-3 py-1 bg-green-50 rounded-full border border-green-100/50">
                   <span className="text-xs font-bold text-green-700 flex items-center gap-1">
@@ -158,13 +158,13 @@ export function ImpactMetricsSection({
 
         {/* Additional Impact Stats Bento */}
         <div className="grid md:grid-cols-3 gap-6">
-          <div className="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden group">
+          <div className="bg-gradient-to-br from-ink-800 to-violet-700 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden group">
             <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
             <div className="relative z-10">
               <div className="w-10 h-10 bg-white/20 rounded-xl flex items-center justify-center mb-6 backdrop-blur-sm">
                 <Clock className="w-5 h-5 text-white" />
               </div>
-              <p className="text-blue-100 font-semibold mb-2">Avg Time to First Interview</p>
+              <p className="text-teal-100 font-semibold mb-2">Avg Time to First Interview</p>
               <div className="text-4xl font-black tracking-tight">
                 {impactLoading ? <Skeleton className="h-10 w-20 bg-white/20" /> : impactData?.avgTimeToInterview || "48 hrs"}
               </div>
@@ -185,12 +185,12 @@ export function ImpactMetricsSection({
           </div>
           
           <div className="bg-slate-900 rounded-3xl p-8 text-white shadow-lg relative overflow-hidden group">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
+            <div className="absolute top-0 right-0 w-32 h-32 bg-teal-500/20 rounded-full blur-2xl group-hover:scale-150 transition-transform duration-700" />
             <div className="relative z-10">
               <div className="w-10 h-10 bg-white/10 rounded-xl flex items-center justify-center mb-6 border border-white/10 backdrop-blur-sm">
-                <Building2 className="w-5 h-5 text-blue-400" />
+                <Building2 className="w-5 h-5 text-teal-500" />
               </div>
-              <p className="text-slate-400 font-semibold mb-2">Serving General Santos City</p>
+              <p className="text-slate-400 font-semibold mb-2">Serving Tacurong City</p>
               <div className="text-4xl font-black tracking-tight">
                 {impactLoading ? <Skeleton className="h-10 w-20 bg-white/10" /> : `${impactData?.yearsOfService || 25} years`}
               </div>

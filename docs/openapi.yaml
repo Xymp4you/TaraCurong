@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: GensanWorks API
+  title: TaraCurong API
   version: 1.0.0
   description: Core public and authenticated API surface for jobs, applications, messaging, and analytics.
 servers:

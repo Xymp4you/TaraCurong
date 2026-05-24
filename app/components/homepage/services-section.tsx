@@ -10,9 +10,9 @@ const services = [
     description: "Browse thousands of verified job opportunities across various industries with our intelligent matching system.",
     icon: Search,
     href: "/jobs",
-    className: "md:col-span-2 md:row-span-2 bg-gradient-to-br from-blue-500/10 to-indigo-500/5 hover:from-blue-500/20",
-    iconColor: "text-blue-500",
-    iconBg: "bg-blue-500/10"
+    className: "md:col-span-2 md:row-span-2 bg-gradient-to-br from-teal-500/10 to-violet-600/5 hover:from-teal-500/20",
+    iconColor: "text-teal-600",
+    iconBg: "bg-teal-500/10"
   },
   {
     title: "Post Job Vacancies",
@@ -55,7 +55,7 @@ export function ServicesSection() {
               Our Services
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Comprehensive Employment <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Services</span>
+              Comprehensive Employment <span className="text-transparent bg-clip-text bg-gradient-to-r from-ink-800 to-violet-600">Services</span>
             </h2>
           </div>
           <p className="text-lg text-slate-500 max-w-sm">

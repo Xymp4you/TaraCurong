@@ -1,8 +1,8 @@
-# GitHub Copilot Instructions for GensanWorks-Next
+# GitHub Copilot Instructions for TaraCurong-Next
 ## Anti-Hallucination & Phase 0-9 Execution Contract
 
 **Last Updated**: March 29, 2026  
-**Project**: GensanWorks-Next (Next.js 15 + TypeScript + NextAuth v5 + Drizzle ORM + PostgreSQL)  
+**Project**: TaraCurong-Next (Next.js 15 + TypeScript + NextAuth v5 + Drizzle ORM + PostgreSQL)  
 **Purpose**: Prevent hallucination. Enable end-to-end Phase 0-9 execution with integrity, traceability, and zero wasted effort.
 
 ---
@@ -157,9 +157,9 @@ npm run lint         # ESLint check (warnings OK, errors block commit)
 - `app/components/account-security-panel.tsx` — Account security UI component
 - `public/sw.js` — Service worker for offline auth
 - `tests/api-guardrails.test.ts` — Unit tests (5+ passing)
-- `scripts/auth-smoke-check.js` — Smoke test runner
-- `scripts/reset-admin-password.js` — Admin password reset utility
-- `scripts/bootstrap-role-passwords.js` — Bootstrap initial passwords
+- `scripts/auth-smoke-check.ts` — Smoke test runner
+- `scripts/reset-admin-password.ts` — Admin password reset utility
+- `scripts/bootstrap-role-passwords.ts` — Bootstrap initial passwords
 
 **Key Scripts**:
 ```bash

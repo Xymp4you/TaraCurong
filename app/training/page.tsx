@@ -27,7 +27,7 @@ export default function TrainingPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-600">Training</p>
           <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-900">Career Training Programs</h1>
           <p className="mt-4 max-w-3xl text-base text-slate-600">
-            PESO-supported programs that help jobseekers build in-demand capabilities.
+            Curated programs that help jobseekers build in-demand capabilities.
           </p>
         </div>
       </section>

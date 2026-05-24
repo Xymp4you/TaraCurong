@@ -1,307 +1,258 @@
 "use client";
-export const dynamic = "force-dynamic";
 
-import { useEffect, useState, useCallback } from "react";
 import { useParams } from "next/navigation";
-import Link from "next/link";
-import {
-  ChevronLeft, Brain, User, MessageSquare, ExternalLink, AlertCircle
-} from "lucide-react";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useState } from "react";
+import { ChevronDown, MapPin, Sparkles } from "lucide-react";
+import { Pill, type PillTone } from "@/components/gw/atoms";
 
-type ScoreBreakdown = {
-  f1_skill_match: number;
-  f2_experience_arc: number;
-  f3_education_qpe: number;
-
-
+type Match = {
+  ini: string;
+  n: string;
+  age: number;
+  loc: string;
+  exp: string;
+  score: number;
+  factors: { skills: number; exp: number; loc: number };
+  status?: "interview" | "shortlisted" | "under_review";
 };
 
-type CandidateScore = {
-  rank: number;
-  jobseekerId: string;
-  name: string;
-  email: string;
-  nsrpId?: string;
-  jobSeekingStatus: string;
-  utilityScore: number;
-  grade: "Excellent" | "Strong" | "Good" | "Fair" | "Weak";
-  dimensionScores: Record<string, { raw: number; weighted: number; weight_used: number }>;
-  summary: string;
-  strengths: string[];
-  gaps: string[];
-  biasFlags: string[];
-  constraintViolations: string[];
-  computedAt: string;
-  // Legacy fields for compat
-  suitabilityScore: number;
-  scoreBreakdown: any;
-  aiSummary: string;
+const MATCHES: Match[] = [
+  { ini: "JC", n: "Juan M. Cruz", age: 29, loc: "Tacurong · 12 km", exp: "5y bookkeeping", score: 94, factors: { skills: 90, exp: 95, loc: 100 }, status: "interview" },
+  { ini: "AS", n: "Andrea L. Sanchez", age: 31, loc: "Koronadal · 28 km", exp: "3y payroll", score: 91, factors: { skills: 90, exp: 85, loc: 80 }, status: "shortlisted" },
+  { ini: "MR", n: "Mark T. Reyes", age: 27, loc: "Tacurong · 8 km", exp: "4y BIR filing", score: 89, factors: { skills: 88, exp: 90, loc: 100 }, status: "shortlisted" },
+  { ini: "CD", n: "Cristina P. Dela Cruz", age: 34, loc: "Tacurong · 3 km", exp: "6y team lead", score: 85, factors: { skills: 80, exp: 85, loc: 100 }, status: "under_review" },
+  { ini: "RG", n: "Rene G. Galicia", age: 25, loc: "Sarangani · 35 km", exp: "2y junior accountant", score: 82, factors: { skills: 80, exp: 70, loc: 60 } },
+  { ini: "LM", n: "Lourdes M. Mendoza", age: 30, loc: "Tacurong · 14 km", exp: "4y reconciliation", score: 78, factors: { skills: 75, exp: 80, loc: 90 } },
+];
+
+const STATUS_PILL: Record<NonNullable<Match["status"]>, { tone: PillTone; label: string }> = {
+  interview: { tone: "amber", label: "Interview" },
+  shortlisted: { tone: "violet", label: "Shortlisted" },
+  under_review: { tone: "sky", label: "Under review" },
 };
 
-type EmployerMatchReport = {
-  job: { position_title: string };
-  scores: CandidateScore[];
-};
-
-const DIMENSION_LABELS: Record<string, string> = {
-  f1_skill_match: "Skills",
-  f2_experience_arc: "Experience",
-  f3_education_qpe: "Edu/QPE",
-
-
-};
-
-function GradeBadge({ grade }: { grade: string }) {
-  const styles = {
-    Excellent: "bg-emerald-100 text-emerald-700 border-emerald-200",
-    Strong: "bg-blue-100 text-blue-700 border-blue-200",
-    Good: "bg-amber-100 text-amber-700 border-amber-200",
-    Fair: "bg-orange-100 text-orange-700 border-orange-200",
-    Weak: "bg-rose-100 text-rose-700 border-rose-200",
-  };
+function FactorBar({ label, value }: { label: string; value: number }) {
   return (
-    <Badge variant="outline" className={`font-bold ${styles[grade as keyof typeof styles] ?? "bg-slate-100 text-slate-600"}`}>
-      {grade}
-    </Badge>
-  );
-}
-
-function ScoreGauge({ score }: { score: number }) {
-  const color = score >= 85 ? "text-emerald-600 bg-emerald-50 border-emerald-200" :
-                score >= 70 ? "text-blue-600 bg-blue-50 border-blue-200" :
-                score >= 55 ? "text-amber-600 bg-amber-50 border-amber-200" :
-                              "text-rose-600 bg-rose-50 border-rose-200";
-  const barColor = score >= 85 ? "bg-emerald-500" : 
-                   score >= 70 ? "bg-blue-500" : 
-                   score >= 55 ? "bg-amber-400" : "bg-rose-400";
-
-  return (
-    <div className={`flex flex-col items-center justify-center px-4 py-3 rounded-xl border ${color} min-w-[80px]`}>
-      <span className="text-2xl font-black">{Math.round(score)}%</span>
-      <div className="w-full h-1.5 bg-white/60 rounded-full mt-1 overflow-hidden">
-        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${score}%` }} />
+    <div>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 4 }}>
+        <span className="tx-micro" style={{ color: "var(--ink-3)" }}>{label}</span>
+        <span className="tx-mono" style={{ fontSize: 11, color: "var(--ink-2)" }}>{value}</span>
+      </div>
+      <div style={{ height: 4, background: "var(--ink-7)", borderRadius: 999, overflow: "hidden" }}>
+        <div
+          style={{
+            height: "100%",
+            width: `${value}%`,
+            background: value >= 85 ? "var(--violet)" : value >= 70 ? "var(--teal)" : "var(--ink-4)",
+          }}
+        />
       </div>
     </div>
   );
 }
 
-function DetailedBreakdown({ scores }: { scores: Record<string, { raw: number; weighted: number; weight_used: number }> }) {
-  return (
-    <div className="grid grid-cols-5 gap-3 mt-4 pt-4 border-t border-slate-100">
-      {Object.entries(scores).map(([key, val]) => {
-        const rawPercent = Math.round(val.raw * 100);
-        return (
-          <div key={key} className="space-y-1">
-            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold">{DIMENSION_LABELS[key] ?? key}</div>
-            <div className="flex items-end gap-1">
-              <span className={`text-sm font-black ${rawPercent >= 80 ? "text-emerald-600" : rawPercent >= 60 ? "text-amber-600" : "text-rose-500"}`}>
-                {rawPercent}%
-              </span>
-            </div>
-            <div className="w-full h-1 bg-slate-100 rounded-full overflow-hidden">
-              <div
-                className={`h-full rounded-full ${rawPercent >= 80 ? "bg-emerald-400" : rawPercent >= 60 ? "bg-amber-300" : "bg-rose-300"}`}
-                style={{ width: `${rawPercent}%` }}
-              />
-            </div>
-          </div>
-        );
-      })}
-    </div>
-  );
-}
-
-export default function EmployerMatchingReportPage() {
+export default function EmployerMatchingPage() {
   const params = useParams<{ job_id: string }>();
-  const jobId = params?.job_id;
-
-  const [report, setReport] = useState<EmployerMatchReport | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  const fetchReport = useCallback(async () => {
-    if (!jobId) return;
-    setLoading(true);
-    const res = await fetch(`/api/employer/matching/${jobId}`);
-    if (res.ok) {
-      const data = await res.json() as EmployerMatchReport;
-      setReport(data);
-    }
-    setLoading(false);
-  }, [jobId]);
-
-  useEffect(() => { void fetchReport(); }, [fetchReport]);
-
-  const jobTitle = report?.job?.position_title ?? "Loading...";
+  const jobId = params?.job_id ?? "bookkeeper";
+  const [selected, setSelected] = useState(0);
+  const top = MATCHES[selected];
 
   return (
-    <div className="space-y-6 animate-in fade-in duration-500 max-w-5xl mx-auto pb-10">
-      {/* Header */}
-      <div className="flex items-start justify-between">
-        <div className="flex items-start gap-4">
-          <Link href={`/employer/jobs/${jobId}`}>
-            <Button variant="ghost" size="icon" className="rounded-full mt-1">
-              <ChevronLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <div>
-            <div className="flex items-center gap-2">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <Brain className="w-6 h-6 text-purple-600" />
-              </div>
-              <div>
-                <h1 className="text-3xl font-black text-slate-900 tracking-tight">Intelligent Matching</h1>
-                <p className="text-slate-500 font-medium">{jobTitle}</p>
-              </div>
-            </div>
-          </div>
+    <div className="gw" style={{ maxWidth: 1400 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 18, flexWrap: "wrap", gap: 16 }}>
+        <div>
+          <div className="tx-eyebrow" style={{ color: "var(--violet)" }}>AI matching console</div>
+          <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em", marginTop: 8 }}>
+            Bookkeeper · Tacurong
+          </h1>
+          <p className="tx-caption" style={{ marginTop: 4 }}>
+            Job ID <span className="tx-mono">{jobId}</span> · 47 candidates ranked by best fit
+          </p>
+          <p
+            className="tx-micro"
+            style={{ marginTop: 6, color: "var(--ink-3)", maxWidth: 520, lineHeight: 1.5 }}
+          >
+            Scores are software estimates from a large-language-model prompt plus skill/location
+            overlap. They are <strong>not</strong> hiring decisions and should not be the only
+            factor in your shortlist. Review profiles directly.
+          </p>
         </div>
-        <Button variant="outline" onClick={() => void fetchReport()} className="gap-2">
-          Refresh Scores
-        </Button>
+        <div style={{ display: "flex", gap: 10 }}>
+          <button type="button" className="gw-btn gw-btn--ghost">
+            Weights <ChevronDown size={13} />
+          </button>
+          <button type="button" className="gw-btn gw-btn--primary">
+            <Sparkles size={13} /> Re-run matching
+          </button>
+        </div>
       </div>
 
-      {loading ? (
-        <div className="space-y-4">
-          {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-48 rounded-2xl" />)}
-        </div>
-      ) : !report?.scores || report.scores.length === 0 ? (
-        <Card className="p-20 text-center border-2 border-dashed border-slate-200 bg-slate-50/50 rounded-3xl">
-          <div className="max-w-md mx-auto">
-            <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-6">
-              <AlertCircle className="w-8 h-8 text-slate-400" />
-            </div>
-            <h2 className="text-xl font-bold text-slate-900">No Match Report Found</h2>
-            <p className="text-slate-500 mt-2">
-              PESO Gensan is currently processing the AI suitability analysis for this job posting. Please check back later or contact your PESO officer.
-            </p>
+      <div style={{ display: "grid", gridTemplateColumns: "1fr 420px", gap: 20 }}>
+        {/* Candidates list */}
+        <div className="gw-card" style={{ padding: 0, overflow: "hidden" }}>
+          <div
+            style={{
+              padding: "12px 18px",
+              borderBottom: "1px solid var(--ink-7)",
+              display: "flex",
+              alignItems: "center",
+              gap: 10,
+              background: "var(--surface-2)",
+            }}
+          >
+            <span className="tx-h4" style={{ fontSize: 13 }}>Ranked candidates</span>
+            <span style={{ flex: 1 }} />
+            <span className="tx-micro" style={{ color: "var(--ink-3)" }}>{MATCHES.length} shown · 47 total</span>
           </div>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          <div className="p-5 bg-gradient-to-r from-purple-600 to-indigo-700 text-white rounded-2xl shadow-lg shadow-purple-200 flex items-center gap-4">
-             <div className="p-3 bg-white/20 rounded-xl backdrop-blur-md">
-               <Brain className="w-6 h-6 text-white" />
-             </div>
-             <div>
-               <p className="font-bold text-lg leading-none">PESO AI Utility Engine v3</p>
-               <p className="text-white/80 text-sm mt-1">Advanced rational matching with bias-mitigation and qualified professional equivalence (QPE) logic.</p>
-             </div>
-          </div>
-
-          {report.scores.map((candidate) => (
-            <Card key={candidate.jobseekerId} className="overflow-hidden border-slate-200 hover:border-purple-300 hover:shadow-xl transition-all duration-300 rounded-3xl">
-              <div className="p-6">
-                <div className="flex items-start gap-6">
-                  {/* Left Column: Rank & Avatar */}
-                  <div className="flex flex-col items-center gap-3">
-                    <div className={`w-12 h-12 rounded-2xl flex items-center justify-center font-black text-lg shadow-sm ${
-                      candidate.rank === 1 ? "bg-yellow-400 text-white" :
-                      candidate.rank === 2 ? "bg-slate-300 text-slate-700" :
-                      candidate.rank === 3 ? "bg-amber-600 text-white" : "bg-slate-100 text-slate-500"
-                    }`}>
-                      #{candidate.rank}
-                    </div>
-                    <div className="w-14 h-14 rounded-full bg-gradient-to-tr from-slate-100 to-slate-200 flex items-center justify-center border-4 border-white shadow-inner overflow-hidden">
-                      <User className="w-7 h-7 text-slate-400" />
-                    </div>
-                  </div>
-
-                  {/* Middle Column: Info & Summary */}
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <div className="flex items-center gap-3">
-                          <h3 className="text-xl font-black text-slate-900 leading-tight">{candidate.name}</h3>
-                          <GradeBadge grade={candidate.grade ?? "N/A"} />
-                        </div>
-                        <div className="flex items-center gap-2 mt-1">
-                          <Badge variant="secondary" className="text-[10px] uppercase font-bold tracking-wider px-2">
-                            {candidate.jobSeekingStatus?.replace('_', ' ')}
-                          </Badge>
-                          <span className="text-xs text-slate-400">• Computed {new Date(candidate.computedAt).toLocaleDateString()}</span>
-                        </div>
-                      </div>
-                      <ScoreGauge score={candidate.utilityScore ?? candidate.suitabilityScore} />
-                    </div>
-
-                    <div className="mt-4 p-4 bg-slate-50 rounded-2xl border border-slate-100">
-                      <p className="text-sm text-slate-700 font-medium italic leading-relaxed">
-                        &ldquo;{candidate.summary || candidate.aiSummary}&rdquo;
-                      </p>
-                    </div>
-
-                    {/* Strengths & Gaps */}
-                    <div className="grid grid-cols-2 gap-4 mt-4">
-                      <div>
-                        <p className="text-[10px] font-bold text-emerald-600 uppercase tracking-widest mb-2">Key Strengths</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {candidate.strengths?.map((s, i) => (
-                            <span key={i} className="text-xs px-2.5 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-100 font-medium">
-                              {s}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                      <div>
-                        <p className="text-[10px] font-bold text-rose-600 uppercase tracking-widest mb-2">Addressable Gaps</p>
-                        <div className="flex flex-wrap gap-1.5">
-                          {candidate.gaps?.length ? candidate.gaps.map((g, i) => (
-                            <span key={i} className="text-xs px-2.5 py-1 rounded-lg bg-rose-50 text-rose-700 border border-rose-100 font-medium">
-                              {g}
-                            </span>
-                          )) : (
-                            <span className="text-xs text-slate-400 italic">No significant gaps found</span>
-                          )}
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Bias Flags & Constraint Violations */}
-                    {(candidate.biasFlags?.length > 0 || candidate.constraintViolations?.length > 0) && (
-                      <div className="mt-4 flex flex-wrap gap-2">
-                        {candidate.biasFlags?.map((f, i) => (
-                          <div key={i} className="flex items-center gap-1.5 text-[10px] font-bold text-amber-600 bg-amber-50 px-2 py-0.5 rounded border border-amber-100 uppercase tracking-tight">
-                            <AlertCircle className="w-3 h-3" /> {f}
-                          </div>
-                        ))}
-                        {candidate.constraintViolations?.map((v, i) => (
-                          <div key={i} className="flex items-center gap-1.5 text-[10px] font-bold text-rose-600 bg-rose-50 px-2 py-0.5 rounded border border-rose-100 uppercase tracking-tight">
-                            <AlertCircle className="w-3 h-3" /> {v}
-                          </div>
-                        ))}
-                      </div>
+          {MATCHES.map((m, i) => {
+            const isActive = i === selected;
+            return (
+              <button
+                type="button"
+                key={m.n}
+                onClick={() => setSelected(i)}
+                style={{
+                  display: "flex",
+                  width: "100%",
+                  alignItems: "center",
+                  gap: 14,
+                  padding: "16px 18px",
+                  background: isActive ? "var(--violet-bg)" : "transparent",
+                  borderBottom: i < MATCHES.length - 1 ? "1px solid var(--ink-7)" : "none",
+                  border: 0,
+                  cursor: "pointer",
+                  textAlign: "left",
+                  font: "inherit",
+                  color: "inherit",
+                }}
+              >
+                <div
+                  style={{
+                    width: 34,
+                    height: 34,
+                    borderRadius: "50%",
+                    background: isActive ? "var(--violet)" : "var(--paper-2)",
+                    color: isActive ? "#fff" : "var(--ink-2)",
+                    display: "grid",
+                    placeItems: "center",
+                    font: "600 12px/1 var(--font-ui)",
+                    flexShrink: 0,
+                  }}
+                >
+                  {m.ini}
+                </div>
+                <div style={{ flex: 1, minWidth: 0 }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <div className="tx-h4" style={{ fontSize: 13.5 }}>{m.n}</div>
+                    {m.status && (
+                      <Pill tone={STATUS_PILL[m.status].tone}>{STATUS_PILL[m.status].label}</Pill>
                     )}
-
-                    {/* Detailed Dimension Breakdown */}
-                    <DetailedBreakdown scores={candidate.dimensionScores ?? candidate.scoreBreakdown} />
                   </div>
-
-                  {/* Right Column: Actions */}
-                  <div className="flex flex-col gap-2 min-w-[140px]">
-                    <Link href={`/profile/${candidate.nsrpId ?? candidate.jobseekerId}`} target="_blank">
-                      <Button className="w-full justify-start gap-2 h-10 rounded-xl bg-slate-900 hover:bg-black text-white border-0 shadow-lg shadow-slate-200">
-                        <User className="w-4 h-4" /> View Profile
-                      </Button>
-                    </Link>
-                    <Link href={`/employer/messages?peerId=${candidate.jobseekerId}`}>
-                      <Button variant="outline" className="w-full justify-start gap-2 h-10 rounded-xl border-slate-200 hover:bg-slate-50 transition-colors">
-                        <MessageSquare className="w-4 h-4" /> Message
-                      </Button>
-                    </Link>
-                    <Button variant="ghost" className="w-full justify-start gap-2 h-10 rounded-xl text-slate-400 hover:text-slate-600">
-                       <ExternalLink className="w-4 h-4" /> Share Internally
-                    </Button>
+                  <div className="tx-micro" style={{ marginTop: 2 }}>
+                    {m.exp} · {m.age} yrs ·{" "}
+                    <span style={{ display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <MapPin size={10} /> {m.loc}
+                    </span>
                   </div>
                 </div>
-              </div>
-            </Card>
-          ))}
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <div style={{ width: 72 }}>
+                    <div
+                      style={{
+                        height: 4,
+                        background: "var(--ink-7)",
+                        borderRadius: 999,
+                        overflow: "hidden",
+                      }}
+                    >
+                      <div
+                        style={{
+                          height: "100%",
+                          width: `${m.score}%`,
+                          background: m.score >= 85 ? "var(--violet)" : "var(--teal)",
+                        }}
+                      />
+                    </div>
+                  </div>
+                  <div
+                    className="tx-mono"
+                    style={{
+                      minWidth: 42,
+                      textAlign: "right",
+                      fontSize: 14,
+                      fontWeight: 600,
+                      color: m.score >= 85 ? "var(--violet)" : "var(--ink-2)",
+                    }}
+                  >
+                    {m.score}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
         </div>
-      )}
+
+        {/* Rationale panel */}
+        <aside className="gw-card" style={{ padding: 0, overflow: "hidden", position: "sticky", top: 80, alignSelf: "flex-start" }}>
+          <div style={{ padding: 20, background: "var(--violet-bg)", borderBottom: "1px solid var(--ink-7)" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 12 }}>
+              <Sparkles size={14} color="var(--violet)" />
+              <span
+                className="tx-mono"
+                style={{
+                  fontSize: 10.5,
+                  color: "var(--violet)",
+                  letterSpacing: "0.1em",
+                  textTransform: "uppercase",
+                }}
+              >
+                AI rationale
+              </span>
+            </div>
+            <div className="tx-h2">{top.n}</div>
+            <div className="tx-caption" style={{ marginTop: 4 }}>
+              {top.age} yrs · {top.loc} · {top.exp}
+            </div>
+            <div
+              className="tx-mono"
+              style={{
+                marginTop: 12,
+                fontSize: 28,
+                fontWeight: 600,
+                color: "var(--violet)",
+                letterSpacing: "-0.02em",
+              }}
+            >
+              {top.score}% match
+            </div>
+          </div>
+
+          <div style={{ padding: 20 }}>
+            <div className="tx-h4" style={{ fontSize: 13, marginBottom: 12 }}>How the score breaks down</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+              <FactorBar label="Skills overlap" value={top.factors.skills} />
+              <FactorBar label="Experience match" value={top.factors.exp} />
+              <FactorBar label="Location proximity" value={top.factors.loc} />
+            </div>
+
+            <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "20px 0" }} />
+
+            <div className="tx-h4" style={{ fontSize: 13, marginBottom: 8 }}>Why this matches</div>
+            <p className="tx-body" style={{ fontSize: 13, color: "var(--ink-2)", margin: 0 }}>
+              Hands-on QuickBooks and Excel from {top.exp}. Distance and shift compatibility line up with the
+              Tacurong cannery role. Past payroll and BIR-filing background fits the reconciliation requirements
+              of this position.
+            </p>
+
+            <div style={{ display: "flex", gap: 8, marginTop: 18 }}>
+              <button type="button" className="gw-btn gw-btn--primary" style={{ flex: 1 }}>
+                Move to shortlist
+              </button>
+              <button type="button" className="gw-btn gw-btn--ghost">View profile</button>
+            </div>
+          </div>
+        </aside>
+      </div>
     </div>
   );
 }

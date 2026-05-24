@@ -126,7 +126,7 @@ export async function POST(req: NextRequest) {
             role: "jobseeker",
             type: "application_status",
             title: "You've been Shortlisted!",
-            message: `Congratulations! You've been shortlisted for "${job.position_title}". Your match score is ${candidateScore}% (Job Average: ${avgScore}%). If you want to proceed, please visit the PESO office for your referral slip.`,
+            message: `Congratulations! You've been shortlisted for "${job.position_title}". Your match score is ${candidateScore}% (Job Average: ${avgScore}%). If you want to proceed, please visit the TaraCurong office for your referral slip.`,
             relatedId: applicationId,
             relatedType: "application",
           });

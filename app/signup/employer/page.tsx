@@ -105,7 +105,7 @@ export default function EmployerSignupPage() {
       sideBullets={[
         "Verified employer onboarding",
         "Structured applicant workflows",
-        "PESO-aligned hiring support",
+        "Government-aligned hiring support",
       ]}
       footer={
         <p className="text-sm text-slate-600">

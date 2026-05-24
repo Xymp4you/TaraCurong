@@ -105,7 +105,7 @@ function ScoreBadge({ score, finalScore, band }: { score: number; finalScore?: n
   const display = finalScore ?? score;
   const colors: Record<string, string> = {
     Excellent: "bg-emerald-500/10 text-emerald-500 border-emerald-500/20",
-    Strong: "bg-blue-500/10 text-blue-500 border-blue-500/20",
+    Strong: "bg-teal-500/10 text-teal-600 border-teal-500/20",
     Good: "bg-amber-500/10 text-amber-500 border-amber-500/20",
     Fair: "bg-orange-500/10 text-orange-500 border-orange-500/20",
     Weak: "bg-rose-500/10 text-rose-500 border-rose-500/20",
@@ -202,12 +202,12 @@ function SkillGroups({ explanation, allCandidateSkills, requiredSkills }: { expl
 
       {bonus.length > 0 && (
         <div>
-          <p className="text-[9px] font-black text-blue-600 uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5">
+          <p className="text-[9px] font-black text-teal-700 uppercase tracking-[0.2em] mb-2 flex items-center gap-1.5">
             <Zap className="w-3 h-3" /> Bonus Skills
           </p>
           <div className="flex flex-wrap gap-1.5">
             {bonus.slice(0, 8).map((s, i) => (
-              <Badge key={i} variant="outline" className="bg-blue-50 text-blue-700 border-blue-100 font-bold text-[10px]">
+              <Badge key={i} variant="outline" className="bg-teal-50 text-teal-700 border-teal-100 font-bold text-[10px]">
                 {s}
               </Badge>
             ))}
@@ -358,7 +358,7 @@ export default function AdminMatchingReportPage() {
             <p className="text-sm font-bold text-slate-500 mt-2 flex items-center gap-2">
               <Building2 className="w-4 h-4" /> {jobTitle} <span className="text-slate-300">•</span> {employerName}
             </p>
-            <p className="text-[10px] font-bold text-indigo-400 uppercase tracking-widest mt-1 flex items-center gap-1.5">
+            <p className="text-[10px] font-bold text-violet-600 uppercase tracking-widest mt-1 flex items-center gap-1.5">
               <Brain className="w-3 h-3" /> Semantic Hybrid Ranking Engine · Calibrated Scores
             </p>
           </div>
@@ -466,8 +466,8 @@ export default function AdminMatchingReportPage() {
                           {/* Percentile rank if available */}
                           {candidate.percentile_rank !== undefined && (
                             <div className="flex items-center gap-1.5 mt-1">
-                              <TrendingUp className="w-3 h-3 text-indigo-400" />
-                              <span className="text-[10px] font-bold text-indigo-500">
+                              <TrendingUp className="w-3 h-3 text-violet-600" />
+                              <span className="text-[10px] font-bold text-violet-600">
                                 Top {Math.round((1 - candidate.percentile_rank) * 100)}% of candidates
                               </span>
                             </div>
@@ -485,7 +485,7 @@ export default function AdminMatchingReportPage() {
                         <div className="space-y-2">
                           {candidate.aiSummary ? (
                             <p className="text-sm font-bold text-slate-700 leading-relaxed">
-                              <span className="text-indigo-500 font-black mr-2 italic underline decoration-indigo-200 decoration-2 underline-offset-4">Why this candidate:</span>
+                              <span className="text-violet-600 font-black mr-2 italic underline decoration-indigo-200 decoration-2 underline-offset-4">Why this candidate:</span>
                               {truncateToSentences(candidate.aiSummary, 2)}
                             </p>
                           ) : (

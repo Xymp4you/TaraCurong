@@ -1,4 +1,5 @@
 @import url("https://api.fontshare.com/v2/css?f[]=satoshi@300,400,500,700,900&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Source+Serif+4:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 @tailwind base;
 @tailwind components;
@@ -6,25 +7,101 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 0 0% 3.6%;
+    /* ===== TaraCurong Redesign — Quiet Official (May 2026) =====
+       Legacy var names retained; values re-tuned to the new palette so
+       every existing component picks up the redesign automatically.        */
+
+    /* Core ink — neutral near-black (was navy) */
+    --ink-900: #0B0F14;
+    --ink-800: #2A3038;
+    --ink-700: #3F4651;
+    --ink-600: #5C6470;
+    --ink-500: #8A8F98;
+    --ink-400: #B5B8BD;
+    --ink-300: #DADCDF;
+    --ink-200: #E8E8E2;
+    --ink-100: #EDEDE7;
+    --ink-50:  #F5F5F2;
+
+    /* Teal — primary action (deep teal, single accent) */
+    --teal-700: #0B5F5E;
+    --teal-600: #0E7C7B;
+    --teal-500: #1A9591;
+    --teal-100: #CDE5E3;
+    --teal-50:  #EAF3F2;
+
+    /* Status — paired fg / soft-bg */
+    --emerald-600: #0F7A4F;
+    --emerald-100: #E5F1EB;
+    --amber-600:   #9B6510;
+    --amber-100:   #F5EAD4;
+    --rose-600:    #A8253D;
+    --rose-100:    #F4DDE2;
+    --sky-600:     #1F5C8A;
+    --sky-100:     #DEEAF3;
+    --violet-600:  #5B30B5;
+    --violet-100:  #E4DAF4;
+
+    /* Official document (referral slip) */
+    --parchment:    #F7F2E6;
+    --parchment-2:  #EFE7D2;
+    --seal-gold:    #8E6F1F;
+    --seal-gold-2:  #C8A14A;
+    --official-ink: #0A1622;
+
+    /* Surfaces — paper-cool */
+    --gw-bg:           #F5F5F2;
+    --gw-surface:      #FFFFFF;
+    --gw-surface-2:    #FAFAF7;
+    --line:            #E8E8E2;
+    --line-strong:     #DADCDF;
+
+    /* Role accents — single accent + restrained role tinting */
+    --role-jobseeker:     #0B5F5E;
+    --role-jobseeker-100: #CDE5E3;
+    --role-employer:      #4A33A8;
+    --role-employer-100:  #E4DAF4;
+    --role-admin:         #862435;
+    --role-admin-100:     #F4DDE2;
+
+    /* Type families */
+    --font-ui:    'Inter Tight', 'Satoshi', -apple-system, BlinkMacSystemFont, sans-serif;
+    --font-serif: 'Source Serif 4', Georgia, serif;
+    --font-mono:  'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+
+    /* Radii */
+    --r-sm:  6px;
+    --r-md:  8px;
+    --r-lg:  12px;
+    --r-xl:  16px;
+    --r-2xl: 20px;
+    --r-3xl: 28px;
+
+    /* Shadows */
+    --sh-1: 0 1px 0 rgba(10,31,51,0.04), 0 1px 2px rgba(10,31,51,0.06);
+    --sh-2: 0 1px 0 rgba(10,31,51,0.04), 0 4px 14px rgba(10,31,51,0.08);
+    --sh-3: 0 8px 32px rgba(10,31,51,0.10);
+
+    /* ===== Legacy shadcn HSL tokens — re-tuned to Quiet Official ===== */
+    --background: 60 9% 95%;               /* paper #F5F5F2 */
+    --foreground: 214 29% 6%;              /* ink #0B0F14 */
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 3.6%;
+    --card-foreground: 214 29% 6%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 3.6%;
-    --muted: 0 0% 96.1%;
-    --muted-foreground: 0 0% 45.1%;
-    --accent: 0 84.2% 60.2%;
+    --popover-foreground: 214 29% 6%;
+    --muted: 60 12% 92%;                   /* paper-2 #EDEDE7 */
+    --muted-foreground: 218 6% 57%;        /* ink-3 #8A8F98 ~ 57% L */
+    --accent: 179 80% 27%;                 /* teal-2 #0E7C7B */
     --accent-foreground: 0 0% 100%;
-    --destructive: 0 84.2% 60.2%;
+    --destructive: 349 64% 40%;            /* rose #A8253D */
     --destructive-foreground: 0 0% 100%;
-    --border: 0 0% 89.8%;
-    --input: 0 0% 89.8%;
-    --primary: 0 0% 9%;
+    --border: 60 13% 90%;                  /* hairline #E8E8E2 */
+    --input: 60 13% 90%;
+    --primary: 214 29% 6%;                 /* ink #0B0F14 */
     --primary-foreground: 0 0% 100%;
-    --secondary: 0 0% 96.1%;
-    --secondary-foreground: 0 0% 9%;
-    --ring: 0 0% 3.6%;
+    --secondary: 175 31% 85%;              /* teal-3 #CDE5E3 */
+    --secondary-foreground: 179 79% 21%;   /* teal #0B5F5E */
+    --ring: 179 80% 27%;                   /* teal-2 ring */
     --radius: 0.5rem;
   }
 
@@ -282,3 +359,528 @@
   border-color: #ef4444 !important;
   background-color: #fef2f2 !important;
 }
+
+/* =========================================================================
+   TaraCurong redesign components
+   Mirrors the "Evolved Official" design system (taracurong handoff).
+   ========================================================================= */
+
+/* ---------- Buttons ---------- */
+.gw-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 14px;
+  border-radius: var(--r-md);
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  border: 1px solid transparent;
+  cursor: pointer;
+  white-space: nowrap;
+  letter-spacing: -0.005em;
+  line-height: 1;
+  transition: background 120ms ease, border-color 120ms ease, color 120ms ease;
+}
+.gw-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+.gw-btn-primary  { background: var(--ink-900); color: white; }
+.gw-btn-primary:hover { background: var(--ink-800); }
+.gw-btn-teal     { background: var(--teal-600); color: white; }
+.gw-btn-teal:hover { background: var(--teal-700); }
+.gw-btn-ghost    { background: transparent; color: var(--ink-900); border-color: var(--line-strong); }
+.gw-btn-ghost:hover { background: var(--ink-50); }
+.gw-btn-emerald  { background: var(--emerald-600); color: white; }
+.gw-btn-emerald:hover { filter: brightness(0.95); }
+.gw-btn-rose     { background: var(--rose-600); color: white; }
+.gw-btn-rose:hover { filter: brightness(0.95); }
+.gw-btn-sm       { padding: 6px 10px; font-size: 12px; border-radius: var(--r-sm); }
+.gw-btn-lg       { padding: 12px 20px; font-size: 16px; border-radius: var(--r-md); }
+
+/* ---------- Pills / badges ---------- */
+.gw-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 22px;
+  padding: 0 9px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  text-transform: uppercase;
+  font-feature-settings: "tnum";
+  font-family: var(--font-ui);
+  line-height: 1;
+}
+.gw-pill-dot { width: 6px; height: 6px; border-radius: 999px; background: currentColor; flex-shrink: 0; }
+
+.gw-pill-slate   { background: var(--ink-100); color: var(--ink-700); }
+.gw-pill-sky     { background: var(--sky-100); color: var(--sky-600); }
+.gw-pill-violet  { background: var(--violet-100); color: var(--violet-600); }
+.gw-pill-amber   { background: var(--amber-100); color: var(--amber-600); }
+.gw-pill-emerald { background: var(--emerald-100); color: var(--emerald-600); }
+.gw-pill-rose    { background: var(--rose-100); color: var(--rose-600); }
+.gw-pill-teal    { background: var(--teal-100); color: var(--teal-700); }
+.gw-pill-outline { background: transparent; border: 1px dashed var(--line-strong); color: var(--ink-500); }
+
+/* ---------- Card ---------- */
+.gw-card {
+  background: var(--gw-surface);
+  border: 1px solid var(--line);
+  border-radius: var(--r-xl);
+  box-shadow: var(--sh-1);
+}
+.gw-card-hero {
+  border-radius: var(--r-3xl);
+  box-shadow: var(--sh-2);
+}
+
+/* ---------- Inputs ---------- */
+.gw-input {
+  height: 36px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-md);
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: var(--font-ui);
+  color: var(--ink-900);
+  background: white;
+  width: 100%;
+  outline: none;
+}
+.gw-input:focus { border-color: var(--teal-600); box-shadow: 0 0 0 3px var(--teal-100); }
+.gw-input::placeholder { color: var(--ink-400); }
+
+/* ---------- Labels & headings ---------- */
+.gw-label { font-size: 12px; color: var(--ink-600); font-weight: 500; display: block; margin-bottom: 6px; font-family: var(--font-ui); }
+.gw-eyebrow {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--ink-500);
+  font-weight: 600;
+}
+.gw-h1 { font-family: var(--font-ui); font-size: 28px; font-weight: 600; letter-spacing: -0.02em; margin: 0; color: var(--ink-900); }
+.gw-h2 { font-family: var(--font-ui); font-size: 22px; font-weight: 600; letter-spacing: -0.015em; margin: 0; color: var(--ink-900); }
+.gw-h3 { font-family: var(--font-ui); font-size: 16px; font-weight: 600; letter-spacing: -0.01em; margin: 0; color: var(--ink-900); }
+.gw-mono { font-family: var(--font-mono); font-variant-numeric: tabular-nums; letter-spacing: -0.01em; }
+.gw-serif { font-family: var(--font-serif); }
+
+/* ---------- Sidebar (navy) ---------- */
+.gw-sidebar {
+  background: var(--ink-900);
+  color: var(--ink-200);
+  padding: 18px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.gw-sidebar-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  border-radius: var(--r-md);
+  font-size: 14px;
+  color: var(--ink-300);
+  cursor: pointer;
+  text-decoration: none;
+  transition: color 120ms ease, background 120ms ease;
+  font-family: var(--font-ui);
+}
+.gw-sidebar-item:hover { color: white; background: rgba(255,255,255,0.04); }
+.gw-sidebar-item.active { background: rgba(255,255,255,0.08); color: white; }
+
+/* ---------- Topbar (with role accent bar) ---------- */
+.gw-topbar {
+  height: 56px;
+  background: white;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  gap: 16px;
+}
+.gw-role-bar {
+  width: 4px;
+  height: 28px;
+  border-radius: 4px;
+  flex-shrink: 0;
+}
+
+/* Body font hook — when an element is marked .gw-app it uses Inter Tight */
+.gw-app { font-family: var(--font-ui); color: var(--ink-900); }
+
+/* =========================================================================
+   TaraCurong — "Quiet Official" tokens & components (additive)
+   Sourced from the May 2026 Claude Design handoff (taracurong bundle).
+   New tokens use distinct names from the existing "Evolved Official" system
+   so both coexist. New component classes are scoped under `.gw` — opt-in by
+   wrapping a page or section with className="gw".
+   ========================================================================= */
+:root {
+  /* Surfaces (paper-cool) */
+  --paper:        #F5F5F2;
+  --paper-2:      #EDEDE7;
+  --surface:      #FFFFFF;
+  --surface-2:    #FAFAF7;
+
+  /* Ink (near-black, less blue than legacy navy) */
+  --ink:          #0B0F14;
+  --ink-2:        #2A3038;
+  --ink-3:        #5C6470;
+  --ink-4:        #8A8F98;
+  --ink-5:        #B5B8BD;
+  --ink-6:        #DADCDF;
+  --ink-7:        #E8E8E2;
+
+  /* Accent (single restrained teal) */
+  --teal:         #0B5F5E;
+  --teal-2:       #0E7C7B;
+  --teal-3:       #CDE5E3;
+  --teal-4:       #EAF3F2;
+
+  /* Status (paired fg + soft bg) */
+  --emerald:      #0F7A4F;
+  --emerald-bg:   #E5F1EB;
+  --amber:        #9B6510;
+  --amber-bg:     #F5EAD4;
+  --rose:         #A8253D;
+  --rose-bg:      #F4DDE2;
+  --sky:          #1F5C8A;
+  --sky-bg:       #DEEAF3;
+  --violet:       #5B30B5;
+  --violet-bg:    #E4DAF4;
+  --slate:        #4A5462;
+  --slate-bg:     #ECECE6;
+
+  /* Official document (referral slip) */
+  --parchment:     #F7F2E6;
+  --parchment-2:   #EFE7D2;
+  --official-ink:  #0A1622;
+
+  /* Radii */
+  --r-1: 4px;
+  --r-2: 6px;
+  --r-3: 10px;
+  --r-4: 14px;
+  --r-5: 20px;
+  --r-pill: 999px;
+
+  /* Pop shadow (in addition to existing --sh-1/--sh-2) */
+  --sh-pop: 0 10px 32px rgba(11,15,20,0.10);
+}
+
+/* ---- Root: opt-in container ------------------------------------------- */
+.gw {
+  font-family: var(--font-ui);
+  color: var(--ink);
+  font-feature-settings: "ss01", "cv11";
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.gw button { font-family: inherit; }
+
+/* ---- Type utilities (additive, no conflict) --------------------------- */
+.tx-eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.tx-display { font-size: 48px;   line-height: 1.04; letter-spacing: -0.035em; font-weight: 500; }
+.tx-h1      { font-size: 32px;   line-height: 1.1;  letter-spacing: -0.028em; font-weight: 500; }
+.tx-h2      { font-size: 22px;   line-height: 1.18; letter-spacing: -0.02em;  font-weight: 500; }
+.tx-h3      { font-size: 17px;   line-height: 1.25; letter-spacing: -0.012em; font-weight: 500; }
+.tx-h4      { font-size: 15px;   line-height: 1.3;  letter-spacing: -0.005em; font-weight: 500; }
+.tx-body    { font-size: 14px;   line-height: 1.5;  color: var(--ink-2); }
+.tx-body-lg { font-size: 16px;   line-height: 1.55; color: var(--ink-2); }
+.tx-caption { font-size: 12.5px; line-height: 1.4;  color: var(--ink-3); }
+.tx-micro   { font-size: 11px;   line-height: 1.3;  color: var(--ink-3); }
+.tx-mono    { font-family: var(--font-mono); font-variant-numeric: tabular-nums; }
+.tx-serif   { font-family: var(--font-serif); }
+.tx-num     { font-variant-numeric: tabular-nums; }
+
+/* ---- Buttons: BEM `--` modifiers, scoped under .gw -------------------- */
+.gw .gw-btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: 8px;
+  height: 36px; padding: 0 14px;
+  border-radius: var(--r-2);
+  font: 500 13.5px/1 var(--font-ui);
+  letter-spacing: -0.005em;
+  border: 1px solid transparent;
+  background: transparent; color: var(--ink);
+  cursor: pointer;
+  transition: background 140ms ease, border-color 140ms ease, color 140ms ease, transform 140ms ease;
+  white-space: nowrap;
+}
+.gw .gw-btn:active            { transform: translateY(1px); }
+.gw .gw-btn--primary          { background: var(--ink); color: #fff; }
+.gw .gw-btn--primary:hover    { background: var(--ink-2); }
+.gw .gw-btn--accent           { background: var(--teal); color: #fff; }
+.gw .gw-btn--accent:hover     { background: var(--teal-2); }
+.gw .gw-btn--ghost            { border-color: var(--ink-6); color: var(--ink); background: var(--surface); }
+.gw .gw-btn--ghost:hover      { background: var(--paper); border-color: var(--ink-5); }
+.gw .gw-btn--quiet            { color: var(--ink-3); background: transparent; }
+.gw .gw-btn--quiet:hover      { color: var(--ink); background: var(--paper-2); }
+.gw .gw-btn--emerald          { background: var(--emerald); color: #fff; }
+.gw .gw-btn--rose             { background: var(--rose); color: #fff; }
+.gw .gw-btn--sm               { height: 30px; padding: 0 10px; font-size: 12.5px; border-radius: var(--r-1); }
+.gw .gw-btn--lg               { height: 44px; padding: 0 18px; font-size: 15px; }
+.gw .gw-btn--block            { width: 100%; }
+
+/* ---- Cards (modifiers) ------------------------------------------------ */
+.gw .gw-card             { background: var(--surface); border: 1px solid var(--ink-7); border-radius: var(--r-4); box-shadow: none; }
+.gw .gw-card--flat       { box-shadow: none; }
+.gw .gw-card--hover      { transition: border-color 160ms ease, transform 160ms ease, box-shadow 160ms ease; }
+.gw .gw-card--hover:hover{ border-color: var(--ink-5); box-shadow: var(--sh-2); transform: translateY(-1px); }
+.gw .hr                  { height: 1px; background: var(--ink-7); border: 0; margin: 0; }
+
+/* ---- Pills: BEM `--` modifiers (existing `.gw-pill-*` single-dash kept) */
+.gw .gw-pill {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 22px; padding: 0 9px;
+  border-radius: var(--r-pill);
+  font: 500 11px/1 var(--font-ui);
+  letter-spacing: 0.04em; text-transform: uppercase;
+  font-variant-numeric: tabular-nums;
+}
+.gw .gw-pill .dot       { width: 5px; height: 5px; border-radius: 50%; background: currentColor; }
+.gw .gw-pill--slate     { background: var(--slate-bg);   color: var(--slate); }
+.gw .gw-pill--sky       { background: var(--sky-bg);     color: var(--sky); }
+.gw .gw-pill--violet    { background: var(--violet-bg);  color: var(--violet); }
+.gw .gw-pill--amber     { background: var(--amber-bg);   color: var(--amber); }
+.gw .gw-pill--emerald   { background: var(--emerald-bg); color: var(--emerald); }
+.gw .gw-pill--rose      { background: var(--rose-bg);    color: var(--rose); }
+.gw .gw-pill--teal      { background: var(--teal-4);     color: var(--teal); }
+.gw .gw-pill--dashed    { background: transparent; color: var(--ink-3); border: 1px dashed var(--ink-6); }
+.gw .gw-pill--solid-ink { background: var(--ink); color: #fff; }
+
+/* ---- Inputs (new height + teal focus ring) ---------------------------- */
+.gw .gw-input {
+  height: 38px; width: 100%;
+  padding: 0 12px;
+  border: 1px solid var(--ink-6);
+  border-radius: var(--r-2);
+  background: var(--surface);
+  font: 400 14px/1 var(--font-ui);
+  color: var(--ink);
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+.gw .gw-input:focus       { outline: none; border-color: var(--teal); box-shadow: 0 0 0 3px var(--teal-4); }
+.gw .gw-input::placeholder{ color: var(--ink-4); }
+.gw .gw-label             { font: 500 12px/1 var(--font-ui); color: var(--ink-3); margin-bottom: 6px; display: block; letter-spacing: 0.005em; }
+
+/* ---- Sidebar (white-surface variant — opt-in via .gw) ----------------- */
+.gw .gw-sidebar {
+  width: 232px;
+  background: var(--surface);
+  border-right: 1px solid var(--ink-7);
+  display: flex; flex-direction: column;
+  padding: 0;
+}
+.gw .gw-sidebar .brand {
+  height: 60px; display: flex; align-items: center; gap: 10px;
+  padding: 0 18px; border-bottom: 1px solid var(--ink-7);
+}
+.gw .gw-sidebar .brand .seal {
+  width: 26px; height: 26px; border-radius: 50%;
+  background: var(--ink); color: #fff;
+  display: grid; place-items: center;
+  font: 700 10px/1 var(--font-mono); letter-spacing: 0.05em;
+}
+.gw .gw-sidebar nav { padding: 14px 10px; flex: 1; display: flex; flex-direction: column; gap: 1px; }
+.gw .gw-sidebar .section-label {
+  font: 600 10px/1 var(--font-ui); letter-spacing: 0.14em; text-transform: uppercase;
+  color: var(--ink-4); padding: 14px 12px 6px;
+}
+.gw .gw-sidebar .item {
+  display: flex; align-items: center; gap: 11px;
+  height: 34px; padding: 0 12px;
+  border-radius: var(--r-2);
+  color: var(--ink-2);
+  font: 500 13.5px/1 var(--font-ui);
+  cursor: pointer;
+  transition: background 120ms ease, color 120ms ease;
+}
+.gw .gw-sidebar .item:hover                  { background: var(--paper); color: var(--ink); }
+.gw .gw-sidebar .item.active                 { background: var(--ink); color: #fff; }
+.gw .gw-sidebar .item.active.role-jobseeker  { background: var(--role-jobseeker); }
+.gw .gw-sidebar .item.active.role-employer   { background: var(--role-employer); }
+.gw .gw-sidebar .item.active.role-admin      { background: var(--role-admin); }
+.gw .gw-sidebar .item .count                 { margin-left: auto; font: 500 11px/1 var(--font-mono); opacity: 0.7; }
+.gw .gw-sidebar .footer {
+  padding: 12px 14px; border-top: 1px solid var(--ink-7);
+  display: flex; align-items: center; gap: 10px;
+}
+
+/* ---- Topbar (white variant — opt-in via .gw) -------------------------- */
+.gw .gw-topbar {
+  height: 56px; padding: 0 22px;
+  display: flex; align-items: center; gap: 16px;
+  background: var(--surface); border-bottom: 1px solid var(--ink-7);
+}
+.gw .gw-topbar .search {
+  display: flex; align-items: center; gap: 8px;
+  height: 34px; padding: 0 12px;
+  background: var(--paper); border-radius: var(--r-2);
+  color: var(--ink-3); font-size: 13px; min-width: 280px;
+  border: 1px solid transparent;
+}
+.gw .gw-topbar .iconbtn {
+  width: 34px; height: 34px;
+  display: grid; place-items: center;
+  border-radius: var(--r-2);
+  color: var(--ink-2); cursor: pointer;
+  position: relative;
+}
+.gw .gw-topbar .iconbtn:hover { background: var(--paper); }
+.gw .gw-topbar .iconbtn .badge {
+  position: absolute; top: 5px; right: 5px;
+  min-width: 7px; height: 7px; border-radius: 999px;
+  background: var(--rose); border: 2px solid var(--surface);
+}
+
+/* ---- Avatar ----------------------------------------------------------- */
+.gw .gw-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--paper-2); border: 1px solid var(--ink-7);
+  color: var(--ink-2); display: grid; place-items: center;
+  font: 600 11.5px/1 var(--font-ui); letter-spacing: 0.02em;
+  flex-shrink: 0; overflow: hidden;
+}
+.gw .gw-avatar.sm { width: 24px; height: 24px; font-size: 10px; }
+.gw .gw-avatar.lg { width: 44px; height: 44px; font-size: 14px; }
+
+/* ---- Status pipeline -------------------------------------------------- */
+.gw .gw-pipeline { display: flex; align-items: center; gap: 0; padding: 4px 0; }
+.gw .gw-pipeline .step {
+  display: flex; flex-direction: column; align-items: center; gap: 8px;
+  flex: 1; position: relative;
+}
+.gw .gw-pipeline .node {
+  width: 24px; height: 24px; border-radius: 50%;
+  border: 1.5px solid var(--ink-6); background: var(--surface);
+  display: grid; place-items: center;
+  color: var(--ink-4);
+  font: 600 11px/1 var(--font-mono);
+  z-index: 1;
+  transition: border-color 200ms ease, background 200ms ease, color 200ms ease;
+}
+.gw .gw-pipeline .step.done    .node { background: var(--ink); color: #fff; border-color: var(--ink); }
+.gw .gw-pipeline .step.current .node { background: var(--surface); color: var(--teal); border-color: var(--teal); box-shadow: 0 0 0 4px var(--teal-4); }
+.gw .gw-pipeline .step.cancel  .node { background: var(--rose-bg); color: var(--rose); border-color: var(--rose-bg); }
+.gw .gw-pipeline .label {
+  font: 500 11px/1.2 var(--font-ui);
+  color: var(--ink-3); text-align: center;
+  letter-spacing: 0.01em;
+}
+.gw .gw-pipeline .step.done    .label,
+.gw .gw-pipeline .step.current .label { color: var(--ink); }
+.gw .gw-pipeline .step:not(:last-child)::after {
+  content: ""; position: absolute;
+  left: calc(50% + 14px); right: calc(-50% + 14px); top: 11px;
+  height: 1.5px; background: var(--ink-7);
+}
+.gw .gw-pipeline .step.done + .step::before {
+  content: ""; position: absolute;
+  left: calc(-50% + 14px); right: calc(50% + 14px); top: 11px;
+  height: 1.5px; background: var(--ink); z-index: 0;
+}
+
+/* ---- QR placeholder (referral slip) ----------------------------------- */
+.gw .gw-qr {
+  width: 168px; height: 168px;
+  background:
+    repeating-linear-gradient(0deg,  var(--official-ink) 0 6px, transparent 6px 12px),
+    repeating-linear-gradient(90deg, var(--official-ink) 0 6px, transparent 6px 12px);
+  background-blend-mode: difference;
+  border-radius: 4px;
+  position: relative;
+  flex-shrink: 0;
+}
+.gw .gw-qr::before, .gw .gw-qr::after {
+  content: ""; position: absolute; width: 36px; height: 36px;
+  border: 8px solid var(--official-ink);
+  background: var(--parchment);
+}
+.gw .gw-qr::before { top: 0; left: 0; }
+.gw .gw-qr::after  { top: 0; right: 0; }
+.gw .gw-qr > .br {
+  position: absolute; bottom: 0; left: 0; width: 36px; height: 36px;
+  border: 8px solid var(--official-ink); background: var(--parchment);
+}
+.gw .gw-qr.sm                                   { width: 64px; height: 64px; }
+.gw .gw-qr.sm::before, .gw .gw-qr.sm::after,
+.gw .gw-qr.sm > .br                             { width: 14px; height: 14px; border-width: 3px; }
+.gw .gw-qr-img { background: var(--parchment); border-radius: 4px; padding: 6px; }
+
+/* ---- Misc widgets ----------------------------------------------------- */
+.gw .gw-divider-v { width: 1px; background: var(--ink-7); align-self: stretch; }
+.gw .gw-keycap {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-width: 18px; height: 18px; padding: 0 4px;
+  border: 1px solid var(--ink-6); border-bottom-width: 2px;
+  border-radius: 4px; background: var(--surface);
+  font: 500 10.5px/1 var(--font-mono); color: var(--ink-3);
+}
+.gw .gw-chip {
+  display: inline-flex; align-items: center; gap: 6px;
+  height: 28px; padding: 0 11px; border-radius: var(--r-pill);
+  background: var(--surface); border: 1px solid var(--ink-6);
+  font: 500 12.5px/1 var(--font-ui); color: var(--ink-2);
+  cursor: pointer; transition: all 140ms ease;
+}
+.gw .gw-chip:hover  { border-color: var(--ink-5); background: var(--paper); }
+.gw .gw-chip.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+.gw .gw-stat {
+  padding: 18px 20px;
+  border: 1px solid var(--ink-7);
+  border-radius: var(--r-3);
+  background: var(--surface);
+  display: flex; flex-direction: column; gap: 4px;
+}
+.gw .gw-stat .label    { font: 500 11px/1 var(--font-ui); color: var(--ink-3); letter-spacing: 0.08em; text-transform: uppercase; }
+.gw .gw-stat .value    { font: 500 32px/1 var(--font-ui); letter-spacing: -0.025em; color: var(--ink); }
+.gw .gw-stat .delta    { font: 500 11.5px/1 var(--font-mono); color: var(--emerald); }
+.gw .gw-stat .delta.down { color: var(--rose); }
+
+.gw .gw-phone {
+  width: 360px; height: 760px;
+  background: var(--ink); padding: 10px;
+  border-radius: 38px; box-shadow: var(--sh-2);
+}
+.gw .gw-phone .screen {
+  width: 100%; height: 100%; background: var(--paper);
+  border-radius: 28px; overflow: hidden;
+  display: flex; flex-direction: column;
+}
+
+.gw .gw-toggle { display: inline-flex; padding: 3px; background: var(--paper-2); border-radius: var(--r-pill); gap: 2px; }
+.gw .gw-toggle button {
+  height: 28px; padding: 0 14px; border-radius: var(--r-pill);
+  background: transparent; border: 0; color: var(--ink-3);
+  font: 500 12.5px/1 var(--font-ui); cursor: pointer;
+}
+.gw .gw-toggle button.active { background: var(--surface); color: var(--ink); box-shadow: var(--sh-1); }
+
+.gw .gw-progress         { height: 4px; background: var(--ink-7); border-radius: 4px; overflow: hidden; }
+.gw .gw-progress .fill   { height: 100%; background: var(--teal); border-radius: 4px; }
+
+.gw .gw-placeholder {
+  background:
+    repeating-linear-gradient(135deg, transparent 0 12px, rgba(11,15,20,0.04) 12px 13px),
+    var(--paper-2);
+  color: var(--ink-4);
+  font: 500 11px/1 var(--font-mono);
+  letter-spacing: 0.06em;
+  display: grid; place-items: center;
+  border: 1px dashed var(--ink-6);
+  border-radius: var(--r-3);
+  text-transform: uppercase;
+}
+

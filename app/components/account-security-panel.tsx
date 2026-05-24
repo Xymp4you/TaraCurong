@@ -168,7 +168,7 @@ export function AccountSecurityPanel() {
       link.href = blobUrl;
       link.download =
         extractFilenameFromDisposition(response.headers.get("content-disposition")) ||
-        `gensanworks-account-export-${new Date().toISOString().slice(0, 10)}.json`;
+        `taracurong-account-export-${new Date().toISOString().slice(0, 10)}.json`;
       document.body.appendChild(link);
       link.click();
       link.remove();
@@ -203,7 +203,7 @@ export function AccountSecurityPanel() {
         </div>
       ) : null}
 
-      <div className="mb-4 rounded border border-blue-200 bg-blue-50 px-3 py-3 text-sm text-blue-900">
+      <div className="mb-4 rounded border border-teal-100 bg-teal-50 px-3 py-3 text-sm text-ink-900">
         <p className="mb-2">Download a copy of your account data in JSON format.</p>
         <Button type="button" variant="outline" onClick={downloadAccountDataExport} disabled={exporting}>
           {exporting ? "Preparing Export..." : "Download My Data"}

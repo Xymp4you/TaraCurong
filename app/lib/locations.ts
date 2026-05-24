@@ -3,83 +3,73 @@ export type MunicipalityOption = { code: string; name: string; barangays: Barang
 export type ProvinceOption = { code: string; name: string; municipalities: MunicipalityOption[] };
 
 // System-wide default location (requested prefill)
-export const DEFAULT_PROVINCE = "South Cotabato";
-export const DEFAULT_MUNICIPALITY = "General Santos City";
+export const DEFAULT_PROVINCE = "Sultan Kudarat";
+export const DEFAULT_MUNICIPALITY = "Tacurong City";
 
-// Minimal but relevant fallback data for Region XII + GenSan so the UI keeps working offline
+// Minimal but relevant fallback data for Region XII (SOCCSKSARGEN) — Sultan Kudarat focus
 const fallbackLocations: ProvinceOption[] = [
   {
-    code: "PH-12-SC",
-    name: "South Cotabato",
+    code: "PH-12-SK",
+    name: "Sultan Kudarat",
     municipalities: [
       {
-        code: "SC-GSC",
-        name: "General Santos City",
+        code: "SK-TC",
+        name: "Tacurong City",
         barangays: [
-          "Apopong",
-          "Baluan",
-          "Buayan",
-          "Bula",
-          "Calumpang",
-          "City Heights",
-          "Conel",
-          "Dadiangas East",
-          "Dadiangas North",
-          "Dadiangas South",
-          "Dadiangas West",
-          "Fatima",
-          "Katangawan",
-          "Labangal",
-          "Lagao (1st)",
-          "Ligaya",
-          "Mabuhay",
-          "Olympog",
-          "San Isidro (Lagao)",
-          "San Jose",
-          "Sinawal",
-          "Tambler",
-          "Tinagacan",
-          "Upper Labay",
-        ].map((name, idx) => ({ code: `SC-GSC-${idx + 1}`, name })),
+          "Buenaflor",
+          "Calean",
+          "Carmen",
+          "D'Ledesma",
+          "EJC Montilla",
+          "Grino",
+          "Kalandagan",
+          "Lancheta",
+          "Lower Katungal",
+          "New Carmen",
+          "New Isabela",
+          "New Lagao",
+          "New Passi",
+          "Poblacion",
+          "San Antonio",
+          "San Emmanuel",
+          "San Pablo",
+          "San Rafael",
+          "Tina",
+          "Tinago",
+          "Tuka",
+          "Upper Katungal",
+        ].map((name, idx) => ({ code: `SK-TC-${idx + 1}`, name })),
       },
       {
-        code: "SC-KOR",
-        name: "Koronadal City",
-        barangays: ["Assumption", "Cabalitan", "Carpenter Hill", "Zone III", "Zone IV"].map((name, idx) => ({
-          code: `SC-KOR-${idx + 1}`,
+        code: "SK-ISL",
+        name: "Isulan",
+        barangays: ["Bambad", "Kalawag I", "Kalawag II", "Kalawag III", "Kolambog", "Laguilayan", "Poblacion"].map(
+          (name, idx) => ({ code: `SK-ISL-${idx + 1}`, name })
+        ),
+      },
+      {
+        code: "SK-LBY",
+        name: "Lambayong",
+        barangays: ["Caromatan", "Madanding", "Mamali", "Poblacion", "Tambak"].map((name, idx) => ({
+          code: `SK-LBY-${idx + 1}`,
           name,
         })),
       },
       {
-        code: "SC-POLO",
-        name: "Polomolok",
-        barangays: ["Cannery Site", "Poblacion", "Silway 7", "Silway 8"].map((name, idx) => ({ code: `SC-POLO-${idx + 1}`, name })),
+        code: "SK-ESP",
+        name: "Esperanza",
+        barangays: ["Daguma", "Laguinding", "New Panay", "Paitan", "Poblacion"].map((name, idx) => ({
+          code: `SK-ESP-${idx + 1}`,
+          name,
+        })),
       },
       {
-        code: "SC-TUPI",
-        name: "Tupi",
-        barangays: ["Poblacion", "Kablon", "Palian", "Bunao"].map((name, idx) => ({ code: `SC-TUPI-${idx + 1}`, name })),
-      },
-    ],
-  },
-  {
-    code: "PH-12-SAR",
-    name: "Sarangani",
-    municipalities: [
-      {
-        code: "SAR-ALABEL",
-        name: "Alabel",
-        barangays: ["Alegria", "Bagacay", "Pag-asa", "Poblacion"].map((name, idx) => ({ code: `SAR-ALABEL-${idx + 1}`, name })),
-      },
-      {
-        code: "SAR-MAASIM",
-        name: "Maasim",
-        barangays: ["Amsipit", "Bati-an", "Kanalo", "Poblacion"].map((name, idx) => ({ code: `SAR-MAASIM-${idx + 1}`, name })),
-      },
-      {
-        code: "SAR-MALUNGON",
-        name: "Malungon",
-        barangays: ["Alabel", "Banahao", "Poblacion", "Upper Mainit"].map((name, idx) => ({ code: `SAR-MALUNGON-${idx + 1}`, name })),
+        code: "SK-BGB",
+        name: "Bagumbayan",
+        barangays: ["Bai Sarifinang", "Daguma", "Kapaya", "Poblacion", "Sison"].map((name, idx) => ({
+          code: `SK-BGB-${idx + 1}`,
+          name,
+        })),
       },
     ],
   },

@@ -103,7 +103,7 @@ export default function JobseekerSignupPage() {
       sideBullets={[
         "Verified employers and job postings",
         "Application tracking and updates",
-        "Support through PESO services",
+        "Support through TaraCurong services",
       ]}
       footer={
         <p className="text-sm text-slate-600">

@@ -17,7 +17,7 @@ export function EmployerProfileSummary({
   address,
 }: Props) {
   return (
-    <div className="bg-white rounded-3xl shadow-xl p-6 border border-blue-100 space-y-4">
+    <div className="bg-white rounded-3xl shadow-xl p-6 border border-teal-100 space-y-4">
       <div className="text-center">
         <h2 className="text-2xl font-semibold text-slate-900">{establishmentName || "Your Company"}</h2>
         <p className="text-sm text-slate-500">{contactPerson || "No contact person"}</p>
@@ -25,15 +25,15 @@ export function EmployerProfileSummary({
       </div>
       <div className="space-y-3 text-sm text-slate-600">
         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl">
-          <Mail className="w-4 h-4 text-blue-500" />
+          <Mail className="w-4 h-4 text-teal-600" />
           <span className="break-all">{email || "Add company email"}</span>
         </div>
         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl">
-          <Phone className="w-4 h-4 text-blue-500" />
+          <Phone className="w-4 h-4 text-teal-600" />
           <span>{phone || "Add contact number"}</span>
         </div>
         <div className="flex items-center gap-3 bg-slate-50 p-3 rounded-2xl">
-          <MapPin className="w-4 h-4 text-blue-500" />
+          <MapPin className="w-4 h-4 text-teal-600" />
           <span>{address || "Add business address"}</span>
         </div>
       </div>

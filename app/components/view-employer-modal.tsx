@@ -65,7 +65,7 @@ export function ViewEmployerModal({
                   {employer.createdBy === "admin" ? "Admin Registered" : "Self-Registered"}
                 </Badge>
                 {employer.srsSubscriber && (
-                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700">SRS Subscriber</Badge>
+                  <Badge variant="outline" className="bg-emerald-50 text-emerald-700">Listed</Badge>
                 )}
                 {employer.archived && (
                   <Badge variant="outline" className="bg-orange-50 text-orange-700">Archived</Badge>
@@ -210,7 +210,7 @@ export function ViewEmployerModal({
                     [...employer.industryType]
                       .sort((a: string, b: string) => parseInt(a) - parseInt(b))
                       .map((code: string) => (
-                      <Badge key={code} variant="outline" className="bg-blue-50">
+                      <Badge key={code} variant="outline" className="bg-teal-50">
                         {code} - {code}
                       </Badge>
                     ))
@@ -224,11 +224,11 @@ export function ViewEmployerModal({
             {/* Employment Data Tab */}
             <TabsContent value="employment" className="space-y-4">
               <div>
-                <h4 className="text-sm font-semibold text-slate-900 mb-3">Employment Statistics (SRS Form 2)</h4>
+                <h4 className="text-sm font-semibold text-slate-900 mb-3">Employment Statistics (Employer Profile)</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase">No. of Paid Employees</p>
-                    <p className="text-2xl font-bold text-blue-600">{employer.numberOfPaidEmployees || 0}</p>
+                    <p className="text-2xl font-bold text-teal-700">{employer.numberOfPaidEmployees || 0}</p>
                   </div>
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase">No. of Vacant Positions</p>
@@ -240,7 +240,7 @@ export function ViewEmployerModal({
                 <h4 className="text-sm font-semibold text-slate-900 mb-3">SRS Subscription</h4>
                 <div className="flex items-center gap-3">
                   <Badge variant={employer.srsSubscriber ? "default" : "secondary"}>
-                    {employer.srsSubscriber ? "SRS Subscriber" : "Not Subscribed"}
+                    {employer.srsSubscriber ? "Listed" : "Not Subscribed"}
                   </Badge>
                   {employer.subscriptionStatus && (
                     <span className="text-sm text-slate-600">Status: {employer.subscriptionStatus}</span>
@@ -252,7 +252,7 @@ export function ViewEmployerModal({
             {/* Geographic Identification Tab */}
             <TabsContent value="geo" className="space-y-4">
               <div>
-                <h4 className="text-sm font-semibold text-slate-900 mb-3">Geographic Identification (SRS Form 2)</h4>
+                <h4 className="text-sm font-semibold text-slate-900 mb-3">Geographic Identification (Employer Profile)</h4>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-xs font-semibold text-slate-500 uppercase">Province</p>
@@ -418,7 +418,7 @@ export function ViewEmployerModal({
                 <div className="border rounded-lg p-3 bg-slate-50">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2">
-                      <File className="w-5 h-5 text-purple-600" />
+                      <File className="w-5 h-5 text-violet-600" />
                       <div>
                         <p className="text-sm font-semibold text-slate-900">Company Profile</p>
                         <p className="text-xs text-slate-600">Company background and information</p>

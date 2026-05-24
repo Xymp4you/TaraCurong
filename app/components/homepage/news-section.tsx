@@ -28,9 +28,9 @@ const defaultNewsItems: NewsItem[] = [
     type: "UPCOMING EVENT",
     title: "City-Wide Job Fair 2025",
     description: "Join our biggest job fair of the year on December 10, 2025 at the City Hall Grounds. Over 100 companies actively hiring!",
-    location: "City Hall, General Santos",
+    location: "City Hall, Tacurong City",
     date: "December 10, 2025",
-    color: "bg-blue-600",
+    color: "bg-teal-600",
     link: "/contact",
   },
   {
@@ -60,15 +60,15 @@ export function NewsSection({ news, loading = false }: NewsSectionProps) {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-20 gap-8 border-b border-slate-200 pb-12">
           <div className="max-w-2xl">
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 border border-blue-100 text-blue-600 text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-50 border border-teal-100 text-teal-700 text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
               Stay Informed
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight">
-              Latest News & <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">Announcements</span>
+              Latest News & <span className="text-transparent bg-clip-text bg-gradient-to-r from-ink-800 to-violet-600">Announcements</span>
             </h2>
           </div>
           <p className="text-lg text-slate-500 max-w-sm">
-            The latest employment opportunities, feature updates, and events in General Santos City.
+            The latest employment opportunities, feature updates, and events in Tacurong City.
           </p>
         </div>
 
@@ -80,11 +80,11 @@ export function NewsSection({ news, loading = false }: NewsSectionProps) {
           ) : displayNews.length > 0 ? (
             displayNews.map((item, index) => {
               const gradientMap: Record<string, string> = {
-                'bg-blue-600': 'from-blue-500 to-indigo-600',
+                'bg-teal-600': 'from-teal-500 to-violet-600',
                 'bg-green-600': 'from-emerald-500 to-teal-600',
                 'bg-purple-600': 'from-purple-500 to-pink-600',
               };
-              const color = item.color || (index % 3 === 0 ? 'bg-blue-600' : index % 3 === 1 ? 'bg-green-600' : 'bg-purple-600');
+              const color = item.color || (index % 3 === 0 ? 'bg-teal-600' : index % 3 === 1 ? 'bg-green-600' : 'bg-purple-600');
               const gradient = gradientMap[color] || 'from-slate-500 to-slate-700';
               const dateDisplay = item.date || (item.published_at ? new Date(item.published_at).toLocaleDateString() : 'Recent');
 
@@ -105,21 +105,21 @@ export function NewsSection({ news, loading = false }: NewsSectionProps) {
                       </span>
                     </div>
                     
-                    <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-blue-600 transition-colors">
+                    <h3 className="text-2xl font-bold text-slate-900 mb-4 group-hover:text-teal-700 transition-colors">
                       {item.title}
                     </h3>
                     
                     <p className="text-slate-500 leading-relaxed flex-grow mb-8">
-                      {item.description || item.excerpt || 'Read the latest updates from PESO General Santos City.'}
+                      {item.description || item.excerpt || 'Read the latest updates from TaraCurong.'}
                     </p>
                     
                     <div className="pt-6 border-t border-slate-100 flex items-center justify-between mt-auto">
                       <div className="flex items-center gap-2 text-sm font-medium text-slate-500">
                         <MapPin className="w-4 h-4" />
-                        <span className="truncate max-w-[150px]">{item.location || 'General Santos City'}</span>
+                        <span className="truncate max-w-[150px]">{item.location || 'Tacurong City'}</span>
                       </div>
-                      <div className={`w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-blue-50 transition-colors`}>
-                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-blue-600 transition-colors" />
+                      <div className={`w-8 h-8 rounded-full bg-slate-50 flex items-center justify-center group-hover:bg-teal-50 transition-colors`}>
+                        <ChevronRight className="w-4 h-4 text-slate-400 group-hover:text-teal-700 transition-colors" />
                       </div>
                     </div>
                   </div>

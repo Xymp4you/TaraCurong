@@ -103,7 +103,7 @@ export function getLogisticsZone(city: string | null | undefined, province?: str
 
   const soccsksargen = [
     "general santos",
-    "gensan",
+    "tacurong",
     "koronadal",
     "tacurong",
     "kidapawan",

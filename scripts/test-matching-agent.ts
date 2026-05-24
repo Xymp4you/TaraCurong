@@ -25,7 +25,7 @@ async function main() {
   await sql.end();
 
   if (!seekerRows.length || !jobRows.length) {
-    console.error("❌ No test data found. Run mock_data_gensan.sql first.");
+    console.error("❌ No test data found. Run mock_data_tacurong.sql first.");
     process.exit(1);
   }
 

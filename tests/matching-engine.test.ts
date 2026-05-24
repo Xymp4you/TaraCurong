@@ -8,8 +8,8 @@ import { deidentifyJobseeker, BLINDED_FIELDS } from "@/lib/matching/deidentify";
 
 const baseSeeker = {
   id: "seeker-1",
-  city: "General Santos City",
-  province: "South Cotabato",
+  city: "Tacurong City",
+  province: "Sultan Kudarat",
   work_setup_preference: "onsite",
   expected_salary_min: 15000,
   expected_salary_max: 20000,

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import Image from "next/image";
 import Link from "next/link";
 import { signOut } from "@/lib/auth-client";
 import { usePathname, useRouter } from "next/navigation";
@@ -85,11 +84,9 @@ function renderItem(item: NavItem, pathname: string, onLogoutClick?: () => void)
         key={item.href}
         type="button"
         onClick={onLogoutClick}
-        className="flex w-full items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all text-slate-300 hover:text-white"
+        className="gw-sidebar-item w-full text-left"
       >
-        <div className="h-6 w-6 rounded-sm flex items-center justify-center flex-shrink-0 transition-all bg-white/70">
-          <item.icon className="h-4 w-4 flex-none text-slate-900" />
-        </div>
+        <item.icon className="h-4 w-4 flex-none" />
         <span className="flex-1">{item.label}</span>
       </button>
     );
@@ -100,21 +97,9 @@ function renderItem(item: NavItem, pathname: string, onLogoutClick?: () => void)
       key={item.href}
       href={item.href}
       aria-current={active ? "page" : undefined}
-      className={`flex items-center gap-3 rounded-lg px-4 py-2.5 text-sm font-medium transition-all ${
-        active ? "text-white" : "text-slate-300 hover:text-white"
-      }`}
+      className={`gw-sidebar-item${active ? " active" : ""}`}
     >
-      <div
-        className={`h-6 w-6 rounded-sm flex items-center justify-center flex-shrink-0 transition-all ${
-          active ? "bg-white" : "bg-white/70 hover:bg-white"
-        }`}
-      >
-        <item.icon
-          className={`h-4 w-4 flex-none ${
-            active ? "text-slate-900" : "text-slate-900"
-          }`}
-        />
-      </div>
+      <item.icon className="h-4 w-4 flex-none" />
       <span className="flex-1">{item.label}</span>
     </Link>
   );
@@ -141,71 +126,64 @@ export function AdminSidebar({ user }: AdminSidebarProps) {
   );
 
   return (
-    <aside className="flex h-full w-64 flex-col rounded-xl bg-slate-900 mr-5">
-      <div className="border-b border-slate-800 px-5 py-6">
-        <div className="flex items-start gap-3">
-          <Image
-            src="/peso-gsc-logo.png"
-            alt="PESO GSC"
-            width={48}
-            height={48}
-            className="rounded-lg flex-shrink-0"
+    <aside
+      className="flex h-full w-64 flex-col"
+      style={{ background: "var(--ink-900)", color: "var(--ink-200)", fontFamily: "var(--font-ui)" }}
+    >
+      <div className="px-4 py-5" style={{ borderBottom: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="flex items-center gap-2.5">
+          <img
+            src="/taracurong-logo.svg"
+            alt="TaraCurong"
+            width={32}
+            height={32}
+            style={{ width: 32, height: 32, objectFit: "contain", flexShrink: 0, background: "white", borderRadius: 6, padding: 2 }}
           />
-          <div className="flex-1 min-w-0">
-            <div className="text-2xl font-bold">
-              <span className="text-[#ef4444]">Gensan</span>
-              <span className="text-[#2563eb]">Works</span>
+          <div className="min-w-0">
+            <div className="text-white text-[15px] font-semibold leading-tight tracking-tight">TaraCurong</div>
+            <div
+              className="text-[10px] mt-0.5 font-medium"
+              style={{ color: "var(--ink-400)", letterSpacing: "0.12em", textTransform: "uppercase" }}
+            >
+              Tacurong City
             </div>
-            <p className="text-[10px] text-slate-400 leading-tight mt-0.5">
-              Official Job Assistance
-              <br />
-              Platform of PESO - General Santos City
-            </p>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 px-3 py-4">
-        <div className="space-y-1">
-          {primaryItems.map((item) => renderItem(item, pathname ?? ""))}
-        </div>
-      </div>
-
-      <div className="px-3 py-4 border-t border-slate-800">
-        <div className="space-y-1">
-          {bottomItems.map((item) =>
-            renderItem(item, pathname ?? "", () => setShowLogoutConfirm(true))
-          )}
-        </div>
-      </div>
-
-      <div className="border-t border-slate-800 p-4">
-        <Link
-          href="/admin/profile"
-          className="w-full flex items-center gap-3 rounded-lg px-4 py-2.5 hover:bg-white/10 transition-colors text-slate-300 hover:text-white group"
+      <div className="px-3 py-3">
+        <div
+          className="px-3 pb-2 text-[10px] font-semibold"
+          style={{ color: "var(--ink-400)", letterSpacing: "0.14em", textTransform: "uppercase" }}
         >
-          <Avatar className="h-10 w-10 flex-shrink-0">
-            <AvatarImage
-              src={user.image ?? undefined}
-              alt={user.name || "Admin"}
-            />
-            <AvatarFallback className="rounded-full bg-white/20 text-xs font-bold text-white">
+          Admin Portal
+        </div>
+        <div className="space-y-0.5">{primaryItems.map((item) => renderItem(item, pathname ?? ""))}</div>
+      </div>
+
+      <div className="px-3 py-3 mt-auto" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+        <div className="space-y-0.5">
+          {bottomItems.map((item) => renderItem(item, pathname ?? "", () => setShowLogoutConfirm(true)))}
+        </div>
+      </div>
+
+      <div className="p-3" style={{ borderTop: "1px solid rgba(255,255,255,0.08)" }}>
+        <Link href="/admin/profile" className="flex items-center gap-2.5 px-2 py-1 rounded-md hover:bg-white/5 transition-colors">
+          <Avatar className="h-8 w-8 flex-shrink-0">
+            <AvatarImage src={user.image ?? undefined} alt={user.name || "Admin"} />
+            <AvatarFallback
+              className="rounded-full text-[11px] font-semibold"
+              style={{ background: "var(--rose-100)", color: "var(--rose-600)" }}
+            >
               {initials}
             </AvatarFallback>
           </Avatar>
-          <div className="min-w-0 flex-1 text-left">
-            <p className="truncate text-sm font-medium text-white">
-              {user.name || "Demo Admin"}
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-[13px] font-medium text-white">{user.name || "Demo Admin"}</p>
+            <p className="truncate text-[11px]" style={{ color: "var(--ink-400)" }}>
+              Admin Officer
             </p>
-            <p className="truncate text-xs text-slate-500">#0I192025</p>
           </div>
-          <svg
-            className="w-5 h-5 text-slate-500 group-hover:text-slate-400 transition-colors flex-shrink-0"
-            fill="currentColor"
-            viewBox="0 0 20 20"
-          >
-            <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
-          </svg>
         </Link>
       </div>
 

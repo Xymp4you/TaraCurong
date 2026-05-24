@@ -78,11 +78,11 @@ export default function ApplicationDetailPage() {
       case "pending":
         return { color: "bg-amber-100 text-amber-800 border-amber-200", icon: Clock, label: "Pending Review" };
       case "reviewed":
-        return { color: "bg-blue-100 text-blue-800 border-blue-200", icon: Info, label: "Under Review" };
+        return { color: "bg-teal-100 text-ink-700 border-teal-100", icon: Info, label: "Under Review" };
       case "shortlisted":
-        return { color: "bg-purple-100 text-purple-800 border-purple-200", icon: CheckCircle2, label: "Shortlisted" };
+        return { color: "bg-violet-100 text-purple-800 border-purple-200", icon: CheckCircle2, label: "Shortlisted" };
       case "interview":
-        return { color: "bg-indigo-100 text-indigo-800 border-indigo-200", icon: Calendar, label: "Interview Scheduled" };
+        return { color: "bg-violet-100 text-violet-700 border-violet-100", icon: Calendar, label: "Interview Scheduled" };
       case "accepted":
         return { color: "bg-emerald-100 text-emerald-800 border-emerald-200", icon: CheckCircle2, label: "Application Accepted" };
       case "rejected":
@@ -200,7 +200,7 @@ export default function ApplicationDetailPage() {
               {application.coverLetter && (
                 <div className="pt-8 border-t border-slate-100">
                   <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                    <MessageSquare className="w-4 h-4 text-blue-500" />
+                    <MessageSquare className="w-4 h-4 text-teal-600" />
                     My Cover Letter
                   </h3>
                   <div className="p-4 rounded-xl bg-slate-50 border border-slate-100 text-slate-700 text-sm leading-relaxed whitespace-pre-wrap">
@@ -212,13 +212,13 @@ export default function ApplicationDetailPage() {
               {/* Resume */}
               <div className="pt-8 border-t border-slate-100">
                 <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4 flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-blue-500" />
+                  <FileText className="w-4 h-4 text-teal-600" />
                   Resume Attached
                 </h3>
                 {application.resumeUrl ? (
-                  <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-blue-300 transition-colors group">
+                  <div className="flex items-center justify-between p-4 rounded-xl border border-slate-200 hover:border-teal-100 transition-colors group">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded bg-blue-50 flex items-center justify-center text-blue-600">
+                      <div className="w-10 h-10 rounded bg-teal-50 flex items-center justify-center text-teal-700">
                         <FileText className="w-5 h-5" />
                       </div>
                       <div>
@@ -227,7 +227,7 @@ export default function ApplicationDetailPage() {
                       </div>
                     </div>
                     <Link href={application.resumeUrl} target="_blank">
-                      <Button variant="ghost" size="sm" className="gap-1.5 text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+                      <Button variant="ghost" size="sm" className="gap-1.5 text-teal-700 hover:text-teal-700 hover:bg-teal-50">
                         View File
                         <ExternalLink className="w-3.5 h-3.5" />
                       </Button>
@@ -245,15 +245,15 @@ export default function ApplicationDetailPage() {
         <div className="space-y-6">
           {/* Employer Feedback */}
           {(application.feedback || application.interviewDate) && (
-            <Card className="p-6 border-blue-200 bg-blue-50/50 shadow-sm">
-              <h3 className="text-sm font-bold text-blue-900 uppercase tracking-wider mb-4 flex items-center gap-2">
+            <Card className="p-6 border-teal-100 bg-teal-50/50 shadow-sm">
+              <h3 className="text-sm font-bold text-ink-900 uppercase tracking-wider mb-4 flex items-center gap-2">
                 <Info className="w-4 h-4" />
                 Employer Update
               </h3>
               <div className="space-y-4">
                 {application.interviewDate && (
-                  <div className="p-3 bg-white rounded-lg border border-blue-200">
-                    <p className="text-[10px] font-bold text-blue-600 uppercase tracking-tighter">Interview Scheduled</p>
+                  <div className="p-3 bg-white rounded-lg border border-teal-100">
+                    <p className="text-[10px] font-bold text-teal-700 uppercase tracking-tighter">Interview Scheduled</p>
                     <p className="text-sm font-bold text-slate-900 mt-1">
                       {new Date(application.interviewDate).toLocaleString()}
                     </p>
@@ -289,14 +289,14 @@ export default function ApplicationDetailPage() {
           <Card className="p-6 border-slate-200">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Support</h3>
             <p className="text-xs text-slate-600 leading-relaxed">
-              If you have questions about this application, you can reach out to the employer or contact PESO GSC.
+              If you have questions about this application, you can reach out to the employer or contact TaraCurong.
             </p>
             <div className="mt-4 space-y-3">
               <div className="flex items-center gap-2 text-xs text-slate-700">
                 <Building2 className="w-3.5 h-3.5 text-slate-400" />
                 {application.job.employer.establishmentName}
               </div>
-              <Button variant="link" className="p-0 h-auto text-[10px] text-blue-600">Contact Employer</Button>
+              <Button variant="link" className="p-0 h-auto text-[10px] text-teal-700">Contact Employer</Button>
             </div>
           </Card>
         </div>

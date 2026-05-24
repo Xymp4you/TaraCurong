@@ -23,12 +23,22 @@ export default async function JobseekerLayout({
   };
 
   return (
-    <div className="flex h-screen bg-slate-900 p-5 lg:p-6">
+    <div className="gw-app flex h-screen" style={{ background: "var(--gw-bg)" }}>
       <div className="hidden lg:block lg:sticky lg:top-0 lg:h-full lg:shrink-0">
         <JobseekerSidebar user={user} />
       </div>
-      <div className="flex flex-1 flex-col bg-white rounded-xl border border-slate-200 shadow-lg overflow-hidden">
+      <div className="flex flex-1 flex-col overflow-hidden">
         <MobileHeader user={user} />
+        <div
+          className="hidden lg:flex items-center gap-3 px-7 bg-white"
+          style={{ height: 56, borderBottom: "1px solid var(--line)" }}
+        >
+          <div className="gw-role-bar" style={{ background: "var(--role-jobseeker)" }} />
+          <div>
+            <div className="gw-eyebrow">Jobseeker</div>
+            <div style={{ fontWeight: 600, fontSize: 15, marginTop: 1, color: "var(--ink-900)" }}>Portal</div>
+          </div>
+        </div>
         <main className="min-h-0 flex-1 overflow-auto p-6 lg:p-8">
           <Breadcrumbs />
           {children}

@@ -54,12 +54,12 @@ export const ReferralSlipPdf = ({ data, qrCodeDataUrl }: { data: any, qrCodeData
       <Page size="A4" style={styles.page}>
         <View style={styles.header}>
           <View style={styles.headerLeft}>
-            <View style={styles.seal}><Text style={styles.sealText}>SEAL</Text></View>
+            <View style={styles.seal}><Text style={styles.sealText}>TC</Text></View>
             <View style={styles.headerText}>
-              <Text style={styles.republicText}>Republic of the Philippines</Text>
-              <Text style={styles.mayorText}>OFFICE OF THE CITY MAYOR</Text>
-              <Text style={styles.pesoText}>Public Employment Service Office</Text>
-              <Text style={styles.cityText}>General Santos City</Text>
+              <Text style={styles.republicText}>Community Job Platform</Text>
+              <Text style={styles.mayorText}>TARACURONG</Text>
+              <Text style={styles.pesoText}>A community project by an IT student</Text>
+              <Text style={styles.cityText}>Tacurong City</Text>
             </View>
           </View>
           <View style={styles.headerRight}>
@@ -85,7 +85,7 @@ export const ReferralSlipPdf = ({ data, qrCodeDataUrl }: { data: any, qrCodeData
 
         <View style={styles.body}>
           <Text style={{ marginBottom: 10 }}>Dear Sir/Madam:</Text>
-          <Text style={{ marginBottom: 10 }}>This office has arranged for the following applicant to call on you regarding your opening:</Text>
+          <Text style={{ marginBottom: 10 }}>TaraCurong has referred the following applicant for your opening:</Text>
           
           <View style={styles.applicantBox}>
             <View style={styles.row}>
@@ -108,23 +108,18 @@ export const ReferralSlipPdf = ({ data, qrCodeDataUrl }: { data: any, qrCodeData
           <Text style={{ marginTop: 10 }}>We would appreciate it very much if you would let us know the status of application of the said applicant. Thank you.</Text>
         </View>
 
-        <Text style={{ marginBottom: 20 }}>Very Truly Yours,</Text>
-        
+        <Text style={{ marginBottom: 20 }}>Sincerely,</Text>
+
         <View style={styles.signatures}>
           <View style={styles.signatureBlock}>
-            <Text style={styles.signName}>LORELIE GERONIMO PACQUIAO</Text>
-            <Text style={styles.signTitle}>CITY MAYOR</Text>
-            <Text style={{ fontSize: 8, color: '#64748b' }}>By Authority of the City Mayor</Text>
-          </View>
-          <View style={styles.signatureBlock}>
-            <Text style={styles.signName}>NURHASAN A. JUANDAY</Text>
-            <Text style={styles.signTitle}>SUPERVISING LABOR AND EMPLOYMENT OFFICER</Text>
-            <Text style={{ fontSize: 8, color: '#64748b' }}>PESO GENSAN</Text>
+            <Text style={styles.signName}>John Aerol Tapales</Text>
+            <Text style={styles.signTitle}>Project Owner</Text>
+            <Text style={{ fontSize: 8, color: '#64748b' }}>TaraCurong (community project)</Text>
           </View>
         </View>
 
         <View style={styles.stub}>
-          <Text style={styles.stubTitle}>✂ Employer Feedback Stub — Please return to PESO Gensan</Text>
+          <Text style={styles.stubTitle}>✂ Employer Feedback Stub — Please return to TaraCurong</Text>
           <View style={{ flexDirection: 'row', marginBottom: 5 }}>
             <Text style={{ flex: 1 }}><Text style={{ fontWeight: 'bold' }}>Applicant:</Text> {data.applicant.name}</Text>
             <Text style={{ flex: 1 }}><Text style={{ fontWeight: 'bold' }}>Slip No:</Text> {data.slipNumber}</Text>
@@ -137,8 +132,8 @@ export const ReferralSlipPdf = ({ data, qrCodeDataUrl }: { data: any, qrCodeData
         </View>
 
         <View style={styles.footer}>
-          <Text>4th Floor General Santos City Investment Action Center, City Hall Drive, General Santos City, 9500</Text>
-          <Text>(083) 533-3479  |  peso_gensan@yahoo.com</Text>
+          <Text>TaraCurong · A community job platform for Tacurong City, Sultan Kudarat</Text>
+          <Text>helpdesk@taracurong.com</Text>
         </View>
       </Page>
     </Document>

@@ -120,7 +120,7 @@ describe("dashboard data fetchers", () => {
             {
               id: "job-11",
               positionTitle: "QA Tester",
-              location: "General Santos City",
+              location: "Tacurong City",
               establishmentName: "Bright Labs",
             },
           ],

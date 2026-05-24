@@ -252,8 +252,8 @@ export default function JobseekerSettingsPage() {
                 onChange={() => handleNotificationChange("weeklyDigest")}
               />
               <PreferenceRow
-                label="Announcements from PESO"
-                description="Important platform announcements and updates from PESO"
+                label="Announcements from TaraCurong"
+                description="Important platform announcements and updates from TaraCurong"
                 checked={notifications.announcements}
                 onChange={() => handleNotificationChange("announcements")}
               />
@@ -344,6 +344,35 @@ export default function JobseekerSettingsPage() {
                 </Button>
               </div>
             </form>
+          </Card>
+
+          <Card className="border-amber-200 bg-amber-50 p-5">
+            <p className="text-sm font-semibold text-slate-900">Your data rights</p>
+            <p className="mt-1 text-sm text-slate-700">
+              You can <strong>export everything we store</strong> about you (profile, applications,
+              referral slips) or <strong>close your account</strong> at any time. Account closure
+              triggers a deletion request that processes within 30 days. Read more in the{" "}
+              <a href="/privacy" className="font-semibold text-teal-700">Privacy Policy</a>.
+            </p>
+          </Card>
+
+          <Card className="border-blue-200 bg-blue-50 p-5">
+            <div className="flex items-start justify-between gap-4">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">Get a Verified jobseeker badge</p>
+                <p className="mt-1 text-sm text-slate-700">
+                  Optional. Upload a government ID + a selfie and the project maintainer will review
+                  manually. Verified jobseekers stand out to employers and get applications opened
+                  faster.
+                </p>
+              </div>
+              <a
+                href="/jobseeker/verify-identity"
+                className="shrink-0 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700"
+              >
+                Start verification
+              </a>
+            </div>
           </Card>
 
           <Card className="p-6">

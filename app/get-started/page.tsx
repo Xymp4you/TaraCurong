@@ -8,7 +8,7 @@ const roles = [
   {
     id: "jobseeker" as const,
     label: "Jobseeker",
-    description: "Find your dream job, track applications, and build your career with PESO-supported opportunities.",
+    description: "Find your dream job, track applications, and build your career with verified opportunities.",
     icon: BriefcaseBusiness,
     href: "/login?role=jobseeker",
     accent: "bg-blue-100 text-blue-700 border-blue-200 hover:border-blue-300 hover:bg-blue-50",
@@ -17,7 +17,7 @@ const roles = [
   {
     id: "employer" as const,
     label: "Employer",
-    description: "Post job vacancies, review applicants, and hire qualified talent through PESO services.",
+    description: "Post job vacancies, review applicants, and hire qualified talent through TaraCurong.",
     icon: Building2,
     href: "/login?role=employer",
     accent: "bg-amber-100 text-amber-700 border-amber-200 hover:border-amber-300 hover:bg-amber-50",
@@ -33,15 +33,15 @@ export default function GetStartedPage() {
           <div className="flex justify-between items-center py-4">
             <Link href="/" className="flex items-center gap-3">
               <Image
-                src="/peso-gsc-logo.png"
-                alt="PESO General Santos logo"
+                src="/taracurong-logo.svg"
+                alt="TaraCurong logo"
                 width={44}
                 height={44}
                 className="h-11 w-11 object-cover"
               />
               <span className="leading-tight">
-                <span className="block text-xl font-extrabold tracking-tight text-slate-900">GensanWorks</span>
-                <span className="block text-xs font-medium text-slate-500">Public Employment Service Office</span>
+                <span className="block text-xl font-extrabold tracking-tight text-slate-900">TaraCurong</span>
+                <span className="block text-xs font-medium text-slate-500">Tacurong City</span>
               </span>
             </Link>
 
@@ -67,7 +67,7 @@ export default function GetStartedPage() {
         <main className="flex flex-col items-center justify-center px-4 py-16 sm:px-6 lg:px-8">
           <div className="w-full max-w-2xl text-center">
             <h1 className="text-4xl font-black tracking-tight text-slate-900 sm:text-5xl">
-              Get Started with <span className="text-blue-600">GensanWorks</span>
+              Get Started with <span className="text-blue-600">TaraCurong</span>
             </h1>
             <p className="mt-4 text-lg text-slate-600">
               Choose your role to begin using our platform. Whether you&apos;re looking for work or hiring, we&apos;ll help you get started.
@@ -110,7 +110,7 @@ export default function GetStartedPage() {
         </main>
 
         <footer className="py-6 text-center text-sm text-slate-500">
-          <p>Official Job Assistance Platform of PESO - General Santos City</p>
+          <p>A community job platform for Tacurong City — built by John Aerol Tapales</p>
         </footer>
       </div>
     </div>

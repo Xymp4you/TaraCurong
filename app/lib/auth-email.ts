@@ -15,7 +15,7 @@ function getEmailContent(kind: AuthEmailKind, token: string) {
   if (kind === "password_reset") {
     const resetUrl = `${appBaseUrl}/reset-password?token=${encodeURIComponent(token)}`;
     return {
-      subject: "Reset your GensanWorks password",
+      subject: "Reset your TaraCurong password",
       text: `You requested a password reset. Open this link to continue: ${resetUrl}`,
       html: `<p>You requested a password reset.</p><p><a href="${resetUrl}">Reset Password</a></p>`,
     };
@@ -23,7 +23,7 @@ function getEmailContent(kind: AuthEmailKind, token: string) {
 
   const verifyUrl = `${appBaseUrl}/verify-email?token=${encodeURIComponent(token)}`;
   return {
-    subject: "Verify your GensanWorks email",
+    subject: "Verify your TaraCurong email",
     text: `Please verify your email by opening this link: ${verifyUrl}`,
     html: `<p>Please verify your email.</p><p><a href="${verifyUrl}">Verify Email</a></p>`,
   };

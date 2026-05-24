@@ -10,8 +10,8 @@ async function main() {
   const passwordHash = await bcrypt.hash("Admin@123456", 10);
   console.log("Updating password to Admin@123456...");
 
-  const { error: e1 } = await supabase.from("admins").update({ password_hash: passwordHash }).eq("email", "admin@gensanworks.gov");
-  const { error: e2 } = await supabase.from("admins").update({ password_hash: passwordHash }).eq("email", "admin@gensanworks.com");
+  const { error: e1 } = await supabase.from("admins").update({ password_hash: passwordHash }).eq("email", "admin@taracurong.gov");
+  const { error: e2 } = await supabase.from("admins").update({ password_hash: passwordHash }).eq("email", "admin@taracurong.com");
 
   if (e1) console.log("Error (gov):", e1.message);
   if (e2) console.log("Error (com):", e2.message);

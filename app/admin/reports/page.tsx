@@ -86,23 +86,23 @@ type AuditFeedPayload = {
   events: Array<{ timestamp: string; type: string; actor: string; detail: string }>;
 };
 
-// GenSan barangay data with approximate placement counts for heatmap
-const GENSAN_DISTRICTS: Array<{ name: string; district: string; lat: number; lng: number }> = [
-  { name: "Dadiangas North", district: "1", lat: 6.124, lng: 125.170 },
-  { name: "Dadiangas South", district: "1", lat: 6.107, lng: 125.174 },
-  { name: "Dadiangas West", district: "1", lat: 6.115, lng: 125.160 },
-  { name: "Dadiangas East", district: "1", lat: 6.112, lng: 125.180 },
-  { name: "City Heights", district: "2", lat: 6.130, lng: 125.185 },
-  { name: "Lagao", district: "2", lat: 6.145, lng: 125.190 },
-  { name: "Mabuhay", district: "2", lat: 6.150, lng: 125.175 },
-  { name: "San Isidro", district: "2", lat: 6.160, lng: 125.180 },
-  { name: "Apopong", district: "3", lat: 6.100, lng: 125.155 },
-  { name: "Baluan", district: "3", lat: 6.090, lng: 125.160 },
-  { name: "Buayan", district: "4", lat: 6.080, lng: 125.170 },
-  { name: "Fatima", district: "4", lat: 6.095, lng: 125.185 },
-  { name: "Katangawan", district: "5", lat: 6.170, lng: 125.165 },
-  { name: "Bula", district: "5", lat: 6.165, lng: 125.155 },
-  { name: "Olympog", district: "6", lat: 6.075, lng: 125.150 },
+// Tacurong barangay data with approximate placement counts for heatmap
+const TACURONG_DISTRICTS: Array<{ name: string; district: string; lat: number; lng: number }> = [
+  { name: "Poblacion", district: "1", lat: 6.691, lng: 124.676 },
+  { name: "San Antonio", district: "1", lat: 6.700, lng: 124.680 },
+  { name: "San Pablo", district: "1", lat: 6.685, lng: 124.670 },
+  { name: "San Emmanuel", district: "1", lat: 6.696, lng: 124.665 },
+  { name: "San Rafael", district: "2", lat: 6.704, lng: 124.660 },
+  { name: "Carmen", district: "2", lat: 6.712, lng: 124.668 },
+  { name: "New Carmen", district: "2", lat: 6.715, lng: 124.680 },
+  { name: "New Lagao", district: "2", lat: 6.720, lng: 124.690 },
+  { name: "EJC Montilla", district: "3", lat: 6.682, lng: 124.690 },
+  { name: "Kalandagan", district: "3", lat: 6.675, lng: 124.700 },
+  { name: "Tina", district: "4", lat: 6.670, lng: 124.685 },
+  { name: "Tinago", district: "4", lat: 6.665, lng: 124.672 },
+  { name: "Upper Katungal", district: "5", lat: 6.725, lng: 124.660 },
+  { name: "Lower Katungal", district: "5", lat: 6.730, lng: 124.670 },
+  { name: "Grino", district: "6", lat: 6.660, lng: 124.660 },
 ];
 
 const COLORS = ["#0f766e", "#0ea5e9", "#f59e0b", "#ef4444", "#8b5cf6", "#22c55e", "#6b7280"];
@@ -159,7 +159,7 @@ export default function AdminReportsPage() {
   }, []);
 
   const overviewCards = useMemo(() => [
-    { label: "Job Seekers", value: data?.overview.usersCount ?? 0, icon: Users, color: "text-blue-600", bg: "bg-blue-50" },
+    { label: "Job Seekers", value: data?.overview.usersCount ?? 0, icon: Users, color: "text-teal-700", bg: "bg-teal-50" },
     { label: "Employers", value: data?.overview.employersCount ?? 0, icon: Building2, color: "text-emerald-600", bg: "bg-emerald-50" },
     { label: "Total Jobs", value: data?.overview.jobsCount ?? 0, icon: Briefcase, color: "text-violet-600", bg: "bg-violet-50" },
     { label: "Applications", value: data?.overview.applicationsCount ?? 0, icon: FileText, color: "text-amber-600", bg: "bg-amber-50" },
@@ -176,7 +176,7 @@ export default function AdminReportsPage() {
       const contentDisposition = res.headers.get("content-disposition") ?? "";
       const match = contentDisposition.match(/filename=([^;]+)/i);
       a.href = url;
-      a.download = match?.[1]?.trim().replace(/^"|"$/g, "") || `gensanworks-report-${new Date().toISOString().slice(0, 10)}.${format === "excel" ? "xls" : "csv"}`;
+      a.download = match?.[1]?.trim().replace(/^"|"$/g, "") || `taracurong-report-${new Date().toISOString().slice(0, 10)}.${format === "excel" ? "xls" : "csv"}`;
       document.body.appendChild(a);
       a.click();
       a.remove();
@@ -234,7 +234,7 @@ export default function AdminReportsPage() {
             { label: "Hired This Week", value: placement.hiredThisWeek, color: "text-emerald-600" },
             { label: "Hired This Month", value: placement.hiredThisMonth, color: "text-emerald-600" },
             { label: "Hired This Quarter", value: placement.hiredThisQuarter, color: "text-emerald-600" },
-            { label: "For Interview", value: placement.forInterview, color: "text-blue-600" },
+            { label: "For Interview", value: placement.forInterview, color: "text-teal-700" },
             { label: "Pending Referrals", value: placement.pendingReferrals, color: "text-amber-600" },
             { label: "Success Rate", value: `${placement.successRate}%`, color: "text-violet-600" },
           ].map((s) => (
@@ -337,12 +337,12 @@ export default function AdminReportsPage() {
           {/* ── Geographic Heatmap Tab ── */}
           <TabsContent value="heatmap">
             <Card className="p-6">
-              <h3 className="font-semibold text-slate-900 mb-1">Geographic Distribution — General Santos City</h3>
+              <h3 className="font-semibold text-slate-900 mb-1">Geographic Distribution — Tacurong City</h3>
               <p className="text-sm text-slate-500 mb-6">Barangay-level placement activity across all 6 districts.</p>
 
               {/* SVG-based heatmap grid */}
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 mb-6">
-                {GENSAN_DISTRICTS.map((area, idx) => {
+                {TACURONG_DISTRICTS.map((area, idx) => {
                   // Use placement count as a mock intensity (real implementation would join with jobseeker addresses)
                   const intensity = Math.max(0, 10 - (idx % 5) * 2);
                   const hue = intensity > 6 ? "#22c55e" : intensity > 3 ? "#f59e0b" : "#e2e8f0";
@@ -377,7 +377,7 @@ export default function AdminReportsPage() {
                     {l.label}
                   </span>
                 ))}
-                <span className="ml-auto text-slate-400">Data reflects PESO referral placements per barangay</span>
+                <span className="ml-auto text-slate-400">Data reflects referral placements per barangay</span>
               </div>
             </Card>
           </TabsContent>
@@ -456,7 +456,7 @@ export default function AdminReportsPage() {
                             <span className="text-emerald-700 font-semibold">{emp.hired}</span>
                           </td>
                           <td className="px-5 py-4 text-right">
-                            <span className="text-blue-700">{emp.forInterview}</span>
+                            <span className="text-teal-700">{emp.forInterview}</span>
                           </td>
                           <td className="px-5 py-4 text-right">
                             <Badge
@@ -491,7 +491,7 @@ export default function AdminReportsPage() {
                 <ul className="space-y-3">
                   {auditFeed.events.map((event, index) => (
                     <li key={`${event.type}-${event.timestamp}-${index}`} className="flex items-start gap-4 p-4 rounded-xl border border-slate-100 hover:bg-slate-50 transition-all">
-                      <div className="w-2 h-2 mt-2 rounded-full bg-blue-400 flex-shrink-0" />
+                      <div className="w-2 h-2 mt-2 rounded-full bg-teal-500 flex-shrink-0" />
                       <div className="flex-1 min-w-0">
                         <p className="font-medium text-slate-900 text-sm">{event.detail}</p>
                         <p className="text-xs text-slate-500 mt-0.5">by {event.actor}</p>

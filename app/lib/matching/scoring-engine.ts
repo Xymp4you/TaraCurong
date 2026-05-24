@@ -1,6 +1,6 @@
 /**
  * scoring-engine.ts
- * Deterministic scoring engine for the GensanWorks matching pipeline.
+ * Deterministic scoring engine for the TaraCurong matching pipeline.
  *
  * Exports:
  *   - ScoringEngine         lightweight online scorer (fast, feature-based)

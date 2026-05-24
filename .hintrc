@@ -1,0 +1,20 @@
+{
+  "hints": {
+    "no-inline-styles": "off",
+    "axe/name-role-value": "off",
+    "axe/aria": "off",
+    "axe/keyboard": "off",
+    "axe/text-alternatives": "off",
+    "axe/color": "off",
+    "axe/forms": "off",
+    "axe/language": "off",
+    "axe/parsing": "off",
+    "axe/semantics": "off",
+    "axe/structure": "off",
+    "axe/sensory-and-visual-cues": "off",
+    "axe/tables": "off",
+    "axe/time-and-media": "off",
+    "compat-api/css": "off",
+    "compat-api/html": "off"
+  }
+}

@@ -2,8 +2,8 @@ import Link from "next/link";
 import { Building2, Briefcase, ShieldCheck, Users, Target, BookOpen, Lightbulb, TrendingUp } from "lucide-react";
 
 export const metadata = {
-  title: "About PESO | GensanWorks",
-  description: "Learn more about the Public Employment Service Office (PESO) of General Santos City.",
+  title: "About TaraCurong",
+  description: "Learn more about TaraCurong, the job assistance platform of Tacurong City.",
 };
 
 const coreServices = [
@@ -42,13 +42,13 @@ export default function AboutPage() {
         <div className="relative mx-auto max-w-6xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="max-w-3xl">
             <span className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-sm font-semibold tracking-wide text-blue-700 ring-1 ring-inset ring-blue-700/10 mb-6">
-              About PESO
+              About TaraCurong
             </span>
             <h1 className="text-4xl font-extrabold tracking-tight text-slate-900 sm:text-5xl lg:text-6xl mb-6">
-              Empowering the Workforce of General Santos City
+              A community job platform, built for Tacurong City
             </h1>
             <p className="text-lg leading-8 text-slate-600 mb-8">
-              The Public Employment Service Office (PESO) of General Santos City serves as a non-fee charging multi‑employment service facility. We provide comprehensive employment facilitation services to jobseekers and dedicated manpower assistance to employers in strict alignment with national labor policies.
+              TaraCurong is a free, non-commercial community project created by <strong>John Aerol Tapales</strong>, an IT student from Tacurong City. It is not a government service and is not affiliated with any LGU or national agency. The goal is simple: help local jobseekers and employers find each other more easily.
             </p>
             <div className="flex flex-wrap gap-4">
               <Link
@@ -76,28 +76,28 @@ export default function AboutPage() {
               <Target className="h-6 w-6" />
             </div>
             <h2 className="text-3xl font-bold tracking-tight text-slate-900">
-              Mandate and Mission
+              Why this project exists
             </h2>
             <p className="text-lg text-slate-600 leading-relaxed">
-              PESO’s mission is to connect jobseekers with decent work opportunities, actively support employers in their recruitment needs, and strengthen local livelihood. We achieve this through efficient employment facilitation and strong partnerships with national government agencies.
+              Our goal is to connect Tacurong City jobseekers with decent work opportunities and to make hiring easier for local employers. TaraCurong is built and maintained by a single IT student as a community contribution — there are no fees, no ads, and no government affiliation.
             </p>
           </div>
           <div className="bg-white rounded-2xl p-8 border border-slate-200 shadow-sm relative overflow-hidden">
             <div className="absolute top-0 right-0 -mr-8 -mt-8 h-32 w-32 rounded-full bg-blue-50 opacity-50 blur-2xl"></div>
             <div className="absolute bottom-0 left-0 -ml-8 -mb-8 h-32 w-32 rounded-full bg-blue-50 opacity-50 blur-2xl"></div>
-            <h3 className="text-xl font-bold text-slate-900 mb-4 relative z-10">Why We Exist</h3>
+            <h3 className="text-xl font-bold text-slate-900 mb-4 relative z-10">What you should know</h3>
             <ul className="space-y-4 relative z-10">
               <li className="flex items-start">
                 <ShieldCheck className="h-6 w-6 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <span className="text-slate-600"><strong className="text-slate-900">Government-Backed Trust:</strong> Operating under GenSan LGU for secure, verified employment processes.</span>
+                <span className="text-slate-600"><strong className="text-slate-900">Student-built, not official:</strong> A learning + community project. Not a government program; not partnered with any LGU or agency.</span>
               </li>
               <li className="flex items-start">
                 <Building2 className="h-6 w-6 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <span className="text-slate-600"><strong className="text-slate-900">Employer Partnerships:</strong> Bridging the gap between the public and private sectors.</span>
+                <span className="text-slate-600"><strong className="text-slate-900">Local employers welcome:</strong> Tacurong-area employers can post vacancies for free; the maintainer manually reviews listings.</span>
               </li>
               <li className="flex items-start">
                 <TrendingUp className="h-6 w-6 text-blue-600 mt-0.5 mr-3 shrink-0" />
-                <span className="text-slate-600"><strong className="text-slate-900">Community Growth:</strong> Focused on elevating the standard of living through decent employment.</span>
+                <span className="text-slate-600"><strong className="text-slate-900">Free for the community:</strong> No fees for jobseekers or employers — the project exists to help, not to earn.</span>
               </li>
             </ul>
           </div>

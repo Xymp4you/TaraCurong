@@ -225,7 +225,7 @@ export async function GET(req: Request) {
     const dateStamp = exportedAt.slice(0, 10);
     response.headers.set(
       "Content-Disposition",
-      `attachment; filename="gensanworks-account-export-${user.role}-${dateStamp}.json"`
+      `attachment; filename="taracurong-account-export-${user.role}-${dateStamp}.json"`
     );
     response.headers.set("Cache-Control", "no-store");
 

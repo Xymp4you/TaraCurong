@@ -22,7 +22,7 @@ const fallbackNews: NewsResponse = {
       type: "UPCOMING EVENT",
       title: "City-Wide Job Fair 2025",
       description: "Join our biggest job fair of the year on December 10, 2025 at the City Hall Grounds. Over 100 companies actively hiring!",
-      location: "City Hall, General Santos",
+      location: "City Hall, Tacurong City",
       date: "December 10, 2025",
       color: "bg-blue-600",
       link: "/contact",

@@ -31,20 +31,20 @@ export function MobileHeader({ user }: MobileHeaderProps) {
           </MobileDrawer>
           
           <div className="flex items-center gap-3">
-            <Image 
-              src="/peso-gsc-logo.png" 
-              alt="GensanWorks" 
+            <Image
+              src="/taracurong-logo.svg"
+              alt="TaraCurong"
               width={40}
               height={40}
               className="h-10 w-auto object-contain"
             />
             <div className="flex flex-col">
               <span className="text-base font-bold tracking-tight leading-none">
-                <span className="text-red-600">Gensan</span>
-                <span className="text-blue-600">Works</span>
+                <span className="text-red-600">Tara</span>
+                <span className="text-teal-700">Curong</span>
               </span>
               <span className="text-[10px] text-slate-500 font-medium">
-                Public Employment Service Office
+                Tacurong City
               </span>
             </div>
           </div>

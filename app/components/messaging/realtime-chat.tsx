@@ -242,13 +242,13 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
                   onClick={() => void loadMessages(thread)}
                   className={`w-full flex items-start gap-3 px-3 py-3 rounded-xl text-left transition-all ${
                     activeThread?.otherUserId === thread.otherUserId
-                      ? "bg-blue-50 border border-blue-200"
+                      ? "bg-teal-50 border border-teal-100"
                       : "hover:bg-slate-50"
                   }`}
                 >
                   {/* Avatar */}
                   <div className="relative flex-shrink-0">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-teal-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm">
                       {thread.otherUserName?.charAt(0)?.toUpperCase() ?? "?"}
                     </div>
                     {peerOnline && activeThread?.otherUserId === thread.otherUserId && (
@@ -264,7 +264,7 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
                     <div className="flex items-center justify-between gap-1 mt-0.5">
                       <p className="text-xs text-slate-500 truncate">{thread.lastMessage}</p>
                       {thread.unreadCount > 0 && (
-                        <Badge className="bg-blue-600 text-white text-[10px] h-4 px-1.5 flex-shrink-0">
+                        <Badge className="bg-teal-600 text-white text-[10px] h-4 px-1.5 flex-shrink-0">
                           {thread.unreadCount}
                         </Badge>
                       )}
@@ -283,7 +283,7 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
           {/* Header */}
           <div className="px-5 py-3.5 border-b border-slate-100 flex items-center justify-between bg-white">
             <div className="flex items-center gap-3">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm">
+              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-teal-500 to-violet-600 flex items-center justify-center text-white font-bold text-sm">
                 {activeThread.otherUserName?.charAt(0)?.toUpperCase()}
               </div>
               <div>
@@ -306,7 +306,7 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
                     className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all border disabled:opacity-50 ${
                       s === "hired" ? "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100" :
                       s === "rejected" ? "bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100" :
-                      s === "interview" ? "bg-purple-50 text-purple-700 border-purple-200 hover:bg-purple-100" :
+                      s === "interview" ? "bg-purple-50 text-violet-700 border-purple-200 hover:bg-violet-100" :
                       "bg-amber-50 text-amber-700 border-amber-200 hover:bg-amber-100"
                     }`}
                   >
@@ -340,7 +340,7 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
                       <div
                         className={`px-4 py-2.5 rounded-2xl text-sm leading-relaxed ${
                           isMine
-                            ? "bg-blue-600 text-white rounded-br-sm"
+                            ? "bg-teal-600 text-white rounded-br-sm"
                             : "bg-white border border-slate-200 text-slate-800 rounded-bl-sm shadow-sm"
                         }`}
                       >
@@ -350,7 +350,7 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
                           <div className="mt-2 space-y-1">
                             {msg.attachment_urls.map((url, i) => (
                               <a key={i} href={url} target="_blank" rel="noreferrer"
-                                className={`flex items-center gap-1.5 text-xs underline ${isMine ? "text-blue-100" : "text-blue-600"}`}>
+                                className={`flex items-center gap-1.5 text-xs underline ${isMine ? "text-teal-100" : "text-teal-700"}`}>
                                 <FileText className="w-3 h-3" />
                                 Attachment {i + 1}
                               </a>
@@ -361,7 +361,7 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
                       <div className="flex items-center gap-1.5 px-1">
                         <span className="text-[10px] text-slate-400">{formatTime(msg.created_at)}</span>
                         {isMine && (
-                          <CheckCheck className={`w-3 h-3 ${msg.read_at ? "text-blue-500" : "text-slate-300"}`} />
+                          <CheckCheck className={`w-3 h-3 ${msg.read_at ? "text-teal-600" : "text-slate-300"}`} />
                         )}
                       </div>
                     </div>
@@ -385,7 +385,7 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
                 {pendingAttachments.length > 0 && (
                   <div className="flex flex-wrap gap-2">
                     {pendingAttachments.map((url, i) => (
-                      <div key={i} className="flex items-center gap-1.5 bg-blue-50 border border-blue-200 rounded-lg px-2.5 py-1.5 text-xs text-blue-700">
+                      <div key={i} className="flex items-center gap-1.5 bg-teal-50 border border-teal-100 rounded-lg px-2.5 py-1.5 text-xs text-teal-700">
                         <FileText className="w-3 h-3" />
                         File {i + 1}
                         <button onClick={() => setPendingAttachments((prev) => prev.filter((_, j) => j !== i))}>
@@ -413,12 +413,12 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
                     onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); void sendMessage(); } }}
                     placeholder="Type a message... (Enter to send)"
                     rows={1}
-                    className="flex-1 resize-none rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-all max-h-28 overflow-y-auto"
+                    className="flex-1 resize-none rounded-xl border border-slate-200 px-3.5 py-2.5 text-sm focus:ring-2 focus:ring-blue-500 focus:border-teal-500 outline-none transition-all max-h-28 overflow-y-auto"
                   />
                   <Button
                     onClick={() => void sendMessage()}
                     disabled={sending || (!body.trim() && pendingAttachments.length === 0)}
-                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl px-4 py-2.5 h-auto"
+                    className="bg-teal-600 hover:bg-teal-700 text-white rounded-xl px-4 py-2.5 h-auto"
                   >
                     {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                   </Button>
@@ -430,7 +430,7 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
       ) : (
         <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50/30">
           <div className="w-16 h-16 bg-white rounded-2xl shadow-sm border border-slate-200 flex items-center justify-center mb-4">
-            <Send className="w-7 h-7 text-blue-500" />
+            <Send className="w-7 h-7 text-teal-600" />
           </div>
           <h3 className="font-bold text-slate-900 text-lg">Select a conversation</h3>
           <p className="text-sm text-slate-500 mt-1">Choose a thread from the left to start chatting</p>

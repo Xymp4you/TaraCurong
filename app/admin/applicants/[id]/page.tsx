@@ -60,7 +60,7 @@ export default function AdminViewProfilePage() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
         <Loader2 className="h-10 w-10 animate-spin text-slate-400" />
-        <p className="text-slate-500 font-medium">Loading full NSRP record...</p>
+        <p className="text-slate-500 font-medium">Loading full profile...</p>
       </div>
     );
   }
@@ -121,7 +121,7 @@ export default function AdminViewProfilePage() {
           </Button>
           <h1 className="text-3xl font-bold text-slate-900">{fullName}</h1>
           <p className="text-slate-500 flex items-center gap-2">
-            NSRP ID: <span className="font-mono font-bold text-slate-900">{profile.nsrp_id}</span>
+            Profile ID: <span className="font-mono font-bold text-slate-900">{profile.nsrp_id}</span>
             {profile.profile_complete && <BadgeCheck className="h-4 w-4 text-emerald-500" />}
           </p>
         </div>
@@ -188,7 +188,7 @@ export default function AdminViewProfilePage() {
           </Card>
         </div>
 
-        {/* Center/Right Content: Detailed NSRP Fields */}
+        {/* Center/Right Content: Profile fields */}
         <div className="lg:col-span-3 space-y-8">
           
           {/* Section: Personal Info Detail */}
@@ -331,7 +331,7 @@ export default function AdminViewProfilePage() {
                   </div>
                   <div className="text-right">
                     <p className="text-sm font-bold text-slate-900">{edu.year_graduated || "N/A"}</p>
-                    {edu.currently_in_school && <span className="text-[10px] text-sky-600 font-bold uppercase">Enrolled</span>}
+                    {edu.currently_in_school && <span className="text-[10px] text-teal-700 font-bold uppercase">Enrolled</span>}
                   </div>
                 </Card>
               ))}

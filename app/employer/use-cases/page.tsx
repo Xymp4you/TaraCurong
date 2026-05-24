@@ -31,7 +31,7 @@ export default function EmployerUseCasesPage() {
           { name: "Shortlisting", description: "Move candidates to shortlist, manage stages, and collaborate." },
           { name: "Interview Scheduling", description: "Coordinate interviews and send calendar-friendly updates." },
           { name: "Offer & Hiring", description: "Issue offers, mark hires, and capture onboarding handoff details." },
-          { name: "Referral Feedback", description: "Provide PESO-style outcomes for referred applicants with auditability." },
+          { name: "Referral Feedback", description: "Provide standardized outcomes for referred applicants with auditability." },
           { name: "Analytics & Reports", description: "Track applicants, time-to-fill, sources, and export summaries." },
           { name: "Notifications & Communications", description: "Receive alerts and message candidates with anti-spam controls." },
         ],
@@ -54,7 +54,7 @@ export default function EmployerUseCasesPage() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = "GensanWorks_Employer_Use_Cases.md";
+    link.download = "TaraCurong_Employer_Use_Cases.md";
     link.click();
     URL.revokeObjectURL(url);
   };

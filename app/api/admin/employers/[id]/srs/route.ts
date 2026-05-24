@@ -132,8 +132,8 @@ export async function PATCH(
     ? "✅ SRS Profile Approved — You Can Now Post Jobs!"
     : "❌ SRS Profile Rejected";
   const notifBody = action === "approve"
-    ? "Your business profile has been verified and approved by PESO. You can now post job openings."
-    : `Your SRS profile submission was rejected. Reason: ${rejectionReason ?? "Please contact PESO for details."}`;
+    ? "Your business profile has been verified and approved by TaraCurong. You can now post job openings."
+    : `Your SRS profile submission was rejected. Reason: ${rejectionReason ?? "Please contact TaraCurong for details."}`;
 
   await tryCreateNotification({
     userId: id,

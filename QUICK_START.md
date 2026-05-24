@@ -1,4 +1,4 @@
-# 🚀 GensanWorks Next.js Rebuild - QUICK START GUIDE
+# 🚀 TaraCurong Next.js Rebuild - QUICK START GUIDE
 
 **Status**: Phase 0 Code Complete ✅ | Ready for Manual Infrastructure Setup
 
@@ -16,7 +16,7 @@ A complete Next.js 15 + TypeScript + Tailwind + Supabase project structure with:
 - ✅ Environment configuration
 - ✅ Documentation (README, setup guides)
 
-**Location**: `d:\My Studies\GensanWorks-Next\`
+**Location**: `d:\My Studies\TaraCurong-Next\`
 
 ---
 
@@ -62,7 +62,7 @@ cp .env.example .env.local
 ### Step 4: Install Dependencies & Setup Database (20 mins)
 
 ```bash
-# From d:\My Studies\GensanWorks-Next\
+# From d:\My Studies\TaraCurong-Next\
 
 # Install packages
 npm install
@@ -96,7 +96,7 @@ Go to Supabase dashboard → SQL Editor and run:
 INSERT INTO admins (id, email, name, password_hash, role, is_active)
 VALUES (
   gen_random_uuid(),
-  'admin@gensanworks.com',
+  'admin@taracurong.com',
   'System Admin',
   '$2a$10$Y9CzF.3ItL3j.BpV2PW/R.x88L8NrU7PZtj7xM9Kg9K/p7KVEBDey', -- bcrypt hash of "Admin@123456"
   'admin',
@@ -107,14 +107,14 @@ VALUES (
 ### Step 6: Test Locally (10 mins)
 
 ```bash
-cd d:\My Studies\GensanWorks-Next
+cd d:\My Studies\TaraCurong-Next
 
 npm run dev
 ```
 
 - Opens at http://localhost:3000
 - Try landing page
-- Try login with `admin@gensanworks.com` / `Admin@123456`
+- Try login with `admin@taracurong.com` / `Admin@123456`
 
 ### Step 7: Setup Git (5 mins)
 
@@ -122,7 +122,7 @@ npm run dev
 git init
 git add .
 git commit -m "Phase 0: Initial Next.js project with Drizzle schema and NextAuth setup"
-git remote add origin https://github.com/yourusername/GensanWorks-Next.git
+git remote add origin https://github.com/yourusername/TaraCurong-Next.git
 git push -u origin main
 ```
 
@@ -145,8 +145,8 @@ git push -u origin main
 | `app/lib/constants.ts` | Status workflows, enums, app constants |
 | `PHASE_0_SETUP.md` | Detailed infrastructure setup guide |
 | `IMPLEMENTATION_STATUS.md` | Progress tracking across all phases |
-| `scripts/export-from-old-db.js` | Export data from existing GensanWorks |
-| `scripts/import-to-supabase.js` | Import CSV data to Supabase |
+| `scripts/export-from-old-db.ts` | Export data from existing TaraCurong |
+| `scripts/import-to-supabase.ts` | Import CSV data to Supabase |
 
 ---
 

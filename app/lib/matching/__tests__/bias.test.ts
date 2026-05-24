@@ -5,9 +5,9 @@ import { deidentifyJobseeker, MATCHING_SYSTEM_PROMPT } from "../agent";
 test("Task 6: Bias Verification", async (t) => {
 
   await t.test("Test 1 — Gender Neutrality", () => {
-    const job = { employers: { city: "General Santos City" } };
-    const seekerMale = { id: "1", sex: "Male", city: "General Santos City" };
-    const seekerFemale = { id: "1", sex: "Female", city: "General Santos City" };
+    const job = { employers: { city: "Tacurong City" } };
+    const seekerMale = { id: "1", sex: "Male", city: "Tacurong City" };
+    const seekerFemale = { id: "1", sex: "Female", city: "Tacurong City" };
 
     const outputMale = deidentifyJobseeker(seekerMale, job);
     const outputFemale = deidentifyJobseeker(seekerFemale, job);
@@ -76,8 +76,8 @@ test("Task 6: Bias Verification", async (t) => {
   });
 
   await t.test("Test 5 — Location Abstraction", () => {
-    const job = { employers: { city: "General Santos City" } };
-    const seeker = { barangay: "Lagao", city: "General Santos City" };
+    const job = { employers: { city: "Tacurong City" } };
+    const seeker = { barangay: "Lagao", city: "Tacurong City" };
 
     const output = deidentifyJobseeker(seeker, job);
 

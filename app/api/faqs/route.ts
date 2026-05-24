@@ -14,16 +14,16 @@ type FAQsResponse = {
 const fallbackFAQs: FAQsResponse = {
   faqs: [
     {
-      question: "How do I register as a jobseeker on GensanWorks?",
+      question: "How do I register as a jobseeker on TaraCurong?",
       answer: "Click on 'Sign Up' or 'Get Started' button, fill in your personal information, upload your resume, and complete your profile."
     },
     {
-      question: "Is there a fee to use GensanWorks?",
-      answer: "No, GensanWorks is completely free for jobseekers."
+      question: "Is there a fee to use TaraCurong?",
+      answer: "No, TaraCurong is completely free for jobseekers."
     },
     {
       question: "How can employers post job vacancies?",
-      answer: "Employers need to register for an employer account, verify their company information with PESO."
+      answer: "Employers need to register for an employer account, verify their company information with TaraCurong."
     },
     {
       question: "What documents do I need to upload?",
@@ -34,7 +34,7 @@ const fallbackFAQs: FAQsResponse = {
       answer: "Our intelligent matching system analyzes your skills, experience, and preferences."
     },
     {
-      question: "Can I apply for jobs outside General Santos City?",
+      question: "Can I apply for jobs outside Tacurong City?",
       answer: "Yes! Our platform features jobs from across SOCCSKSARGEN region and nationwide."
     },
     {
@@ -42,8 +42,8 @@ const fallbackFAQs: FAQsResponse = {
       answer: "Most candidates receive interview invitation within 48 hours of application."
     },
     {
-      question: "What makes GensanWorks different from other job platforms?",
-      answer: "GensanWorks is the official PESO platform, all employers and jobs are verified by the government."
+      question: "What makes TaraCurong different from other job platforms?",
+      answer: "TaraCurong is the official government platform, all employers and jobs are verified."
     }
   ]
 };

@@ -79,7 +79,7 @@ export default function SavedJobsPage() {
           <p className="text-slate-500 mt-1">Keep track of opportunities you're interested in.</p>
         </div>
         <Link href="/jobseeker/jobs">
-          <Button className="bg-blue-600 hover:bg-blue-700">
+          <Button className="bg-teal-600 hover:bg-teal-700">
             <Search className="w-4 h-4 mr-2" />
             Browse More Jobs
           </Button>

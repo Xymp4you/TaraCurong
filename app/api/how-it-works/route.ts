@@ -31,7 +31,7 @@ const fallbackHowItWorks: HowItWorksResponse = {
         "Upload resume & certificates",
         "Highlight your skills",
         "Set job preferences",
-        "Verify your identity with PESO"
+        "Verify your identity with TaraCurong"
       ],
       ctaText: "Start Profile",
       ctaHref: "/signup/jobseeker"

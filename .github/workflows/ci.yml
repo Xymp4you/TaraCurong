@@ -127,7 +127,7 @@ jobs:
               AUTH_EMAIL="$email" \
               AUTH_PASSWORD="$password" \
               AUTH_ROLE="$role" \
-              node scripts/get-auth-cookie.js
+              npx tsx scripts/get-auth-cookie.ts
           }
 
           if { [ -z "${PHASE2_ADMIN_COOKIE:-}" ] || [ -z "${PHASE6_ADMIN_COOKIE:-}" ]; } && [ -n "${E2E_ADMIN_EMAIL:-}" ] && [ -n "${E2E_ADMIN_PASSWORD:-}" ]; then
@@ -176,7 +176,7 @@ jobs:
           fi
 
           if [ -z "${PHASE3_ACTIVE_JOB_ID:-}" ] && [ -n "${DATABASE_URL:-}" ]; then
-            phase3_job_id="$(DATABASE_URL="$DATABASE_URL" node scripts/get-active-job-id.js || true)"
+            phase3_job_id="$(DATABASE_URL="$DATABASE_URL" npx tsx scripts/get-active-job-id.ts || true)"
             if [ -n "$phase3_job_id" ]; then
               echo "PHASE3_ACTIVE_JOB_ID=$phase3_job_id" >> "$GITHUB_ENV"
               echo "Resolved PHASE3_ACTIVE_JOB_ID from database seed."

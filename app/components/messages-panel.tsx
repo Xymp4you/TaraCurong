@@ -799,7 +799,7 @@ export function MessagesPanel() {
                 <li key={conversation.otherUserId}>
                   <button
                     type="button"
-                    className={`w-full text-left border rounded-md p-3 ${activePeerId === conversation.otherUserId ? "border-blue-300 bg-blue-50" : ""}`}
+                    className={`w-full text-left border rounded-md p-3 ${activePeerId === conversation.otherUserId ? "border-teal-100 bg-teal-50" : ""}`}
                     onClick={() => {
                       setActivePeerId(conversation.otherUserId);
                       setActivePeerRole(conversation.otherUserRole);
@@ -809,7 +809,7 @@ export function MessagesPanel() {
                     <p className="text-xs text-slate-500">{conversation.otherUserRole}</p>
                     <p className="text-sm text-slate-600 truncate">{conversation.lastMessage}</p>
                     {conversation.unreadCount > 0 ? (
-                      <span className="text-xs text-blue-700">
+                      <span className="text-xs text-teal-700">
                         {conversation.unreadCount} unread
                       </span>
                     ) : null}
@@ -941,7 +941,7 @@ export function MessagesPanel() {
             }}
           >
             {isActivePeerTyping ? (
-              <p className="rounded bg-blue-50 px-2 py-1 text-xs text-blue-700">{activePeerDisplayName} is typing...</p>
+              <p className="rounded bg-teal-50 px-2 py-1 text-xs text-teal-700">{activePeerDisplayName} is typing...</p>
             ) : null}
             {activePeerId && hasOlderMessages ? (
               <Button
@@ -974,9 +974,9 @@ export function MessagesPanel() {
                 if (item.type === "unread") {
                   return (
                     <div key={item.key} className="flex items-center gap-2 py-1">
-                      <div className="h-px flex-1 bg-blue-200" />
-                      <span className="text-xs font-medium text-blue-700">New messages</span>
-                      <div className="h-px flex-1 bg-blue-200" />
+                      <div className="h-px flex-1 bg-teal-100" />
+                      <span className="text-xs font-medium text-teal-700">New messages</span>
+                      <div className="h-px flex-1 bg-teal-100" />
                     </div>
                   );
                 }

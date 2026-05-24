@@ -208,7 +208,7 @@ export default function AdminApplicantsPage() {
         body: JSON.stringify({
           userId: selectedApplicant.id,
           role: "jobseeker",
-          title: "Message from PESO Administrator",
+          title: "Message from TaraCurong Administrator",
           message: messageText.trim(),
           type: "system",
         }),
@@ -258,7 +258,7 @@ export default function AdminApplicantsPage() {
         </div>
         <div className="flex flex-wrap gap-2">
           <Link href="/admin/applicants/create">
-            <Button className="gap-2 bg-blue-600 hover:bg-blue-700 text-white">
+            <Button className="gap-2 bg-teal-600 hover:bg-teal-700 text-white">
               <UserPlus className="h-4 w-4" />
               Create Jobseeker
             </Button>
@@ -370,7 +370,7 @@ export default function AdminApplicantsPage() {
                         <Button 
                           variant="outline" 
                           size="sm" 
-                          className="border-blue-200 text-blue-700 hover:bg-blue-50"
+                          className="border-teal-100 text-teal-700 hover:bg-teal-50"
                           onClick={() => void openReferral(applicant)}
                         >
                           <UserPlus className="mr-1.5 h-3.5 w-3.5" />
@@ -420,7 +420,7 @@ export default function AdminApplicantsPage() {
             <>
               <DialogHeader>
                 <DialogTitle className="text-xl font-bold flex items-center gap-2">
-                  <UserPlus className="h-5 w-5 text-blue-600" />
+                  <UserPlus className="h-5 w-5 text-teal-700" />
                   Refer {selectedApplicant?.name}
                 </DialogTitle>
                 <DialogDescription>
@@ -448,7 +448,7 @@ export default function AdminApplicantsPage() {
                     filteredJobs.map((job) => (
                       <div 
                         key={job.id} 
-                        className={`p-4 cursor-pointer transition-colors hover:bg-slate-50 ${selectedJobId === job.id ? 'bg-blue-50 ring-1 ring-inset ring-blue-200' : ''}`}
+                        className={`p-4 cursor-pointer transition-colors hover:bg-slate-50 ${selectedJobId === job.id ? 'bg-teal-50 ring-1 ring-inset ring-blue-200' : ''}`}
                         onClick={() => setSelectedJobId(job.id)}
                       >
                         <div className="flex justify-between items-start">
@@ -458,7 +458,7 @@ export default function AdminApplicantsPage() {
                           </div>
                           <div className="text-right text-xs">
                             <p className="font-semibold text-emerald-600">{job.salary || "N/A"}</p>
-                            <p className="text-slate-400">{job.location || "General Santos"}</p>
+                            <p className="text-slate-400">{job.location || "Tacurong City"}</p>
                           </div>
                         </div>
                       </div>
@@ -470,7 +470,7 @@ export default function AdminApplicantsPage() {
               <DialogFooter>
                 <Button variant="outline" onClick={() => setIsReferralOpen(false)}>Cancel</Button>
                 <Button 
-                  className="bg-blue-600 hover:bg-blue-700 rounded-xl px-8"
+                  className="bg-teal-600 hover:bg-teal-700 rounded-xl px-8"
                   disabled={!selectedJobId || referring}
                   onClick={handleCreateReferral}
                 >
@@ -500,8 +500,8 @@ export default function AdminApplicantsPage() {
                   <div className="flex justify-between items-start border-b-2 border-slate-900 pb-4 print:pb-6">
                     <div className="text-left space-y-1">
                       <h2 className="text-xl sm:text-2xl font-black tracking-tighter uppercase">REFERRAL SLIP</h2>
-                      <p className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-slate-600 uppercase">Public Employment Service Office (PESO)</p>
-                      <p className="text-[10px] sm:text-xs font-medium">GensanWorks - General Santos City</p>
+                      <p className="text-[10px] sm:text-xs font-bold tracking-[0.2em] text-slate-600 uppercase">TaraCurong</p>
+                      <p className="text-[10px] sm:text-xs font-medium">TaraCurong - Tacurong City</p>
                     </div>
                     {qrCodeUrl && (
                       <div className="w-20 h-20 border border-slate-200 p-1 bg-white">
@@ -522,13 +522,13 @@ export default function AdminApplicantsPage() {
                       <p className="text-xs sm:text-sm uppercase font-bold text-slate-500 tracking-wider">To the Employer:</p>
                       <div className="pl-3 sm:pl-4">
                         <p className="text-base sm:text-lg font-black text-slate-950 uppercase">{activeJobs.find(j => j.id === selectedJobId)?.employerName}</p>
-                        <p className="text-xs sm:text-sm text-slate-600 font-medium">{activeJobs.find(j => j.id === selectedJobId)?.location || "General Santos City"}</p>
+                        <p className="text-xs sm:text-sm text-slate-600 font-medium">{activeJobs.find(j => j.id === selectedJobId)?.location || "Tacurong City"}</p>
                       </div>
                     </div>
 
                     <div className="space-y-3 sm:space-y-4 text-sm sm:text-base text-slate-800 leading-relaxed">
                       <p>This is to refer <strong>{selectedApplicant?.name.toUpperCase()}</strong> for the position of <strong>{activeJobs.find(j => j.id === selectedJobId)?.title.toUpperCase()}</strong>.</p>
-                      <p>The candidate has been screened and is being referred to your establishment for further interview and evaluation based on their qualifications and matching profile on GensanWorks.</p>
+                      <p>The candidate has been screened and is being referred to your establishment for further interview and evaluation based on their qualifications and matching profile on TaraCurong.</p>
                       <p>Your kind consideration of this applicant would be highly appreciated.</p>
                     </div>
                   </div>
@@ -540,16 +540,16 @@ export default function AdminApplicantsPage() {
                       <p className="text-[8px] sm:text-[10px] font-bold uppercase text-center tracking-widest text-slate-500">Applicant's Signature</p>
                     </div>
                     <div className="space-y-1">
-                       <p className="text-sm sm:text-base text-center font-black text-slate-950 uppercase">PESO OFFICER</p>
+                       <p className="text-sm sm:text-base text-center font-black text-slate-950 uppercase">JOHN AEROL TAPALES</p>
                       <div className="border-b border-slate-900 w-full"></div>
-                      <p className="text-[8px] sm:text-[10px] font-bold uppercase text-center tracking-widest text-slate-500">Authorized Signature</p>
+                      <p className="text-[8px] sm:text-[10px] font-bold uppercase text-center tracking-widest text-slate-500">Project Owner · TaraCurong</p>
                     </div>
                   </div>
 
                   {/* Return Note */}
                   <div className="bg-slate-50 p-3 sm:p-4 border border-dashed border-slate-300 rounded-lg text-[9px] sm:text-[10px] text-slate-500 leading-tight">
                     <p className="font-bold mb-1 uppercase tracking-wider text-slate-700">Employer Feedback Note:</p>
-                    <p>Kindly return this slip or update the candidate status on GensanWorks after the interview for record purposes. Thank you.</p>
+                    <p>Kindly return this slip or update the candidate status on TaraCurong after the interview for record purposes. Thank you.</p>
                   </div>
                 </div>
               </div>
@@ -573,7 +573,7 @@ export default function AdminApplicantsPage() {
         <DialogContent className="max-w-md">
           <DialogHeader>
             <DialogTitle className="text-xl font-bold flex items-center gap-2">
-              <MessageSquare className="h-5 w-5 text-blue-600" />
+              <MessageSquare className="h-5 w-5 text-teal-700" />
               Notify {selectedApplicant?.name}
             </DialogTitle>
             <DialogDescription>
@@ -593,7 +593,7 @@ export default function AdminApplicantsPage() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setIsNotifyOpen(false)}>Cancel</Button>
             <Button 
-              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
+              className="bg-teal-600 hover:bg-teal-700 text-white gap-2"
               onClick={handleSendNotification}
               disabled={sending || !messageText.trim()}
             >

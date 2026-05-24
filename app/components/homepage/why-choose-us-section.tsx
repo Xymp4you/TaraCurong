@@ -61,7 +61,7 @@ interface WhyChooseUsSectionProps {
 
 export function WhyChooseUsSection() {
   const trustSignals = [
-    { title: "Government Certified", description: "Official PESO platform ensuring compliance.", icon: Shield, gradient: "from-blue-500 to-indigo-500" },
+    { title: "Built for the community", description: "A free, student-built platform for Tacurong City.", icon: Shield, gradient: "from-teal-500 to-violet-600" },
     { title: "Data Protected", description: "Your data is secure by design with enterprise-grade security.", icon: CheckCircle, gradient: "from-emerald-500 to-teal-500" },
     { title: "Service Excellence", description: "ISO-aligned workflows for consistent quality.", icon: Award, gradient: "from-purple-500 to-pink-500" },
     { title: "Real-time Matching", description: "AI-assisted recommendations tuned by human experts.", icon: Zap, gradient: "from-amber-500 to-orange-500" },
@@ -77,14 +77,14 @@ export function WhyChooseUsSection() {
           {/* Left Column */}
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-100 border border-slate-200 text-slate-600 text-xs font-bold tracking-widest uppercase mb-6 shadow-sm">
-              <Shield className="w-4 h-4 text-blue-600" />
+              <Shield className="w-4 h-4 text-teal-700" />
               Trusted Platform
             </div>
             <h2 className="text-4xl md:text-5xl font-extrabold text-slate-900 tracking-tight mb-6">
-              Why <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-indigo-600">GensanWorks?</span>
+              Why <span className="text-transparent bg-clip-text bg-gradient-to-r from-ink-800 to-violet-600">TaraCurong?</span>
             </h2>
             <p className="text-lg text-slate-500 mb-10 leading-relaxed max-w-lg">
-              As the official PESO-led platform for General Santos City, we bridge the gap between talented individuals and verified employers with unmatched security, reliability, and human support.
+              TaraCurong is a free, student-built community project for Tacurong City. It is not a government platform — just a focused effort to help local jobseekers and employers find each other.
             </p>
             
             <div className="grid sm:grid-cols-2 gap-6">
@@ -106,18 +106,18 @@ export function WhyChooseUsSection() {
 
           {/* Right Column - Visual Element */}
           <div className="relative">
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-600/20 to-indigo-600/20 blur-3xl rounded-full" />
+            <div className="absolute inset-0 bg-gradient-to-br from-ink-800/20 to-violet-600/20 blur-3xl rounded-full" />
             <div className="relative bg-slate-900 rounded-[2.5rem] p-8 md:p-12 shadow-2xl border border-slate-800 overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/30 blur-[80px] rounded-full pointer-events-none" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/30 blur-[80px] rounded-full pointer-events-none" />
               
               <div className="relative z-10">
                 <div className="flex items-center gap-4 mb-8 pb-8 border-b border-white/10">
-                  <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center border border-blue-500/30 backdrop-blur-md">
-                    <Users className="w-8 h-8 text-blue-400" />
+                  <div className="w-16 h-16 rounded-full bg-teal-500/20 flex items-center justify-center border border-teal-500/30 backdrop-blur-md">
+                    <Users className="w-8 h-8 text-teal-500" />
                   </div>
                   <div>
                     <h4 className="text-white font-bold text-xl">Verified Network</h4>
-                    <p className="text-slate-400 text-sm">100% PESO screened employers</p>
+                    <p className="text-slate-400 text-sm">100% verified employers</p>
                   </div>
                 </div>
                 

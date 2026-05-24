@@ -166,7 +166,7 @@ export async function PATCH(req: Request) {
     role: "jobseeker",
     type: "referral_slip",
     title: "Your Referral Slip Has Been Issued",
-    message: `Your PESO referral slip (${slip.slip_number}) has been issued. Show the QR code to the employer as a backup. Valid for 30 days.`,
+    message: `Your TaraCurong referral slip (${slip.slip_number}) has been issued. Show the QR code to the employer as a backup. Valid for 30 days.`,
     relatedId: slipId,
     relatedType: "referral_slip",
   });
@@ -178,7 +178,7 @@ export async function PATCH(req: Request) {
       role: "employer",
       type: "referral_slip",
       title: "Referral Slip Issued for Your Job",
-      message: `PESO has issued a referral slip for an applicant to your job posting. Reference: ${slip.slip_number}`,
+      message: `TaraCurong has issued a referral slip for an applicant to your job posting. Reference: ${slip.slip_number}`,
       relatedId: slipId,
       relatedType: "referral_slip",
     });

@@ -118,9 +118,9 @@ export async function tryCreateNotification(input: CreateNotificationInput) {
       if (contact && contact.email) {
         await sendNotificationEmail({
           to: contact.email,
-          subject: `GensanWorks: ${input.title}`,
-          text: `Hi ${contact.name},\n\n${input.message}\n\nPlease log in to your GensanWorks account to view the details.\n\nThank you,\nGensanWorks Team`,
-          html: `<p>Hi ${contact.name},</p><p>${input.message}</p><p>Please <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://gensanworks.com'}">log in to your GensanWorks account</a> to view the details.</p><br/><p>Thank you,<br/>GensanWorks Team</p>`,
+          subject: `TaraCurong: ${input.title}`,
+          text: `Hi ${contact.name},\n\n${input.message}\n\nPlease log in to your TaraCurong account to view the details.\n\nThank you,\nTaraCurong Team`,
+          html: `<p>Hi ${contact.name},</p><p>${input.message}</p><p>Please <a href="${process.env.NEXT_PUBLIC_APP_URL || 'https://taracurong.com'}">log in to your TaraCurong account</a> to view the details.</p><br/><p>Thank you,<br/>TaraCurong Team</p>`,
         });
       }
     }

@@ -19,7 +19,7 @@ async function seedAdmin() {
   const { data: existing } = await supabase
     .from("admins")
     .select("id")
-    .eq("email", "admin@gensanworks.gov")
+    .eq("email", "admin@taracurong.gov")
     .single();
 
   if (existing) {
@@ -28,8 +28,8 @@ async function seedAdmin() {
   }
 
   const { data, error } = await supabase.from("admins").insert({
-    name: "Demo PESO Admin",
-    email: "admin@gensanworks.gov",
+    name: "Demo Admin",
+    email: "admin@taracurong.gov",
     password_hash: passwordHash,
   });
 
@@ -39,7 +39,7 @@ async function seedAdmin() {
   }
 
   console.log("Demo admin created successfully!");
-  console.log("Email: admin@gensanworks.gov");
+  console.log("Email: admin@taracurong.gov");
   console.log("Password: admin123");
 }
 

@@ -168,7 +168,7 @@ export default function AdminViewEmployerProfilePage() {
 
           <Card className="p-5 space-y-4">
             <h3 className="text-xs font-bold text-slate-900 uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-2">
-              <User className="h-3.5 w-3.5 text-indigo-500" /> Primary Contact
+              <User className="h-3.5 w-3.5 text-violet-600" /> Primary Contact
             </h3>
             <div className="space-y-1">
               <InfoItem label="Contact Person" value={profile.contact_person} />
@@ -196,7 +196,7 @@ export default function AdminViewEmployerProfilePage() {
           {/* Section: Establishment Detail */}
           <section className="space-y-4">
             <div className="flex items-center gap-3 text-slate-900">
-              <div className="h-8 w-8 rounded-lg bg-indigo-50 flex items-center justify-center text-indigo-600">
+              <div className="h-8 w-8 rounded-lg bg-violet-100 flex items-center justify-center text-violet-600">
                 <Building2 className="h-4 w-4" />
               </div>
               <h3 className="text-lg font-bold">I. Establishment Information</h3>
@@ -249,11 +249,11 @@ export default function AdminViewEmployerProfilePage() {
                 <div className="flex items-center justify-between p-4 bg-slate-900 rounded-2xl text-white">
                   <div className="flex items-center gap-4">
                     <div className="h-12 w-12 bg-white/10 rounded-xl flex items-center justify-center">
-                      <Globe className="h-6 w-6 text-indigo-300" />
+                      <Globe className="h-6 w-6 text-violet-600" />
                     </div>
                     <div>
                       <p className="text-sm font-bold">SRS Subscription Status</p>
-                      <p className="text-xs text-slate-400">NSRP Compliance Status</p>
+                      <p className="text-xs text-slate-400">Profile Status</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2">
@@ -274,7 +274,7 @@ export default function AdminViewEmployerProfilePage() {
               <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
                 <CheckCircle2 className="h-4 w-4" />
               </div>
-              <h3 className="text-lg font-bold">IV. SRS/NSRP Form Certification</h3>
+              <h3 className="text-lg font-bold">IV. Profile Certification</h3>
             </div>
             <Card className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
               <InfoItem label="Prepared By" value={profile.srs_prepared_by} />

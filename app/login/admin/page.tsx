@@ -8,6 +8,7 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
 import { PendingApprovalModal } from "@/components/auth/pending-approval-modal";
 import { createClient } from "@/lib/supabase-client";
+import { isDemoMode, setDemoRoleCookie } from "@/lib/demo-mode";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -79,6 +80,7 @@ export default function AdminLoginPage() {
       if (error) {
         setError("Invalid admin credentials.");
       } else if (data.user) {
+        if (isDemoMode()) setDemoRoleCookie("admin");
         router.push("/admin/dashboard");
       }
     } catch (submitError) {
@@ -99,7 +101,7 @@ export default function AdminLoginPage() {
       sideBullets={[
         "Authorized admin credentials are required",
         "Request-based admin onboarding is supported",
-        "Secure controls for official PESO operations",
+        "Secure controls for official operations",
       ]}
       showPrimaryPortals={false}
       showAdminPortalButton

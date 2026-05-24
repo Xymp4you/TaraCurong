@@ -29,17 +29,17 @@ export function HowItWorksSection() {
   return (
     <section id="how-it-works" className="w-full py-24 relative overflow-hidden bg-slate-900">
       {/* Background Decorative Elements */}
-      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-blue-500/10 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-indigo-500/10 blur-[150px] rounded-full pointer-events-none" />
+      <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-teal-500/10 blur-[120px] rounded-full pointer-events-none" />
+      <div className="absolute bottom-0 left-0 w-[600px] h-[600px] bg-violet-600/10 blur-[150px] rounded-full pointer-events-none" />
       
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         <div className="text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 text-xs font-semibold tracking-widest uppercase mb-6">
-            <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-teal-500/10 border border-teal-500/20 text-teal-500 text-xs font-semibold tracking-widest uppercase mb-6">
+            <span className="w-2 h-2 rounded-full bg-teal-500 animate-pulse"></span>
             Simple Process
           </div>
           <h2 className="text-4xl md:text-5xl font-extrabold text-white mb-6 tracking-tight">
-            How GensanWorks <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-indigo-400">Works</span>
+            How TaraCurong <span className="text-transparent bg-clip-text bg-gradient-to-r from-teal-500 to-violet-600">Works</span>
           </h2>
           <p className="text-lg text-slate-400 max-w-2xl mx-auto font-light">
             Get started in three easy steps and unlock your career potential with our intelligent matching platform.
@@ -48,20 +48,20 @@ export function HowItWorksSection() {
 
         <div className="grid lg:grid-cols-3 gap-8 relative">
           {/* Connecting Line for Desktop */}
-          <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-blue-500/20 to-transparent -translate-y-1/2 z-0" />
+          <div className="hidden lg:block absolute top-1/2 left-0 w-full h-0.5 bg-gradient-to-r from-transparent via-teal-500/20 to-transparent -translate-y-1/2 z-0" />
 
           {howItWorksSteps.map((step, index) => (
             <div key={step.id} className={`relative z-10 group ${index === 1 ? 'lg:-translate-y-6' : 'lg:translate-y-6'}`}>
-              <div className="h-full rounded-3xl p-px bg-gradient-to-b from-white/10 to-transparent transition-all duration-500 group-hover:from-blue-500/30">
+              <div className="h-full rounded-3xl p-px bg-gradient-to-b from-white/10 to-transparent transition-all duration-500 group-hover:from-teal-500/30">
                 <div className="h-full bg-slate-900/80 backdrop-blur-xl rounded-[23px] p-8 md:p-10 border border-white/5 transition-all duration-500 group-hover:bg-slate-800/80 group-hover:shadow-[0_0_40px_-15px_rgba(59,130,246,0.3)]">
                   
                   {/* Icon & Number Header */}
                   <div className="flex items-center justify-between mb-8">
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500/10 to-indigo-500/10 border border-blue-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
+                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-teal-500/10 to-violet-600/10 border border-teal-500/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
                       {step.id === 1 ? (
-                        <UserCheck className="w-8 h-8 text-blue-400" />
+                        <UserCheck className="w-8 h-8 text-teal-500" />
                       ) : step.id === 2 ? (
-                        <Search className="w-8 h-8 text-indigo-400" />
+                        <Search className="w-8 h-8 text-violet-600" />
                       ) : (
                         <Briefcase className="w-8 h-8 text-purple-400" />
                       )}
@@ -81,8 +81,8 @@ export function HowItWorksSection() {
                   <ul className="space-y-4">
                     {step.bullets.map((bullet) => (
                       <li key={bullet} className="flex items-center gap-3">
-                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-blue-500/10 flex items-center justify-center">
-                          <CheckCircle2 className="w-4 h-4 text-blue-400" />
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-teal-500/10 flex items-center justify-center">
+                          <CheckCircle2 className="w-4 h-4 text-teal-500" />
                         </div>
                         <span className="text-slate-300 text-sm">{bullet}</span>
                       </li>

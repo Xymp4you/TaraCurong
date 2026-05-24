@@ -68,7 +68,7 @@ export async function GET(req: Request) {
       {
         report_type: `${periodLabel} Summary Report`,
         reporting_period: periodDate,
-        generated_by: "GensanWorks PESO Admin",
+        generated_by: "TaraCurong Admin",
         total_referrals: currentTotal,
         referrals_pending: currentStatusCounts["Pending"] || 0,
         referrals_for_interview: currentStatusCounts["For Interview"] || 0,

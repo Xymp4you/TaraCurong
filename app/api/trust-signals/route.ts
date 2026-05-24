@@ -16,8 +16,8 @@ type TrustSignalsResponse = {
 const fallbackTrustSignals: TrustSignalsResponse = {
   trustSignals: [
     {
-      title: "Government Certified",
-      description: "Official PESO platform",
+      title: "Community Project",
+      description: "Built by an IT student for Tacurong",
       icon: "Shield",
       accent: "bg-blue-50 text-blue-600",
     },

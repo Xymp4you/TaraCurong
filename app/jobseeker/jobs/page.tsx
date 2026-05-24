@@ -1,289 +1,196 @@
 "use client";
-export const dynamic = "force-dynamic";
 
-import { useEffect, useState, useMemo, Suspense } from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { useSearchParams, usePathname, useRouter } from "next/navigation";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Search, MapPin, DollarSign, Briefcase, Filter, Clock } from "lucide-react";
-import { formatRelativeTime } from "@/lib/time-utils";
-import { JobCard, type Job } from "@/components/jobseeker/job-card";
+import { Bookmark, Briefcase, Building, ChevronDown, MapPin, Search, X } from "lucide-react";
+import { Pill, type PillTone } from "@/components/gw/atoms";
 
-// Job type is now imported from JobCard component
+type JobStatus = "draft" | "pending" | "active" | "closed" | "archived" | "rejected" | "suspended";
+const JOB_STATUS: Record<JobStatus, { tone: PillTone; label: string }> = {
+  draft: { tone: "slate", label: "Draft" },
+  pending: { tone: "amber", label: "Pending review" },
+  active: { tone: "emerald", label: "Active" },
+  closed: { tone: "slate", label: "Closed" },
+  archived: { tone: "outline", label: "Archived" },
+  rejected: { tone: "rose", label: "Rejected" },
+  suspended: { tone: "rose", label: "Suspended" },
+};
 
-function JobseekerJobsContent() {
-  const router = useRouter();
-  const pathname = usePathname();
-  const searchParams = useSearchParams();
+type Job = {
+  title: string;
+  company: string;
+  location: string;
+  salary: string;
+  type: string;
+  posted: string;
+  status: JobStatus;
+  match: number;
+  saved?: boolean;
+};
 
-  const [q, setQ] = useState(searchParams?.get("search") || "");
-  const [jobs, setJobs] = useState<Job[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [loadingMore, setLoadingMore] = useState(false);
-  const [sortBy, setSortBy] = useState<"date" | "salary">((searchParams?.get("sortBy") as any) || "date");
-  const [typeFilter, setTypeFilter] = useState(searchParams?.get("type") || ""); // work setup: onsite/remote/hybrid
-  const [workTypeFilter, setWorkTypeFilter] = useState(searchParams?.get("workType") || ""); // employment type: full-time/part-time/etc
-  const [availableWorkTypes, setAvailableWorkTypes] = useState<string[]>([]);
-  const [offset, setOffset] = useState(0);
-  const [hasMore, setHasMore] = useState(false);
-  const LIMIT = 10;
+const JOBS: Job[] = [
+  { title: "Bookkeeper", company: "Dole Philippines, Inc.", location: "Tacurong · On-site", salary: "₱18,000 – ₱24,000", type: "Full-time", posted: "2d ago", status: "active", match: 94, saved: true },
+  { title: "Junior Accountant", company: "Sultan Kudarat CPA", location: "Tacurong · On-site", salary: "₱20,000 – ₱28,000", type: "Full-time", posted: "Today", status: "active", match: 88 },
+  { title: "Account Assistant", company: "RD Pawnshop", location: "Tacurong · Hybrid", salary: "₱15,000 – ₱18,000", type: "Full-time", posted: "5h ago", status: "active", match: 86 },
+  { title: "Records Officer", company: "City Hall Tacurong", location: "City Hall · On-site", salary: "₱17,500 fixed", type: "Contract", posted: "1d ago", status: "active", match: 81 },
+  { title: "Office Clerk", company: "City Treasurer's Office", location: "City Hall · On-site", salary: "₱14,200 – ₱16,000", type: "Full-time", posted: "3d ago", status: "active", match: 76 },
+  { title: "Payroll Encoder", company: "Marigold Manpower", location: "Tacurong · Remote OK", salary: "₱22,000 – ₱30,000", type: "Full-time", posted: "1w ago", status: "active", match: 72 },
+];
 
-  const updateUrl = (params: Record<string, string | null>) => {
-    const nextParams = new URLSearchParams(searchParams?.toString() || "");
-    Object.entries(params).forEach(([key, value]) => {
-      if (value) nextParams.set(key, value);
-      else nextParams.delete(key);
-    });
-    router.replace(`${pathname}?${nextParams.toString()}`, { scroll: false });
-  };
+const FILTERS = [
+  { h: "Salary range", v: "₱15k – ₱35k", chips: ["₱20k +", "₱25k +", "₱35k +"] },
+  { h: "Experience", v: "Any", chips: ["Entry", "Mid", "Senior"] },
+  { h: "Education", v: "Any", chips: ["HS", "Vocational", "Bachelor's"] },
+];
 
-  const loadJobs = async (query: string, sort: string = "date", isLoadMore = false) => {
-    if (isLoadMore) setLoadingMore(true);
-    else setLoading(true);
-    
-    try {
-      const currentOffset = isLoadMore ? offset + LIMIT : 0;
-      const params = new URLSearchParams();
-      if (query) params.append("search", query);
-      if (typeFilter) params.append("type", typeFilter);
-      if (workTypeFilter) params.append("workType", workTypeFilter);
-      params.append("sortBy", sort === "salary" ? "salary_high" : "recent");
-      params.append("limit", LIMIT.toString());
-      params.append("offset", currentOffset.toString());
-
-      const response = await fetch(
-        `/api/jobs?${params.toString()}`,
-        { cache: "no-store" }
-      );
-
-      if (!response.ok) {
-        if (!isLoadMore) setJobs([]);
-        return;
-      }
-
-      const data = (await response.json()) as { data?: Job[], pagination?: { hasMore: boolean } };
-      const newJobs = data.data ?? [];
-      
-      if (isLoadMore) {
-        setJobs((prev) => {
-          const existingIds = new Set(prev.map((j) => j.id));
-          const uniqueNew = newJobs.filter((j) => !existingIds.has(j.id));
-          return [...prev, ...uniqueNew];
-        });
-        setOffset(currentOffset);
-      } else {
-        setJobs(newJobs);
-        setOffset(0);
-      }
-      setHasMore(data.pagination?.hasMore ?? false);
-    } finally {
-      setLoading(false);
-      setLoadingMore(false);
-    }
-  };
-
-  useEffect(() => {
-    void loadJobs(q, sortBy);
-    updateUrl({ 
-      search: q || null, 
-      sortBy: sortBy === "date" ? null : sortBy,
-      type: typeFilter || null,
-      workType: workTypeFilter || null
-    });
-  }, [sortBy, typeFilter, workTypeFilter]);
-
-  // Fetch filter options once
-  useEffect(() => {
-    const fetchFilters = async () => {
-      try {
-        const res = await fetch("/api/jobs/filters");
-        if (res.ok) {
-          const data = await res.json();
-          setAvailableWorkTypes(data.workTypes || []);
-        }
-      } catch (err) {
-        console.error("Failed to fetch filters:", err);
-      }
-    };
-    void fetchFilters();
-  }, []);
-
-  // Derived filters removed as we now fetch them from the API
-
+function JobCard({ j }: { j: Job }) {
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 className="text-2xl font-bold text-slate-900">Browse Jobs</h2>
-        <p className="text-sm text-slate-600">
-          Search active opportunities and apply directly.
-        </p>
-      </div>
-
-      {/* Search and Filters */}
-      <div className="space-y-4">
-        <form
-          onSubmit={(event) => {
-            event.preventDefault();
-            void loadJobs(q, sortBy);
-            updateUrl({ search: q || null });
-          }}
-          className="flex gap-2"
-        >
-          <Input
-            type="text"
-            placeholder="Search by position, company, or skills..."
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            className="flex-1"
-          />
-          <Button type="submit">
-            <Search className="h-4 w-4 mr-2" />
-            Search
-          </Button>
-        </form>
-
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-2">
-              Sort By
-            </label>
-            <Select value={sortBy} onValueChange={(v) => setSortBy(v as typeof sortBy)}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="date">Newest</SelectItem>
-                <SelectItem value="salary">Highest Salary</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-2">
-              Work Setup
-            </label>
-            <Select value={typeFilter} onValueChange={setTypeFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="All setups" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All setups</SelectItem>
-                <SelectItem value="onsite">Onsite</SelectItem>
-                <SelectItem value="remote">Remote</SelectItem>
-                <SelectItem value="hybrid">Hybrid</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-slate-700 block mb-2">
-              Work Type
-            </label>
-            <Select value={workTypeFilter} onValueChange={setWorkTypeFilter}>
-              <SelectTrigger>
-                <SelectValue placeholder="All work types" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="">All work types</SelectItem>
-                <SelectItem value="Full-time">Full-time</SelectItem>
-                <SelectItem value="Part-time">Part-time</SelectItem>
-                <SelectItem value="Contract">Contract</SelectItem>
-                <SelectItem value="Casual">Casual</SelectItem>
-                {availableWorkTypes
-                  .filter((t) => !["Full-time", "Part-time", "Contract", "Casual"].includes(t))
-                  .map((type) => (
-                    <SelectItem key={type} value={type}>
-                      {type}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="flex items-end">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setQ("");
-                setTypeFilter("");
-                setWorkTypeFilter("");
-                setSortBy("date");
-              }}
-              className="w-full"
-            >
-              <Filter className="h-4 w-4 mr-2" />
-              Clear Filters
-            </Button>
-          </div>
-        </div>
-      </div>
-
-      {/* Results */}
-      {loading && !jobs.length ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {[...Array(6)].map((_, i) => (
-            <Skeleton key={i} className="h-40 rounded-lg" />
-          ))}
-        </div>
-      ) : jobs.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {jobs.map((job) => (
-            <JobCard key={job.id} job={job} />
-          ))}
-        </div>
-      ) : (
-        <Card className="p-12 text-center border border-dashed border-slate-300">
-          <p className="text-slate-600 mb-4">No jobs found matching your criteria</p>
-          <Button
-            variant="outline"
-            onClick={() => {
-              setQ("");
-              setTypeFilter("");
-              setWorkTypeFilter("");
+    <Link href={`/jobseeker/jobs/${encodeURIComponent(j.title)}`} style={{ textDecoration: "none", color: "inherit" }}>
+      <div className="gw-card gw-card--hover" style={{ padding: 18, display: "flex", flexDirection: "column", gap: 12, cursor: "pointer", height: "100%" }}>
+        <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
+          <div
+            style={{
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              background: "var(--paper-2)",
+              border: "1px solid var(--ink-7)",
+              display: "grid",
+              placeItems: "center",
+              flexShrink: 0,
             }}
           >
-            Clear filters and try again
-          </Button>
-        </Card>
-      )}
-
-      {hasMore && (
-        <div className="flex justify-center pt-4">
-          <Button 
-            variant="outline" 
-            onClick={() => void loadJobs(q, sortBy, true)}
-            disabled={loadingMore}
-            className="w-full md:w-auto min-w-[200px]"
-          >
-            {loadingMore ? "Loading..." : "Load More Jobs"}
-          </Button>
+            <Building size={20} />
+          </div>
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <div className="tx-h3">{j.title}</div>
+            <div className="tx-caption" style={{ marginTop: 2 }}>{j.company}</div>
+          </div>
+          <Bookmark
+            size={16}
+            fill={j.saved ? "var(--ink)" : "none"}
+            stroke={j.saved ? "var(--ink)" : "var(--ink-4)"}
+          />
         </div>
-      )}
-
-      {jobs.length > 0 && (
-        <p className="text-sm text-slate-600 text-center">
-          Showing {jobs.length} job{jobs.length !== 1 ? "s" : ""}
-        </p>
-      )}
-    </div>
+        <div style={{ display: "flex", gap: 14, flexWrap: "wrap" }}>
+          <span className="tx-caption" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <MapPin size={13} />{j.location}
+          </span>
+          <span className="tx-caption" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+            <Briefcase size={13} />{j.type}
+          </span>
+          <span className="tx-caption tx-mono" style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--ink-2)" }}>
+            {j.salary}
+          </span>
+        </div>
+        <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "2px 0" }} />
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
+            <Pill tone={JOB_STATUS[j.status].tone}>{JOB_STATUS[j.status].label}</Pill>
+            <span className="tx-micro tx-mono" style={{ color: "var(--ink-3)" }}>· {j.match}% match</span>
+          </div>
+          <span className="tx-micro" style={{ color: "var(--ink-4)" }}>{j.posted}</span>
+        </div>
+      </div>
+    </Link>
   );
 }
 
 export default function JobseekerJobsPage() {
+  const [query, setQuery] = useState("");
+  const [activeFilter, setActiveFilter] = useState("All");
+  const chips = ["All", "Full-time", "Part-time", "Contract", "On-site", "Hybrid", "Remote"];
+
   return (
-    <Suspense fallback={<Skeleton className="h-[600px] w-full" />}>
-      <JobseekerJobsContent />
-    </Suspense>
+    <div className="gw" style={{ maxWidth: 1320 }}>
+      <div style={{ marginBottom: 18 }}>
+        <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>Find jobs</h1>
+        <p className="tx-caption" style={{ marginTop: 4 }}>1,284 active jobs · Updated 2 minutes ago</p>
+      </div>
+
+      {/* Search bar */}
+      <div className="gw-card" style={{ padding: 8, display: "flex", gap: 4, alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px", flex: 1 }}>
+          <Search size={16} style={{ color: "var(--ink-4)" }} />
+          <input
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            placeholder="bookkeeper, accountant…"
+            className="tx-body"
+            style={{ border: 0, outline: 0, background: "transparent", flex: 1, padding: "10px 0", color: "var(--ink)" }}
+          />
+        </div>
+        <div style={{ width: 1, height: 22, background: "var(--ink-7)" }} />
+        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px", minWidth: 180 }}>
+          <MapPin size={16} style={{ color: "var(--ink-4)" }} />
+          <span className="tx-body" style={{ color: "var(--ink-2)" }}>Tacurong + 25km</span>
+          <ChevronDown size={14} style={{ color: "var(--ink-4)", marginLeft: "auto" }} />
+        </div>
+        <button type="button" className="gw-btn gw-btn--accent" style={{ height: 40 }}>Search</button>
+      </div>
+
+      {/* Filter chips */}
+      <div style={{ marginTop: 14, display: "flex", gap: 8, flexWrap: "wrap", alignItems: "center" }}>
+        {chips.map((c) => (
+          <button
+            type="button"
+            key={c}
+            onClick={() => setActiveFilter(c)}
+            className={`gw-chip${activeFilter === c ? " active" : ""}`}
+          >
+            {c}
+            {activeFilter === c && c === "All" && <X size={12} style={{ marginLeft: 4 }} />}
+          </button>
+        ))}
+        <div style={{ width: 1, height: 18, background: "var(--ink-7)", margin: "0 4px" }} />
+        <span className="gw-chip">Salary <ChevronDown size={12} /></span>
+        <span className="gw-chip">Posted <ChevronDown size={12} /></span>
+        <span className="gw-chip">Category <ChevronDown size={12} /></span>
+        <span style={{ flex: 1 }} />
+        <span className="tx-micro" style={{ color: "var(--ink-3)" }}>Sort by</span>
+        <span className="gw-chip">Best match <ChevronDown size={12} /></span>
+      </div>
+
+      {/* Filter sidebar + results */}
+      <div style={{ marginTop: 20, display: "grid", gridTemplateColumns: "240px 1fr", gap: 20 }}>
+        <aside>
+          <div className="gw-card" style={{ padding: 18 }}>
+            <div className="tx-h4" style={{ marginBottom: 14 }}>Refine</div>
+            {FILTERS.map((f, i) => (
+              <div
+                key={f.h}
+                style={{
+                  paddingTop: i > 0 ? 16 : 0,
+                  borderTop: i > 0 ? "1px solid var(--ink-7)" : "none",
+                  marginTop: i > 0 ? 16 : 0,
+                }}
+              >
+                <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 10 }}>
+                  <span className="tx-h4" style={{ fontSize: 13 }}>{f.h}</span>
+                  <span className="tx-micro" style={{ color: "var(--ink-3)" }}>{f.v}</span>
+                </div>
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  {f.chips.map((c) => (
+                    <span key={c} className="gw-chip" style={{ height: 24, fontSize: 11.5 }}>{c}</span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+        </aside>
+
+        <div>
+          <div style={{ display: "flex", alignItems: "center", marginBottom: 14 }}>
+            <span className="tx-caption">
+              Showing <span className="tx-mono" style={{ color: "var(--ink)" }}>1–{JOBS.length}</span> of{" "}
+              <span className="tx-mono" style={{ color: "var(--ink)" }}>284</span> jobs in Tacurong
+            </span>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: 12 }}>
+            {JOBS.map((j) => <JobCard key={j.title} j={j} />)}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -1,9 +1,9 @@
 @echo off
-REM GensanWorks-Next: Complete Demo & Testing Setup (Windows)
+REM TaraCurong-Next: Complete Demo & Testing Setup (Windows)
 REM This script sets up the system for end-to-end testing with mock data
 
 echo.
-echo 🚀 GensanWorks-Next: Complete System Demo Setup
+echo 🚀 TaraCurong-Next: Complete System Demo Setup
 echo ==================================================
 echo.
 

@@ -1,395 +1,127 @@
 "use client";
-export const dynamic = "force-dynamic";
 
-import { useEffect, useState, useMemo } from "react";
-import Link from "next/link";
-import { Card } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { formatDate } from "@/lib/utils";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  Clock,
-  CheckCircle,
-  XCircle,
-  MapPin,
-  Building2,
-  TrendingUp,
-  Briefcase,
-  ArrowRight,
-  QrCode,
-  Download,
-  X,
-} from "lucide-react";
+import { useState } from "react";
+import { Building, Check, ChevronRight, Clock } from "lucide-react";
 
-type ApplicationItem = {
-  id: string;
-  status: string | null;
-  source: "direct" | "referred";
-  submittedAt: string;
-  reviewedAt: string | null;
-  feedback: string | null;
-  interviewDate: string | null;
-  jobId: string;
-  positionTitle: string | null;
-  location: string | null;
-  employerName: string | null;
-  qrCodeUrl?: string | null;
-  slipNumber?: string | null;
+type View = "list" | "board" | "timeline";
+
+type GroupKey = "submitted" | "under_review" | "shortlisted" | "interview" | "hired" | "rejected";
+type Card = { t: string; c: string; d: string; warn?: boolean; success?: boolean };
+
+const GROUPS: { key: GroupKey; label: string; count: number; color: string }[] = [
+  { key: "submitted", label: "Submitted", count: 1, color: "var(--slate)" },
+  { key: "under_review", label: "Under review", count: 3, color: "var(--sky)" },
+  { key: "shortlisted", label: "Shortlisted", count: 1, color: "var(--violet)" },
+  { key: "interview", label: "Interview", count: 1, color: "var(--amber)" },
+  { key: "hired", label: "Hired", count: 1, color: "var(--emerald)" },
+  { key: "rejected", label: "Closed", count: 1, color: "var(--rose)" },
+];
+
+const ITEMS: Record<GroupKey, Card[]> = {
+  submitted: [{ t: "Front Desk Officer", c: "Greenleaf Hotel", d: "2h ago" }],
+  under_review: [
+    { t: "Office Clerk", c: "City Treasurer's Office", d: "4d ago" },
+    { t: "Account Assistant", c: "RD Pawnshop", d: "1d ago" },
+    { t: "Junior Accountant", c: "Sultan Kudarat CPA", d: "3d ago" },
+  ],
+  shortlisted: [{ t: "Cannery Line Lead", c: "General Tuna Corporation", d: "6d ago" }],
+  interview: [{ t: "Bookkeeper", c: "Dole Philippines, Inc.", d: "Fri 10:00", warn: true }],
+  hired: [{ t: "Records Officer", c: "City Hall Tacurong", d: "Hired 18 Apr", success: true }],
+  rejected: [{ t: "Payroll Encoder", c: "Marigold Manpower", d: "Closed 12 May" }],
 };
 
 export default function JobseekerApplicationsPage() {
-  const [applications, setApplications] = useState<ApplicationItem[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [statusFilter, setStatusFilter] = useState("all");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [activeTab, setActiveTab] = useState("direct");
-  const [selectedSlip, setSelectedSlip] = useState<{ qrCodeUrl: string; slipNumber: string; position: string } | null>(null);
-
-  useEffect(() => {
-    const load = async () => {
-      try {
-        const response = await fetch("/api/jobseeker/applications", { cache: "no-store" });
-        if (!response.ok) {
-          setApplications([]);
-          return;
-        }
-        const data = (await response.json()) as { applications: ApplicationItem[] };
-        setApplications(data.applications ?? []);
-      } finally {
-        setLoading(false);
-      }
-    };
-    void load();
-  }, []);
-
-  const stats = useMemo(() => {
-    const total = applications.length;
-    const viaReferral = applications.filter((a) => a.source === "referred").length;
-    const direct = applications.filter((a) => a.source === "direct").length;
-    const underReview = applications.filter((a) => a.status === "under_review").length;
-    const hired = applications.filter((a) => a.status === "hired").length;
-    const rejected = applications.filter((a) => a.status === "rejected").length;
-    return { total, viaReferral, direct, underReview, hired, rejected };
-  }, [applications]);
-
-  const filterApps = (apps: ApplicationItem[]) =>
-    apps
-      .filter((app) => {
-        if (statusFilter !== "all" && app.status !== statusFilter) return false;
-        if (!searchTerm) return true;
-        const term = searchTerm.toLowerCase();
-        return (
-          app.positionTitle?.toLowerCase().includes(term) ||
-          app.employerName?.toLowerCase().includes(term) ||
-          app.location?.toLowerCase().includes(term)
-        );
-      })
-      .sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
-
-  const directApps = useMemo(
-    () => filterApps(applications.filter((a) => a.source === "direct")),
-    [applications, statusFilter, searchTerm]
-  );
-
-  const referredApps = useMemo(
-    () => filterApps(applications.filter((a) => a.source === "referred")),
-    [applications, statusFilter, searchTerm]
-  );
-
-  const getStatusColor = (status: string | null) => {
-    switch (status) {
-      case "under_review": return "bg-amber-100 text-amber-800";
-      case "interview": return "bg-indigo-100 text-indigo-800";
-      case "hired": return "bg-emerald-100 text-emerald-800";
-      case "rejected": return "bg-rose-100 text-rose-800";
-      default: return "bg-slate-100 text-slate-800";
-    }
-  };
-
-  const getStatusIcon = (status: string | null) => {
-    switch (status) {
-      case "under_review": return <Clock className="h-3.5 w-3.5" />;
-      case "hired": return <CheckCircle className="h-3.5 w-3.5" />;
-      case "rejected": return <XCircle className="h-3.5 w-3.5" />;
-      default: return null;
-    }
-  };
-
-  const getStatusLabel = (status: string | null) => {
-    switch (status) {
-      case "under_review": return "Under Review";
-      case "interview": return "Interview";
-      case "hired": return "Hired";
-      case "rejected": return "Rejected";
-      default: return "Pending";
-    }
-  };
-
-  const renderApplicationRow = (application: ApplicationItem) => (
-    <tr key={application.id} className="border-b border-slate-100 hover:bg-slate-50 transition-colors">
-      <td className="py-4 px-4">
-        <div>
-          <p className="font-medium text-slate-900">{application.positionTitle || "Position"}</p>
-          {application.interviewDate && (
-            <p className="text-xs text-indigo-600 mt-0.5">
-              Interview: {formatDate(application.interviewDate)}
-            </p>
-          )}
-        </div>
-      </td>
-      <td className="py-4 px-4">
-        <div className="flex items-center gap-1.5 text-slate-600">
-          <Building2 className="h-4 w-4 flex-shrink-0" />
-          <span className="text-sm">{application.employerName || "—"}</span>
-        </div>
-        {application.location && (
-          <div className="flex items-center gap-1.5 text-slate-500 mt-0.5">
-            <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
-            <span className="text-xs">{application.location}</span>
-          </div>
-        )}
-      </td>
-      <td className="py-4 px-4">
-        <Badge className={`${getStatusColor(application.status)} text-xs flex items-center gap-1 w-fit`}>
-          {getStatusIcon(application.status)}
-          {getStatusLabel(application.status)}
-        </Badge>
-      </td>
-      <td className="py-4 px-4 text-sm text-slate-500">{formatDate(application.submittedAt)}</td>
-      <td className="py-4 px-4">
-        <div className="flex items-center gap-2">
-          <Link href={`/jobseeker/applications/${application.id}`}>
-            <Button size="sm" className="bg-slate-900 hover:bg-slate-800 text-white text-xs">
-              View
-            </Button>
-          </Link>
-          <Link href={`/jobseeker/jobs/${application.jobId}`}>
-            <Button variant="outline" size="sm" className="text-xs">Job</Button>
-          </Link>
-          {application.qrCodeUrl && (
-            <Button
-              size="sm"
-              variant="outline"
-              className="text-xs border-blue-200 text-blue-700 hover:bg-blue-50"
-              onClick={() => setSelectedSlip({
-                qrCodeUrl: application.qrCodeUrl!,
-                slipNumber: application.slipNumber!,
-                position: application.positionTitle || "Position"
-              })}
-            >
-              <QrCode className="h-3.5 w-3.5 mr-1" />
-              Slip
-            </Button>
-          )}
-        </div>
-      </td>
-    </tr>
-  );
-
-  const renderTable = (apps: ApplicationItem[], emptyMessage: string) => (
-    loading ? (
-      <div className="space-y-3">
-        {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 rounded-lg" />)}
-      </div>
-    ) : apps.length === 0 ? (
-      <Card className="p-12 text-center border border-dashed border-slate-300">
-        <p className="text-slate-600 mb-4">{emptyMessage}</p>
-        <Link href="/jobseeker/jobs">
-          <Button>Browse Jobs</Button>
-        </Link>
-      </Card>
-    ) : (
-      <div className="rounded-xl border border-slate-200 overflow-hidden">
-        <table className="w-full text-left">
-          <thead className="bg-slate-50 border-b border-slate-200">
-            <tr>
-              <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Position</th>
-              <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Employer</th>
-              <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-              <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date Applied</th>
-              <th className="py-3 px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="bg-white">
-            {apps.map(renderApplicationRow)}
-          </tbody>
-        </table>
-      </div>
-    )
-  );
+  const [view, setView] = useState<View>("board");
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold text-slate-900">My Applications</h1>
-        <p className="text-slate-600 mt-2">
-          Track your job applications and follow their progress.
-        </p>
-      </div>
-
-      {/* Stats Grid - 6 cards */}
-      {!loading && (
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
-          <Card className="p-5">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Total</p>
-            <p className="text-3xl font-bold text-slate-900 mt-1">{stats.total}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <TrendingUp className="h-3.5 w-3.5 text-slate-400" />
-            </div>
-          </Card>
-          <Card className="p-5 border-blue-200 bg-blue-50">
-            <p className="text-xs font-medium text-blue-600 uppercase tracking-wider">Via Referral</p>
-            <p className="text-3xl font-bold text-blue-900 mt-1">{stats.viaReferral}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <Briefcase className="h-3.5 w-3.5 text-blue-400" />
-            </div>
-          </Card>
-          <Card className="p-5 border-slate-200 bg-slate-50">
-            <p className="text-xs font-medium text-slate-500 uppercase tracking-wider">Direct</p>
-            <p className="text-3xl font-bold text-slate-900 mt-1">{stats.direct}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <ArrowRight className="h-3.5 w-3.5 text-slate-400" />
-            </div>
-          </Card>
-          <Card className="p-5 border-amber-200 bg-amber-50">
-            <p className="text-xs font-medium text-amber-600 uppercase tracking-wider">Under Review</p>
-            <p className="text-3xl font-bold text-amber-900 mt-1">{stats.underReview}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <Clock className="h-3.5 w-3.5 text-amber-400" />
-            </div>
-          </Card>
-          <Card className="p-5 border-emerald-200 bg-emerald-50">
-            <p className="text-xs font-medium text-emerald-600 uppercase tracking-wider">Hired</p>
-            <p className="text-3xl font-bold text-emerald-900 mt-1">{stats.hired}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <CheckCircle className="h-3.5 w-3.5 text-emerald-400" />
-            </div>
-          </Card>
-          <Card className="p-5 border-rose-200 bg-rose-50">
-            <p className="text-xs font-medium text-rose-600 uppercase tracking-wider">Rejected</p>
-            <p className="text-3xl font-bold text-rose-900 mt-1">{stats.rejected}</p>
-            <div className="flex items-center gap-1 mt-1">
-              <XCircle className="h-3.5 w-3.5 text-rose-400" />
-            </div>
-          </Card>
-        </div>
-      )}
-
-      {/* Filters */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div className="md:col-span-2">
-          <Input
-            type="text"
-            placeholder="Search by position, company, or location..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
-          />
-        </div>
+    <div className="gw" style={{ maxWidth: 1600 }}>
+      <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 18, gap: 16, flexWrap: "wrap" }}>
         <div>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="all">All Statuses</SelectItem>
-              <SelectItem value="under_review">Under Review</SelectItem>
-              <SelectItem value="hired">Hired</SelectItem>
-              <SelectItem value="rejected">Rejected</SelectItem>
-            </SelectContent>
-          </Select>
+          <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>Applications</h1>
+          <p className="tx-caption" style={{ marginTop: 4 }}>8 applications across 6 employers</p>
+        </div>
+        <div className="gw-toggle">
+          {(["list", "board", "timeline"] as View[]).map((v) => (
+            <button
+              key={v}
+              type="button"
+              onClick={() => setView(v)}
+              className={view === v ? "active" : ""}
+            >
+              {v[0].toUpperCase() + v.slice(1)}
+            </button>
+          ))}
         </div>
       </div>
 
-      {/* Tabbed Application Lists */}
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="direct" className="gap-2">
-            <ArrowRight className="h-4 w-4" />
-            Direct Applications
-            {stats.direct > 0 && (
-              <span className="ml-1 bg-slate-200 text-slate-700 text-xs rounded-full px-1.5 py-0.5">
-                {stats.direct}
-              </span>
-            )}
-          </TabsTrigger>
-          <TabsTrigger value="referred" className="gap-2">
-            <Briefcase className="h-4 w-4" />
-            Via Referral
-            {stats.viaReferral > 0 && (
-              <span className="ml-1 bg-blue-100 text-blue-700 text-xs rounded-full px-1.5 py-0.5">
-                {stats.viaReferral}
-              </span>
-            )}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="direct" className="mt-4">
-          {renderTable(directApps, "No direct applications yet. Browse jobs and start applying!")}
-        </TabsContent>
-
-        <TabsContent value="referred" className="mt-4">
-          {renderTable(referredApps, "No PESO referrals yet. Visit a PESO office to get referred to open positions.")}
-        </TabsContent>
-      </Tabs>
-
-      {!loading && applications.length > 0 && (
-        <p className="text-sm text-slate-500 text-center">
-          {activeTab === "direct" ? directApps.length : referredApps.length} of{" "}
-          {activeTab === "direct" ? stats.direct : stats.viaReferral} applications shown
-        </p>
-      )}
-
-      {/* Referral Slip Modal */}
-      {selectedSlip && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
-          <Card className="w-full max-w-sm overflow-hidden bg-white rounded-2xl shadow-2xl">
-            <div className="p-4 border-b border-slate-100 flex items-center justify-between bg-slate-50/50">
-              <h3 className="font-bold text-slate-900">Referral Slip QR Code</h3>
-              <button onClick={() => setSelectedSlip(null)} className="p-1 rounded-lg hover:bg-slate-200 transition-colors">
-                <X className="h-5 w-5 text-slate-500" />
-              </button>
-            </div>
-            <div className="p-8 flex flex-col items-center text-center">
-              <div className="w-48 h-48 bg-white border-4 border-slate-100 rounded-2xl p-2 shadow-inner mb-6">
-                <img src={selectedSlip.qrCodeUrl} alt="Referral QR Code" className="w-full h-full object-contain" />
+      <div style={{ overflowX: "auto", paddingBottom: 16 }}>
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(6, 260px)", gap: 14, minWidth: 1620 }}>
+          {GROUPS.map((g) => (
+            <div key={g.key} style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "4px 4px 8px" }}>
+                <span style={{ width: 8, height: 8, borderRadius: 999, background: g.color }} />
+                <span className="tx-h4" style={{ fontSize: 13 }}>{g.label}</span>
+                <span className="tx-mono" style={{ fontSize: 11, color: "var(--ink-4)" }}>{g.count}</span>
               </div>
-              <p className="text-lg font-bold text-slate-900">{selectedSlip.slipNumber}</p>
-              <p className="text-sm text-slate-500 mt-1">{selectedSlip.position}</p>
-              <p className="text-xs text-slate-400 mt-4 leading-relaxed">
-                Present this QR code to the employer during your interview or visit.
-              </p>
+              {ITEMS[g.key].map((it) => (
+                <div key={it.t} className="gw-card gw-card--hover" style={{ padding: 14, cursor: "pointer" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 10 }}>
+                    <div
+                      style={{
+                        width: 24,
+                        height: 24,
+                        borderRadius: "50%",
+                        background: "var(--paper-2)",
+                        border: "1px solid var(--ink-7)",
+                        display: "grid",
+                        placeItems: "center",
+                        flexShrink: 0,
+                      }}
+                    >
+                      <Building size={11} />
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div className="tx-h4" style={{ fontSize: 13 }}>{it.t}</div>
+                      <div className="tx-micro" style={{ marginTop: 2, color: "var(--ink-3)" }}>{it.c}</div>
+                    </div>
+                  </div>
+                  <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "8px 0" }} />
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    <span
+                      className="tx-micro"
+                      style={{
+                        color: it.warn ? "var(--amber)" : it.success ? "var(--emerald)" : "var(--ink-4)",
+                        display: "inline-flex",
+                        alignItems: "center",
+                        gap: 4,
+                      }}
+                    >
+                      {it.warn && <Clock size={11} />}
+                      {it.success && <Check size={11} />}
+                      {it.d}
+                    </span>
+                    <ChevronRight size={13} style={{ color: "var(--ink-4)" }} />
+                  </div>
+                </div>
+              ))}
+              {g.key === "submitted" && (
+                <div
+                  style={{
+                    padding: 14,
+                    border: "1px dashed var(--ink-6)",
+                    borderRadius: "var(--r-3)",
+                    textAlign: "center",
+                  }}
+                >
+                  <div className="tx-micro" style={{ color: "var(--ink-3)" }}>
+                    Drop applications here when you submit them
+                  </div>
+                </div>
+              )}
             </div>
-            <div className="p-4 bg-slate-50 border-t border-slate-100 grid grid-cols-2 gap-3">
-              <Button variant="outline" className="w-full" asChild>
-                <Link href={`/referral/${selectedSlip.slipNumber}`} target="_blank">
-                  Details
-                </Link>
-              </Button>
-              <Button className="w-full bg-blue-600 hover:bg-blue-700" onClick={() => {
-                const link = document.createElement('a');
-                link.href = selectedSlip.qrCodeUrl;
-                link.download = `Referral_${selectedSlip.slipNumber}.png`;
-                link.click();
-              }}>
-                <Download className="h-4 w-4 mr-2" />
-                Save
-              </Button>
-            </div>
-          </Card>
+          ))}
         </div>
-      )}
+      </div>
     </div>
   );
 }

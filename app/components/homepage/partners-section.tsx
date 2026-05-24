@@ -33,29 +33,29 @@ interface PartnersSectionProps {
 
 const industryPartners: Partner[] = [
   { name: "General Milling Corp", tagline: "Food Manufacturing", icon: Building2 },
-  { name: "SM City General Santos", tagline: "Retail & Lifestyle", icon: Briefcase },
+  { name: "SM City Tacurong City", tagline: "Retail & Lifestyle", icon: Briefcase },
   { name: "Dole Philippines", tagline: "Agri & Export", icon: Globe },
   { name: "Gaisano Mall", tagline: "Shopping & Leisure", icon: Star },
   { name: "Robinsons Place", tagline: "Retail Group", icon: Target },
   { name: "KCC Mall", tagline: "Regional Retail", icon: TrendingUp },
   { name: "Mindanao Tech Hub", tagline: "Technology Park", icon: Laptop },
-  { name: "South Cotabato Steelworks", tagline: "Industrial & Steel", icon: Wrench },
+  { name: "Sultan Kudarat Steelworks", tagline: "Industrial & Steel", icon: Wrench },
   { name: "SOCCSKSARGEN Medical", tagline: "Healthcare Network", icon: Stethoscope },
   { name: "Pioneer Contact Center", tagline: "BPO & Support", icon: HeadphonesIcon },
 ];
 
 const trustSignals = [
   {
-    title: "Government Certified",
-    description: "Official PESO platform",
+    title: "Community Project",
+    description: "Built by an IT student for Tacurong",
     icon: Shield,
-    accent: "bg-blue-50 text-blue-600",
+    accent: "bg-teal-50 text-teal-700",
   },
   {
     title: "Data Protected",
     description: "Secure by design",
     icon: Clock,
-    accent: "bg-blue-50 text-blue-600",
+    accent: "bg-teal-50 text-teal-700",
   },
   {
     title: "Service Excellence",

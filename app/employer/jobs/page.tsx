@@ -168,8 +168,8 @@ const buildInitialForm = (profile?: any) => ({
   description: "",
   location: profile?.address || "",
   barangay: profile?.barangay || "",
-  municipality: profile?.city || "General Santos City",
-  province: profile?.province || "South Cotabato",
+  municipality: profile?.city || "Tacurong City",
+  province: profile?.province || "Sultan Kudarat",
   employmentType: "onsite",
   // SRS Form 2A Column 7: Job Status (P=Permanent, T=Temporary, C=Contractual)
   employmentContractType: "P" as "P" | "T" | "C",
@@ -313,7 +313,7 @@ function SkillTagsInput({
                 key={s}
                 type="button"
                 onClick={() => addTag(s)}
-                className="text-[10px] font-bold text-indigo-600 bg-indigo-50 px-2 py-0.5 rounded-full hover:bg-indigo-100 transition-colors"
+                className="text-[10px] font-bold text-violet-600 bg-violet-100 px-2 py-0.5 rounded-full hover:bg-violet-100 transition-colors"
               >
                 + {s}
               </button>
@@ -561,8 +561,8 @@ export default function EmployerJobsPage() {
       location: job.location || "",
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
       barangay: (job as any).barangay ?? "",
-      municipality: job.municipality || "General Santos City",
-      province: job.province || "South Cotabato",
+      municipality: job.municipality || "Tacurong City",
+      province: job.province || "Sultan Kudarat",
       salaryMin: job.salaryMin || "",
       salaryMax: job.salaryMax || "",
       salaryPeriod: job.salaryPeriod || "monthly",
@@ -841,11 +841,45 @@ export default function EmployerJobsPage() {
               <CardTitle>{editingJobId ? "Edit Job Posting" : "Create New Job Posting"}</CardTitle>
               <CardDescription>
                 {editingJobId
-                  ? "Changes will be reviewed by an administrator."
-                  : "Submit for approval or save a draft to finish later."}
+                  ? "Changes will be reviewed by the project maintainer within 24–48 hours."
+                  : "Submit for review or save a draft to finish later. New postings are reviewed manually by the project maintainer within 24–48 hours."}
               </CardDescription>
             </CardHeader>
             <CardContent>
+              {/* Transparency disclosures for employers */}
+              <div className="mb-6 space-y-3">
+                <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-slate-800">
+                  <p className="font-semibold text-slate-900">This is not an SRS / DOLE submission</p>
+                  <p className="mt-1 leading-relaxed">
+                    TaraCurong is a community job platform, not a government service. Posting here{" "}
+                    <strong>does not</strong> satisfy DOLE, PESO, SRS Form 2A, or PhilJobNet
+                    reporting requirements. You remain responsible for any formal reporting your
+                    establishment is legally required to file.
+                  </p>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-slate-50 p-4 text-sm text-slate-700">
+                  <p className="font-semibold text-slate-900">Reach &amp; review</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-5">
+                    <li>Audience: registered TaraCurong jobseekers in the Tacurong area.</li>
+                    <li>Reviewed manually by the project maintainer within 24–48 hours.</li>
+                    <li>For wider reach, also post on PhilJobNet, JobStreet, or Facebook groups.</li>
+                  </ul>
+                </div>
+                <div className="rounded-lg border border-slate-200 bg-white p-4 text-sm text-slate-700">
+                  <p className="font-semibold text-slate-900">As an employer, you agree:</p>
+                  <ul className="mt-1 list-disc space-y-1 pl-5">
+                    <li>You will not charge applicants any fee (training, uniform, processing).</li>
+                    <li>Job title, salary range, and location reflect the actual role.</li>
+                    <li>You will not discriminate beyond what Philippine labor law allows.</li>
+                    <li>Applicant data is used only for this hiring decision, not redistributed.</li>
+                  </ul>
+                  <p className="mt-2 text-xs text-slate-500">
+                    Violations may result in the listing or your account being removed. Full terms:{" "}
+                    <Link href="/terms" className="font-semibold text-blue-700">Terms of Use</Link>.
+                  </p>
+                </div>
+              </div>
+
               <form onSubmit={submitJob} className="space-y-6">
                 {error ? (
                   <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">{error}</div>
@@ -893,7 +927,7 @@ export default function EmployerJobsPage() {
                           ? setEditForm((p) => ({ ...p, location: e.target.value }))
                           : setForm((p) => ({ ...p, location: e.target.value }))
                       }
-                      placeholder="e.g. Purok 7, Brgy. Calumpang"
+                      placeholder="e.g. Purok 7, Brgy. Tina"
                       required
                     />
                   </div>
@@ -908,7 +942,7 @@ export default function EmployerJobsPage() {
                           ? setEditForm((p) => ({ ...p, municipality: e.target.value }))
                           : setForm((p) => ({ ...p, municipality: e.target.value }))
                       }
-                      placeholder="General Santos City"
+                      placeholder="Tacurong City"
                     />
                   </div>
 
@@ -922,7 +956,7 @@ export default function EmployerJobsPage() {
                           ? setEditForm((p) => ({ ...p, province: e.target.value }))
                           : setForm((p) => ({ ...p, province: e.target.value }))
                       }
-                      placeholder="South Cotabato"
+                      placeholder="Sultan Kudarat"
                     />
                   </div>
 

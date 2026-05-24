@@ -52,8 +52,8 @@ async function createEmployerJobViaApi(
         "At least two years of relevant experience, strong communication skills, and reliable teamwork habits.",
       contractType: "Regular",
       employmentType: "Full-time",
-      location: "General Santos City",
-      city: "General Santos",
+      location: "Tacurong City",
+      city: "Tacurong City",
       vacancies: 1,
       qualifications: "Attention to detail and production support readiness.",
       keyResponsibilities: "Coordinate with team leads and maintain quality delivery outcomes.",
@@ -117,7 +117,7 @@ test.describe("employer workflow", () => {
     const title = `E2E Employer Role ${stamp}`;
 
     await page.getByPlaceholder("Position title").fill(title);
-    await page.getByPlaceholder("Location").fill("General Santos City");
+    await page.getByPlaceholder("Location").fill("Tacurong City");
     await page.getByPlaceholder("Job description").fill("E2E employer workflow test posting.");
     await page.getByRole("button", { name: "Create Job" }).click();
 

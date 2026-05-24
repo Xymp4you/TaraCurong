@@ -47,7 +47,7 @@ const fallbackShortage: ShortageResponse = {
       skillCluster: "CX Specialists",
       projectedGap: "150 roles",
       timeframe: "Next 2 quarters",
-      driver: "BPO providers scaling GenSan pods",
+      driver: "BPO providers scaling Tacurong pods",
       focus: "Omnichannel support",
     },
   ],
@@ -55,7 +55,7 @@ const fallbackShortage: ShortageResponse = {
     {
       title: "Scholarship Slots",
       description: "Allocate 120 TESDA-backed seats for AI and automation tracks.",
-      owner: "PESO + TESDA",
+      owner: "City + TESDA",
     },
     {
       title: "Employer Bootcamps",

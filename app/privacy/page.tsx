@@ -6,6 +6,7 @@ const infoCollected = [
   "Account details (name, email, contact number)",
   "Profile information for jobseekers and employers",
   "Job postings and application data",
+  "Identity verification documents (only if you choose to verify): a government ID photo and a selfie holding that ID. Stored privately, viewable only by the project maintainer.",
   "System logs (IP address, device/browser information) for security and fraud prevention",
   "Communications with support (messages, inquiries, and responses)",
 ];
@@ -13,8 +14,8 @@ const infoCollected = [
 const informationUse = [
   "Provide and improve employment facilitation services",
   "Communicate updates, job matches, and service announcements",
+  "Verify the identity of authorized employer representatives and (optionally) jobseekers to reduce fake accounts and protect applicants",
   "Ensure platform security and integrity",
-  "Comply with legal obligations and regulatory reporting",
   "Conduct aggregated analytics to improve service delivery (non-identifiable)",
 ];
 
@@ -51,11 +52,7 @@ export default function PrivacyPage() {
               Privacy Policy
             </h1>
             <p className="mt-5 text-base leading-relaxed text-slate-600 sm:text-lg">
-              This Privacy Policy explains how the City Government of General Santos - PESO collects,
-              uses, and protects your personal information in connection with the GensanWorks
-              platform, in accordance with the Data Privacy Act of 2012 (Republic Act No. 10173),
-              its Implementing Rules and Regulations (IRR), and relevant National Privacy Commission
-              (NPC) issuances.
+              TaraCurong is a non-commercial community project created by <strong>John Aerol Tapales</strong>, an IT student, to help jobseekers and employers in Tacurong City. It is not operated by, affiliated with, or endorsed by any government agency or LGU. This Privacy Policy explains how the project collects, uses, and protects your personal information, with the Philippine Data Privacy Act of 2012 (Republic Act No. 10173) and its IRR as a guiding standard.
             </p>
             <div className="mt-7 flex flex-wrap items-center gap-3 print:hidden">
               <a
@@ -109,8 +106,8 @@ export default function PrivacyPage() {
           </div>
           <h2 className="text-lg font-semibold text-slate-900">Lawful Processing</h2>
           <p className="mt-2 text-sm text-slate-600">
-            Processing is limited to valid legal bases such as consent, public mandate, and legal
-            compliance.
+            Processing is limited to valid legal bases such as user consent, the project&apos;s
+            legitimate community-service purpose, and compliance with applicable laws.
           </p>
         </article>
         <article className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
@@ -187,9 +184,9 @@ export default function PrivacyPage() {
         <article id="legal-bases" className="rounded-2xl border border-slate-200 bg-white p-6 sm:p-8 print:break-inside-avoid print:rounded-none print:border-slate-300 print:shadow-none">
           <h2 className="text-2xl font-bold text-slate-900">Legal Bases for Processing</h2>
           <ul className="mt-4 list-disc space-y-2 pl-6 text-sm leading-relaxed text-slate-700 sm:text-base">
-            <li>Consent for optional features and communications</li>
-            <li>Performance of a public mandate and legitimate interests in employment facilitation</li>
-            <li>Compliance with legal obligations and regulatory requirements</li>
+            <li>Your explicit consent when you create a profile or apply to a job</li>
+            <li>Legitimate interest in helping Tacurong-area jobseekers and employers connect</li>
+            <li>Compliance with applicable laws and reasonable requests from rights holders</li>
           </ul>
         </article>
 
@@ -204,6 +201,12 @@ export default function PrivacyPage() {
             <li>Access controls and role-based permissions</li>
             <li>Encryption in transit (HTTPS) and secure storage practices</li>
             <li>Audit logging, secure development lifecycle, and periodic reviews</li>
+            <li>
+              <strong>Identity documents</strong> (government IDs and selfies submitted for the
+              Verified badge) are kept in a private storage bucket viewable only by the project
+              maintainer. They are auto-deleted 30 days after account closure, 12 months after a
+              rejected submission, or on written request — whichever comes first.
+            </li>
           </ul>
         </article>
 
@@ -216,15 +219,15 @@ export default function PrivacyPage() {
         </article>
 
         <article id="dpo-contact" className="rounded-2xl border border-blue-200 bg-blue-50 p-6 sm:p-8 print:break-inside-avoid print:rounded-none print:border-slate-300 print:bg-white print:shadow-none">
-          <h2 className="text-2xl font-bold text-slate-900">Contact and Data Protection Officer</h2>
+          <h2 className="text-2xl font-bold text-slate-900">Contact the maintainer</h2>
           <ul className="mt-4 space-y-2 text-sm leading-relaxed text-slate-700 sm:text-base">
             <li>
-              Email: <a href="mailto:peso_gensan@yahoo.com" className="font-semibold text-blue-700">peso_gensan@yahoo.com</a>
+              Maintainer: <strong>John Aerol Tapales</strong> (IT student, Tacurong City)
             </li>
             <li>
-              Phone: <a href="tel:+63835533479" className="font-semibold text-blue-700">(083) 553 3479</a>
+              Email: <a href="mailto:helpdesk@taracurong.com" className="font-semibold text-blue-700">helpdesk@taracurong.com</a>
             </li>
-            <li>Address: 4th Flr. GSC Investment Action Center Building, City Hall Compound, GSC</li>
+            <li>Location: Tacurong City, Sultan Kudarat</li>
             <li>
               NPC support: <a href="https://privacy.gov.ph/" target="_blank" rel="noopener noreferrer" className="font-semibold text-blue-700">privacy.gov.ph</a>
             </li>

@@ -1,5 +1,5 @@
 -- ============================================================
--- GensanWorks Phase 1 Migration
+-- TaraCurong Phase 1 Migration
 -- Run this in Supabase SQL Editor
 -- ============================================================
 

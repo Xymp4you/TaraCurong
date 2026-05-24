@@ -226,7 +226,7 @@ export function NotificationsPanel() {
             {notifications.map((notification) => (
               <li
                 key={notification.id}
-                className={`border rounded-md p-4 ${notification.read ? "bg-white" : "bg-blue-50 border-blue-200"}`}
+                className={`border rounded-md p-4 ${notification.read ? "bg-white" : "bg-teal-50 border-teal-100"}`}
               >
                 <div className="flex items-start justify-between gap-3">
                   <div>

@@ -49,7 +49,7 @@ const defaultShortage = [
     skillCluster: "CX Specialists",
     projectedGap: "150 roles",
     timeframe: "Next 2 quarters",
-    driver: "BPO providers scaling GenSan pods",
+    driver: "BPO providers scaling Tacurong pods",
     focus: "Omnichannel support",
   },
 ];
@@ -58,7 +58,7 @@ const defaultInitiatives = [
   {
     title: "Scholarship Slots",
     description: "Allocate 120 TESDA-backed seats for AI and automation tracks.",
-    owner: "PESO + TESDA",
+    owner: "City + TESDA",
   },
   {
     title: "Employer Bootcamps",
@@ -92,7 +92,7 @@ export function SkillsShortageSection({
             Expected Skills <span className="text-transparent bg-clip-text bg-gradient-to-r from-rose-500 to-orange-500">Shortage</span>
           </h2>
           <p className="text-lg text-slate-500 max-w-2xl mx-auto">
-            Projected workforce gaps in General Santos. Data-driven insights to help jobseekers and employers plan ahead.
+            Projected workforce gaps in Tacurong City. Data-driven insights to help jobseekers and employers plan ahead.
           </p>
         </div>
 
@@ -159,13 +159,13 @@ export function SkillsShortageSection({
           {/* Suggested Actions */}
           <div className="flex flex-col gap-4">
             <div className="bg-slate-900 text-white rounded-[1.5rem] p-8 shadow-2xl relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/20 blur-[60px] rounded-full pointer-events-none" />
+              <div className="absolute top-0 right-0 w-64 h-64 bg-teal-500/20 blur-[60px] rounded-full pointer-events-none" />
               <div className="relative z-10">
                 <div className="inline-block px-3 py-1 rounded-full bg-white/10 text-white/80 text-xs font-bold tracking-widest uppercase mb-4 border border-white/5">
                   Suggested Actions
                 </div>
                 <h3 className="text-2xl font-bold mb-3">
-                  What PESO can launch next
+                  What TaraCurong can launch next
                 </h3>
                 <p className="text-slate-400 text-sm leading-relaxed">
                   These demo playbooks turn insights into programs.

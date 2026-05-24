@@ -21,7 +21,7 @@ const fallbackTestimonials: TestimonialsResponse = {
       name: "Maria Elena Torres",
       role: "Customer Support Specialist",
       company: "Pioneer Contact Center",
-      quote: "GensanWorks helped me find my dream job within just 2 weeks. The resume review and interview prep were incredibly helpful!",
+      quote: "TaraCurong helped me find my dream job within just 2 weeks. The resume review and interview prep were incredibly helpful!",
       isVerified: true,
     },
     {
@@ -29,7 +29,7 @@ const fallbackTestimonials: TestimonialsResponse = {
       name: "John Carlo Mendoza",
       role: "Web Developer",
       company: "Mindanao Tech Hub",
-      quote: "The AI matching system connected me with exactly what I was looking for. PESO GenSan made the process so easy.",
+      quote: "The AI matching system connected me with exactly what I was looking for. TaraCurong made the process so easy.",
       isVerified: true,
     },
     {
@@ -86,7 +86,7 @@ export async function GET(request: NextRequest) {
     }
 
     const placeholderQuotes = [
-      "GensanWorks helped me find my dream job so quickly!",
+      "TaraCurong helped me find my dream job so quickly!",
       "The AI matching connected me with the perfect opportunity.",
       "Verified job posts gave me confidence in my job search.",
     ];

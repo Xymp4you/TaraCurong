@@ -1,19 +1,10 @@
 "use client";
 
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import type { MouseEvent } from "react";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Clock,
-  Shield,
-  Zap,
-  Globe,
-  ChevronRight,
-  TrendingUp,
-  Video,
-} from "lucide-react";
+import { Clock, Shield, Zap, Globe, ArrowRight, TrendingUp } from "lucide-react";
 
 interface GeneralSettings {
   siteName: string;
@@ -48,49 +39,9 @@ interface HeroSectionProps {
   summaryData?: any;
 }
 
-const heroHighlights: Array<{
-  title: string;
-  detail: string;
-  icon: React.ElementType;
-  accent: string;
-}> = [
-  {
-    title: "48h Interview Rate",
-    detail: "Candidates hear back within two days",
-    icon: Clock,
-    accent: "bg-blue-100 text-blue-700",
-  },
-  {
-    title: "100% Verified",
-    detail: "No fake job posts or ghost employers",
-    icon: Shield,
-    accent: "bg-emerald-100 text-emerald-700",
-  },
-  {
-    title: "AI + PESO",
-    detail: "Hybrid review ensures better matches",
-    icon: Zap,
-    accent: "bg-amber-100 text-amber-700",
-  },
-  {
-    title: "Regional Reach",
-    detail: "Nationwide jobs curated for GenSan",
-    icon: Globe,
-    accent: "bg-indigo-100 text-indigo-700",
-  },
-];
-
-const heroGradientStages = [
-  "from-slate-50 via-white to-blue-50",
-  "from-blue-50 via-white to-indigo-50",
-  "from-indigo-50 via-white to-slate-50",
-];
-
 export function HeroSection({
   generalSettings,
   isLoading,
-  animatedJobseekers,
-  animatedEmployers,
   animatedMatches,
   activeHeroBadge,
   impactLoading,
@@ -98,245 +49,278 @@ export function HeroSection({
   summaryData,
 }: HeroSectionProps) {
   const [heroTilt, setHeroTilt] = useState({ x: 0, y: 0 });
-  const [heroGradientIndex, setHeroGradientIndex] = useState(0);
-  const [activeHeroHighlight, setActiveHeroHighlight] = useState(0);
+  const [activeHighlight, setActiveHighlight] = useState(0);
 
-  const heroGradientClass = heroGradientStages[heroGradientIndex];
+  const highlights = [
+    {
+      title: `${impactData?.avgTimeToInterview || "48h"} Interview Rate`,
+      detail: "Candidates hear back within two days",
+      icon: Clock,
+      iconBg: "var(--teal-100)",
+      iconFg: "var(--teal-700)",
+    },
+    {
+      title: "100% Verified",
+      detail: "No fake job posts or ghost employers",
+      icon: Shield,
+      iconBg: "var(--emerald-100)",
+      iconFg: "var(--emerald-600)",
+    },
+    {
+      title: "AI + Human",
+      detail: "Hybrid review ensures better matches",
+      icon: Zap,
+      iconBg: "var(--amber-100)",
+      iconFg: "var(--amber-600)",
+    },
+    {
+      title: `${impactData?.yearsOfService || 25}+ Years Service`,
+      detail: "Nationwide jobs curated for Tacurong",
+      icon: Globe,
+      iconBg: "var(--violet-100)",
+      iconFg: "var(--violet-600)",
+    },
+  ];
 
   useEffect(() => {
-    const timer = setInterval(() => {
-      setHeroGradientIndex((prev) => (prev + 1) % heroGradientStages.length);
-    }, 9000);
-    return () => clearInterval(timer);
-  }, []);
-
-  useEffect(() => {
-    const highlightTimer = setInterval(() => {
-      setActiveHeroHighlight((prev) => (prev + 1) % heroHighlights.length);
-    }, 7000);
-    return () => clearInterval(highlightTimer);
-  }, []);
+    const t = setInterval(() => setActiveHighlight((p) => (p + 1) % highlights.length), 7000);
+    return () => clearInterval(t);
+  }, [highlights.length]);
 
   const handleHeroMouseMove = (event: MouseEvent<HTMLDivElement>) => {
     const rect = event.currentTarget.getBoundingClientRect();
     const offsetX = event.clientX - (rect.left + rect.width / 2);
     const offsetY = event.clientY - (rect.top + rect.height / 2);
     setHeroTilt({
-      x: (offsetX / rect.width) * 12,
-      y: -(offsetY / rect.height) * 12,
+      x: (offsetX / rect.width) * 6,
+      y: -(offsetY / rect.height) * 6,
     });
   };
-
-  const resetHeroTilt = () => setHeroTilt({ x: 0, y: 0 });
-
-  const heroStats = [
-    {
-      label: "Active Jobseekers",
-      value: animatedJobseekers,
-      description: "Profiles verified this quarter",
-    },
-    {
-      label: "Partner Employers",
-      value: animatedEmployers,
-      description: "Business owners hiring now",
-    },
-    {
-      label: "Jobs Matched",
-      value: animatedMatches,
-      description: "Successful placements to date",
-    },
-  ];
+  const resetTilt = () => setHeroTilt({ x: 0, y: 0 });
 
   const formatNumber = (num: number) => num.toLocaleString();
 
   return (
     <section
-      className={`relative w-full overflow-hidden bg-gradient-to-br ${heroGradientClass} pt-8 pb-16`}
+      className="gw-app relative w-full overflow-hidden"
+      style={{ background: "var(--gw-bg)" }}
     >
-      {/* Background Pattern */}
-      <div
-        className="absolute inset-0 opacity-10 pointer-events-none"
-        style={{
-          backgroundImage: generalSettings.heroBackgroundImage
-            ? `url('${generalSettings.heroBackgroundImage}')`
-            : undefined,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      />
+      {/* Subtle ambient teal/parchment glows */}
       <div className="absolute inset-0 pointer-events-none">
-        <div className="absolute -top-32 -right-16 w-[520px] h-[520px] bg-blue-200/40 blur-3xl rounded-full animate-pulse" />
-        <div className="absolute -bottom-28 -left-20 w-[480px] h-[480px] bg-emerald-200/30 blur-3xl rounded-full animate-pulse" style={{ animationDelay: '2s' }} />
+        <div
+          className="absolute -top-32 -right-16 w-[520px] h-[520px] rounded-full"
+          style={{ background: "radial-gradient(closest-side, rgba(14,124,123,0.10), transparent 70%)", filter: "blur(40px)" }}
+        />
+        <div
+          className="absolute -bottom-28 -left-20 w-[480px] h-[480px] rounded-full"
+          style={{ background: "radial-gradient(closest-side, rgba(246,241,230,0.7), transparent 70%)", filter: "blur(40px)" }}
+        />
       </div>
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 lg:py-20">
         <div className="grid lg:grid-cols-[1.05fr_0.95fr] gap-12 items-center">
-          {/* Left Content */}
+          {/* Left content */}
           <div className="space-y-6">
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 rounded-full border border-slate-200/70 bg-white/80 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.35em] text-slate-700 shadow-sm">
-              <span>{generalSettings.siteName}</span>
-              <span className="text-blue-600">
-                {activeHeroBadge?.title || "Smart Matching"}
+            {/* Eyebrow badge */}
+            <div
+              className="inline-flex items-center gap-2 rounded-full bg-white px-3 py-1.5 text-[10px] font-semibold uppercase tracking-[0.16em]"
+              style={{ border: "1px solid var(--line)", color: "var(--ink-700)" }}
+            >
+              <span style={{ color: "var(--teal-700)" }}>
+                ●
               </span>
+              {generalSettings.siteName} · {activeHeroBadge?.title || "Smart Matching"}
             </div>
 
-            {/* Main Heading */}
-            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-slate-900 leading-tight tracking-tight">
+            {/* Headline */}
+            <h1
+              className="text-4xl sm:text-5xl lg:text-[56px] font-semibold leading-[1.05] tracking-tight"
+              style={{ color: "var(--ink-900)", letterSpacing: "-0.025em" }}
+            >
               {generalSettings.heroHeadline}
             </h1>
 
-            <p className="text-lg text-slate-600 leading-relaxed max-w-2xl">
+            <p className="text-lg leading-relaxed max-w-2xl" style={{ color: "var(--ink-600)" }}>
               {generalSettings.heroSubheadline}
             </p>
 
-            {/* Feature Highlights Grid */}
-            <div className="grid gap-3 sm:grid-cols-2">
-              {[
-                {
-                  title: `${impactData?.avgTimeToInterview || '48h'} Interview Rate`,
-                  detail: "Candidates hear back within two days",
-                  icon: Clock,
-                  accent: "bg-blue-100 text-blue-700",
-                },
-                {
-                  title: "100% Verified",
-                  detail: "No fake job posts or ghost employers",
-                  icon: Shield,
-                  accent: "bg-emerald-100 text-emerald-700",
-                },
-                {
-                  title: "AI + PESO",
-                  detail: "Hybrid review ensures better matches",
-                  icon: Zap,
-                  accent: "bg-amber-100 text-amber-700",
-                },
-                {
-                  title: `${impactData?.yearsOfService || 25}+ Years Service`,
-                  detail: "Nationwide jobs curated for GenSan",
-                  icon: Globe,
-                  accent: "bg-indigo-100 text-indigo-700",
-                },
-              ].map((highlight, index) => (
+            {/* Highlight grid */}
+            <div className="grid gap-3 sm:grid-cols-2 pt-2">
+              {highlights.map((h, index) => (
                 <div
-                  key={highlight.title}
-                  onMouseEnter={() => setActiveHeroHighlight(index)}
-                  className={`rounded-2xl border backdrop-blur transition-all duration-300 p-4 flex items-start gap-3 cursor-pointer ${
-                    index === activeHeroHighlight
-                      ? "bg-white/90 border-white shadow-lg"
-                      : "bg-white/60 border-white/60 hover:bg-white/80"
-                  }`}
+                  key={h.title}
+                  onMouseEnter={() => setActiveHighlight(index)}
+                  className="rounded-xl p-4 flex items-start gap-3 cursor-pointer transition-all duration-200 bg-white"
+                  style={{
+                    border: "1px solid var(--line)",
+                    boxShadow: index === activeHighlight ? "var(--sh-2)" : "var(--sh-1)",
+                  }}
                 >
                   <div
-                    className={`w-10 h-10 rounded-xl flex items-center justify-center ${highlight.accent}`}
+                    className="w-10 h-10 rounded-lg flex items-center justify-center shrink-0"
+                    style={{ background: h.iconBg, color: h.iconFg }}
                   >
-                    <highlight.icon className="w-5 h-5" />
+                    <h.icon className="w-5 h-5" />
                   </div>
-                  <div>
-                    <p className="font-semibold text-slate-900 text-sm">
-                      {highlight.title}
+                  <div className="min-w-0">
+                    <p className="font-semibold text-[14px]" style={{ color: "var(--ink-900)" }}>
+                      {h.title}
                     </p>
-                    <p className="text-xs text-slate-600">{highlight.detail}</p>
+                    <p className="text-xs mt-0.5" style={{ color: "var(--ink-500)" }}>
+                      {h.detail}
+                    </p>
                   </div>
                 </div>
               ))}
             </div>
 
-            {/* CTA Buttons */}
-            <div className="flex flex-col sm:flex-row gap-4 pt-2">
-              <Link href="/jobs" className="flex-1 sm:flex-initial">
-                <Button
-                  size="lg"
-                  className="w-full sm:w-auto bg-blue-600 hover:bg-blue-700 px-8 py-5 text-base font-semibold"
-                >
-                  {generalSettings.primaryCTA}
-                  <ChevronRight className="w-4 h-4 ml-2" />
-                </Button>
+            {/* CTAs */}
+            <div className="flex flex-col sm:flex-row gap-3 pt-2">
+              <Link
+                href="/jobseeker/jobs"
+                className="gw-btn gw-btn-teal gw-btn-lg"
+                style={{ justifyContent: "center" }}
+              >
+                {generalSettings.primaryCTA}
+                <ArrowRight className="w-4 h-4" />
               </Link>
-              <Link href="/employer/jobs" className="flex-1 sm:flex-initial">
-                <Button
-                  variant="outline"
-                  size="lg"
-                  className="w-full sm:w-auto border-slate-300/70 bg-white/80 backdrop-blur px-8 py-5 text-base font-semibold text-slate-900 hover:bg-white"
-                >
-                  {generalSettings.secondaryCTA}
-                </Button>
+              <Link
+                href="/signup?role=employer"
+                className="gw-btn gw-btn-ghost gw-btn-lg"
+                style={{ justifyContent: "center" }}
+              >
+                {generalSettings.secondaryCTA}
               </Link>
             </div>
           </div>
 
-          {/* Right Content - Stats Cards with Tilt */}
+          {/* Right — stat cards with tilt */}
           <div
             className="relative hidden lg:block"
             onMouseMove={handleHeroMouseMove}
-            onMouseLeave={resetHeroTilt}
+            onMouseLeave={resetTilt}
           >
             <div
-              className="relative bg-white/80 backdrop-blur-xl border border-white/60 rounded-[32px] p-8 shadow-2xl overflow-hidden"
+              className="relative bg-white overflow-hidden"
               style={{
+                borderRadius: 28,
+                border: "1px solid var(--line)",
+                boxShadow: "var(--sh-3)",
+                padding: 28,
                 transform: `rotateX(${heroTilt.y}deg) rotateY(${heroTilt.x}deg)`,
                 transition: "transform 0.12s ease-out",
               }}
             >
-              <div className="absolute inset-0 bg-gradient-to-br from-blue-50/70 via-transparent to-indigo-100/60 pointer-events-none" />
-              <div className="relative space-y-5">
-                {/* Live matches card */}
-                <div className="rounded-2xl border border-slate-100 bg-white/90 p-4">
+              <div
+                className="absolute inset-0 pointer-events-none"
+                style={{ background: "linear-gradient(135deg, rgba(212,236,234,0.35), transparent 60%, rgba(246,241,230,0.4))" }}
+              />
+              <div className="relative space-y-4">
+                {/* Live matches */}
+                <div className="rounded-xl p-4 bg-white" style={{ border: "1px solid var(--line)" }}>
                   <div className="flex items-center justify-between mb-2">
-                    <p className="text-sm font-semibold text-slate-900">Live matches</p>
-                    <span className="text-xs text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full">Realtime</span>
+                    <p className="text-[13px] font-semibold" style={{ color: "var(--ink-900)" }}>
+                      Live matches
+                    </p>
+                    <span
+                      className="text-[10px] px-2 py-0.5 rounded-full font-semibold uppercase tracking-wide"
+                      style={{ color: "var(--emerald-600)", background: "var(--emerald-100)" }}
+                    >
+                      Realtime
+                    </span>
                   </div>
-                  <div className="text-3xl font-bold text-slate-900">
+                  <div className="text-3xl font-semibold tracking-tight" style={{ color: "var(--ink-900)" }}>
                     {isLoading ? <Skeleton className="h-8 w-24" /> : formatNumber(Math.max(animatedMatches, 0))}
                   </div>
-                  <p className="text-xs text-slate-500">Successful placements tracked</p>
-                  <div className="mt-3 flex -space-x-2">
-                    {['AL', 'JM', 'KR'].map((initials) => (
-                      <div key={initials} className="w-8 h-8 rounded-full bg-slate-100 border-2 border-white text-xs font-semibold text-slate-600 flex items-center justify-center">
-                        {initials}
-                      </div>
-                    ))}
-                    <span className="text-xs text-slate-500 ml-3">New hires this week</span>
+                  <p className="text-xs" style={{ color: "var(--ink-500)" }}>
+                    Successful placements tracked
+                  </p>
+                  <div className="mt-3 flex items-center">
+                    <div className="flex -space-x-2">
+                      {["AL", "JM", "KR"].map((initials) => (
+                        <div
+                          key={initials}
+                          className="w-8 h-8 rounded-full text-[11px] font-semibold flex items-center justify-center"
+                          style={{ background: "var(--teal-100)", color: "var(--teal-700)", border: "2px solid white" }}
+                        >
+                          {initials}
+                        </div>
+                      ))}
+                    </div>
+                    <span className="text-xs ml-3" style={{ color: "var(--ink-500)" }}>
+                      New hires this week
+                    </span>
                   </div>
                 </div>
 
-                {/* Alert + Satisfaction cards */}
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="rounded-2xl border border-slate-100 bg-gradient-to-br from-blue-600 to-indigo-600 text-white p-4">
-                    <p className="text-xs uppercase tracking-wide text-white/70">Alerts</p>
-                    <div className="text-2xl font-semibold">
-                      {impactLoading ? <Skeleton className="h-7 w-16 bg-white/20" /> : impactData?.satisfactionRate || '94%'}
+                {/* Satisfaction + salary */}
+                <div className="grid grid-cols-2 gap-3">
+                  <div
+                    className="rounded-xl p-4 text-white"
+                    style={{
+                      background: "linear-gradient(135deg, var(--ink-900), var(--ink-700))",
+                    }}
+                  >
+                    <p className="text-[10px] uppercase tracking-[0.14em] opacity-80 font-semibold">Satisfaction</p>
+                    <div className="text-2xl font-semibold mt-1 tracking-tight">
+                      {impactLoading ? (
+                        <Skeleton className="h-7 w-16 bg-white/20" />
+                      ) : (
+                        impactData?.satisfactionRate || "94%"
+                      )}
                     </div>
-                    <p className="text-xs text-white/75">Platform satisfaction</p>
+                    <p className="text-[11px] opacity-75 mt-0.5">Across all portals</p>
                   </div>
-                  <div className="rounded-2xl border border-slate-100 bg-white/95 p-4">
-                    <p className="text-xs uppercase tracking-wide text-slate-500">Avg salary</p>
-                    <div className="text-2xl font-semibold text-slate-900">
-                      {impactLoading ? <Skeleton className="h-7 w-16" /> : impactData?.avgSalary || '₱32.5K'}
+                  <div className="rounded-xl p-4 bg-white" style={{ border: "1px solid var(--line)" }}>
+                    <p className="text-[10px] uppercase tracking-[0.14em] font-semibold" style={{ color: "var(--ink-500)" }}>
+                      Avg salary
+                    </p>
+                    <div className="text-2xl font-semibold mt-1 tracking-tight" style={{ color: "var(--ink-900)" }}>
+                      {impactLoading ? <Skeleton className="h-7 w-16" /> : impactData?.avgSalary || "₱32.5K"}
                     </div>
-                    <p className="text-xs text-slate-500">Starting offers</p>
+                    <p className="text-[11px] mt-0.5" style={{ color: "var(--ink-500)" }}>
+                      Starting offers
+                    </p>
                   </div>
                 </div>
               </div>
             </div>
 
-            {/* Floating card - Next orientation */}
+            {/* Floating: total jobs */}
             <div className="absolute -left-10 top-12">
-              <div className="rounded-2xl bg-white border border-slate-100 shadow-lg p-4 w-48">
-                <p className="text-xs text-slate-500 mb-1">Total active jobs</p>
-                <p className="text-base font-semibold text-slate-900">{isLoading ? '...' : (summaryData as any)?.activeJobs?.value || '450+'} positions</p>
-                <p className="text-xs text-slate-500">Live on platform</p>
+              <div
+                className="rounded-xl p-3 w-48 bg-white"
+                style={{ border: "1px solid var(--line)", boxShadow: "var(--sh-2)" }}
+              >
+                <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-1" style={{ color: "var(--ink-500)" }}>
+                  Total active jobs
+                </p>
+                <p className="text-[15px] font-semibold tracking-tight" style={{ color: "var(--ink-900)" }}>
+                  {isLoading ? "…" : (summaryData as any)?.activeJobs?.value || "450+"} positions
+                </p>
+                <p className="text-[11px]" style={{ color: "var(--ink-500)" }}>
+                  Live on platform
+                </p>
               </div>
             </div>
 
-            {/* Floating card - Instant alerts */}
+            {/* Floating: new this month */}
             <div className="absolute -right-8 -bottom-6">
-              <div className="rounded-2xl bg-white/95 border border-slate-100 shadow-lg p-4 w-40">
-                <p className="text-xs text-slate-500 mb-1">New this month</p>
-                <p className="text-base font-semibold text-slate-900">{isLoading ? '...' : (summaryData as any)?.jobseekersThisMonth || '120+'} jobseekers</p>
-                <div className="mt-2 flex items-center gap-1 text-emerald-600 text-xs font-semibold">
-                  <TrendingUp className="w-3.5 h-3.5" />
-                  +{(summaryData as any)?.totalApplicants?.growth || 0}% growth
+              <div
+                className="rounded-xl p-3 w-44 bg-white"
+                style={{ border: "1px solid var(--line)", boxShadow: "var(--sh-2)" }}
+              >
+                <p className="text-[10px] uppercase tracking-[0.14em] font-semibold mb-1" style={{ color: "var(--ink-500)" }}>
+                  New this month
+                </p>
+                <p className="text-[15px] font-semibold tracking-tight" style={{ color: "var(--ink-900)" }}>
+                  {isLoading ? "…" : (summaryData as any)?.jobseekersThisMonth || "120+"} jobseekers
+                </p>
+                <div
+                  className="mt-2 flex items-center gap-1 text-[11px] font-semibold"
+                  style={{ color: "var(--emerald-600)" }}
+                >
+                  <TrendingUp className="w-3.5 h-3.5" />+{(summaryData as any)?.totalApplicants?.growth || 0}% growth
                 </div>
               </div>
             </div>

@@ -67,7 +67,7 @@ export default function AdminMatchingIndexPage() {
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2">
-            <Brain className="w-6 h-6 text-purple-600" />
+            <Brain className="w-6 h-6 text-violet-600" />
             <h1 className="text-2xl font-bold text-slate-900">AI Suitability Matching</h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">
@@ -127,7 +127,7 @@ export default function AdminMatchingIndexPage() {
               : "There are currently no active jobs available for matching."}
           </p>
           {searchQuery && (
-            <Button variant="link" onClick={() => setSearchQuery("")} className="mt-2 text-purple-600">
+            <Button variant="link" onClick={() => setSearchQuery("")} className="mt-2 text-violet-600">
               Clear search
             </Button>
           )}
@@ -138,7 +138,7 @@ export default function AdminMatchingIndexPage() {
             <Link key={job.id} href={`/admin/matching/${job.id}`}>
               <Card className="p-6 h-full hover:shadow-md transition-all border border-slate-200 group flex flex-col justify-between">
                 <div>
-                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-purple-700 transition-colors line-clamp-2">
+                  <h3 className="text-lg font-bold text-slate-900 group-hover:text-violet-700 transition-colors line-clamp-2">
                     {job.position_title}
                   </h3>
                   
@@ -155,7 +155,7 @@ export default function AdminMatchingIndexPage() {
                 </div>
 
                 <div className="mt-6 pt-4 border-t border-slate-50 flex items-center justify-between">
-                  <span className="text-xs font-semibold text-purple-600 flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
+                  <span className="text-xs font-semibold text-violet-600 flex items-center gap-1.5 group-hover:translate-x-1 transition-transform">
                     {job.match_count > 0 ? "View Matches" : "Start Matching"}
                     <ArrowRight className="w-3.5 h-3.5" />
                   </span>

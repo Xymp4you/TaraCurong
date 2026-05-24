@@ -22,16 +22,16 @@ const defaultTestimonials = [
     id: "1",
     name: "Maria Rodriguez",
     role: "Software Developer",
-    company: "TechHub GSC",
-    quote: "As a fresh graduate with no work experience, I was worried about finding a job. GensanWorks' career counseling and resume workshop gave me the confidence I needed. I got hired as a junior software developer within 2 weeks!",
+    company: "TechHub TC",
+    quote: "As a fresh graduate with no work experience, I was worried about finding a job. TaraCurong' career counseling and resume workshop gave me the confidence I needed. I got hired as a junior software developer within 2 weeks!",
     isVerified: true,
   },
   {
     id: "2",
     name: "John Tan",
     role: "HR Manager",
-    company: "GenSan Tech Inc.",
-    quote: "Our company struggled to find qualified local talent. GensanWorks connected us with amazing candidates—verified, skilled, and ready to work. We've hired 5 employees in just one month and saved thousands on recruitment costs.",
+    company: "Tacurong Tech Inc.",
+    quote: "Our company struggled to find qualified local talent. TaraCurong connected us with amazing candidates—verified, skilled, and ready to work. We've hired 5 employees in just one month and saved thousands on recruitment costs.",
     isVerified: true,
   },
   {
@@ -39,7 +39,7 @@ const defaultTestimonials = [
     name: "Anna Santos",
     role: "Senior Marketing Specialist",
     company: null,
-    quote: "After being unemployed for 8 months, I was losing hope. The PESO team through GensanWorks not only helped me update my skills but matched me with a company looking for exactly my expertise. I'm now thriving in my career!",
+    quote: "After being unemployed for 8 months, I was losing hope. The TaraCurong team not only helped me update my skills but matched me with a company looking for exactly my expertise. I'm now thriving in my career!",
     isVerified: true,
   },
 ];
@@ -76,7 +76,7 @@ export function TestimonialsSection({
             </h2>
           </div>
           <p className="text-lg text-slate-500 max-w-sm">
-            Real people, real results. See how GensanWorks has transformed careers and businesses in General Santos.
+            Real people, real results. See how TaraCurong has transformed careers and businesses in Tacurong City.
           </p>
         </div>
 

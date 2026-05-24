@@ -46,7 +46,7 @@ export async function GET() {
         positionTitle: job.position_title,
         employmentType: job.work_setup,
         startingSalary: job.starting_salary,
-        location: [city, province].filter(Boolean).join(", ") || "General Santos City",
+        location: [city, province].filter(Boolean).join(", ") || "Tacurong City",
         employerName: employer?.establishment_name || "Unknown Employer",
       };
     });
