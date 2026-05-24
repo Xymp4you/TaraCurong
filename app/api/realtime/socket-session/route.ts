@@ -76,12 +76,17 @@ export async function GET(request: NextRequest) {
   });
 
   if (!token) {
+    // Realtime signing secret isn't configured for this environment (common on
+    // Vercel preview deploys where AUTH_SECRET isn't set). Return 200 with a
+    // disabled flag so clients can silently fall back to SSE without surfacing
+    // a 5xx error in the browser console.
     return NextResponse.json(
       {
-        error: "Realtime session signing is unavailable",
+        token: null,
+        realtimeDisabled: true,
         requestId,
       },
-      { status: 500, headers: { "x-request-id": requestId } }
+      { status: 200, headers: { "x-request-id": requestId } }
     );
   }
 
