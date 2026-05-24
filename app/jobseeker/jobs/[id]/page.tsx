@@ -1,44 +1,184 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Bookmark, Briefcase, Clock, MapPin, Sparkles } from "lucide-react";
+import { toast } from "sonner";
 import { ScamWarning } from "@/components/transparency/scam-warning";
 import { ReportButton } from "@/components/transparency/report-button";
+import type { JobDetailResponse } from "@/lib/job-detail";
 
-const DETAIL = {
-  title: "Bookkeeper",
-  company: "Dole Philippines, Inc.",
-  location: "Tacurong, Sultan Kudarat",
-  type: "Full-time · On-site",
-  salary: "₱18,000 – ₱24,000 / mo",
-  posted: "Posted 2 days ago",
-  match: 94,
-  facts: [
-    ["Experience", "1–3 years"],
-    ["Education", "Bachelor's"],
-    ["Slots", "2 open"],
-    ["Closes", "30 Jun 2026"],
-  ] as const,
-  about:
-    "Maintain accurate financial records for the Tacurong cannery operations. Reconcile daily transactions, prepare monthly reports, and coordinate with the regional finance team. Reports to the Finance Manager.",
-  duties: [
-    "Record day-to-day financial transactions and complete the posting process",
-    "Verify that transactions are recorded in the correct day-book, suppliers ledger, and general ledger",
-    "Bring the books to the trial-balance stage and assist in monthly closings",
-    "Perform partial checks of the posting process and submit reports to senior accountants",
-  ],
-  skills: ["Bookkeeping", "QuickBooks", "Excel", "BIR forms", "Reconciliation", "Trial balance", "Payroll"],
-  nextSteps: [
-    ["Application sent to Dole HR", "Instant"],
-    ["Initial screening", "Usually within 3 days"],
-    ["Shortlist or feedback", "By 30 May"],
-    ["Referral slip with QR", "If shortlisted"],
-  ] as const,
-};
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+
+const NEXT_STEPS = [
+  ["Application sent to employer", "Instant"],
+  ["Initial screening", "Usually within 3 days"],
+  ["Shortlist or feedback", "Within 1–2 weeks"],
+  ["Referral slip with QR", "If shortlisted"],
+] as const;
+
+function formatPosted(iso: string | null): string {
+  if (!iso) return "Recently posted";
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days < 1) return "Posted today";
+  if (days === 1) return "Posted yesterday";
+  if (days < 30) return `Posted ${days} days ago`;
+  if (days < 60) return "Posted last month";
+  return `Posted ${Math.floor(days / 30)} months ago`;
+}
 
 export default function JobseekerJobDetailPage() {
   const params = useParams<{ id: string }>();
-  const jobTitle = params?.id ? decodeURIComponent(params.id) : DETAIL.title;
+  const router = useRouter();
+  const queryClient = useQueryClient();
+  const rawId = params?.id ? decodeURIComponent(params.id) : "";
+  const isValidId = UUID_RE.test(rawId);
+
+  const jobQuery = useQuery<JobDetailResponse>({
+    queryKey: ["job", rawId],
+    enabled: isValidId,
+    queryFn: async () => {
+      const res = await fetch(`/api/jobs/${rawId}`);
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error || "Failed to load job");
+      }
+      return res.json();
+    },
+  });
+
+  const applyMutation = useMutation({
+    mutationFn: async () => {
+      const res = await fetch(`/api/jobs/${rawId}/apply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({}),
+      });
+      const body = await res.json().catch(() => ({}));
+      if (!res.ok) throw new Error(body?.error || "Failed to submit application");
+      return body;
+    },
+    onSuccess: () => {
+      toast.success("Application submitted!");
+      queryClient.invalidateQueries({ queryKey: ["job", rawId] });
+      router.push("/jobseeker/applications");
+    },
+    onError: (err: Error) => {
+      const msg = err.message;
+      if (msg.includes("Unauthorized")) {
+        toast.error("Please sign in to apply.");
+        router.push(`/login?role=jobseeker&next=${encodeURIComponent(`/jobseeker/jobs/${rawId}`)}`);
+        return;
+      }
+      toast.error(msg);
+    },
+  });
+
+  const saveMutation = useMutation({
+    mutationFn: async (currentlySaved: boolean) => {
+      const url = currentlySaved
+        ? `/api/jobseeker/saved-jobs?jobId=${rawId}`
+        : `/api/jobseeker/saved-jobs`;
+      const res = await fetch(url, {
+        method: currentlySaved ? "DELETE" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: currentlySaved ? undefined : JSON.stringify({ jobId: rawId }),
+      });
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        throw new Error(body?.error || "Failed to update saved jobs");
+      }
+      return !currentlySaved;
+    },
+    onSuccess: (nowSaved) => {
+      toast.success(nowSaved ? "Saved for later." : "Removed from saved.");
+      queryClient.invalidateQueries({ queryKey: ["job", rawId] });
+    },
+    onError: (err: Error) => toast.error(err.message),
+  });
+
+  // Demo / invalid URL — show a friendly placeholder rather than a broken page.
+  if (!isValidId) {
+    return (
+      <div className="gw" style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div className="gw-card" style={{ padding: 28 }}>
+          <div className="tx-eyebrow" style={{ color: "var(--amber)" }}>Demo URL</div>
+          <h1 className="tx-serif" style={{ marginTop: 10, fontSize: 26, fontWeight: 400, lineHeight: 1.1 }}>
+            This isn&apos;t a real job listing.
+          </h1>
+          <p className="tx-body" style={{ marginTop: 12, color: "var(--ink-3)" }}>
+            Job detail pages load from a job ID. Browse openings to view a real listing you can apply to.
+          </p>
+          <button
+            type="button"
+            className="gw-btn gw-btn--accent"
+            style={{ marginTop: 18 }}
+            onClick={() => router.push("/jobseeker/jobs")}
+          >
+            Browse jobs
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  if (jobQuery.isLoading) {
+    return (
+      <div className="gw" style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div className="gw-card" style={{ padding: 28 }}>
+          <div className="tx-caption">Loading job…</div>
+        </div>
+      </div>
+    );
+  }
+
+  if (jobQuery.isError || !jobQuery.data) {
+    return (
+      <div className="gw" style={{ maxWidth: 720, margin: "0 auto" }}>
+        <div className="gw-card" style={{ padding: 28 }}>
+          <div className="tx-eyebrow" style={{ color: "var(--rose)" }}>Unavailable</div>
+          <h1 className="tx-serif" style={{ marginTop: 10, fontSize: 24, fontWeight: 400 }}>
+            We couldn&apos;t load this job.
+          </h1>
+          <p className="tx-body" style={{ marginTop: 10, color: "var(--ink-3)" }}>
+            {(jobQuery.error as Error | undefined)?.message ?? "It may have been removed or is no longer open."}
+          </p>
+          <button
+            type="button"
+            className="gw-btn gw-btn--accent"
+            style={{ marginTop: 18 }}
+            onClick={() => router.push("/jobseeker/jobs")}
+          >
+            Back to jobs
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const job = jobQuery.data;
+  const isClosed = job.jobStatus !== "Open" || (job.slotsRemaining !== null && job.slotsRemaining <= 0);
+  const submitDisabled =
+    applyMutation.isPending || jobQuery.isFetching || isClosed || Boolean(job.hasApplied);
+
+  const submitLabel = applyMutation.isPending
+    ? "Submitting…"
+    : job.hasApplied
+    ? "Already applied"
+    : isClosed
+    ? "No longer accepting applications"
+    : "Submit application";
+
+  const facts: ReadonlyArray<readonly [string, string]> = [
+    ["Experience", job.yearsOfExperienceRequired ? `${job.yearsOfExperienceRequired} yrs` : "Not specified"],
+    ["Education", job.minimumEducationRequired ?? "Not specified"],
+    ["Slots", job.slotsRemaining !== null ? `${job.slotsRemaining} open` : `${job.vacancies ?? "—"} open`],
+    ["Status", job.jobStatus ?? "—"],
+  ];
+
+  const skills: string[] = job.mainSkillOrSpecialization
+    ? job.mainSkillOrSpecialization.split(/[,;]\s*/).map((s) => s.trim()).filter(Boolean)
+    : [];
 
   return (
     <div
@@ -56,13 +196,17 @@ export default function JobseekerJobDetailPage() {
                 background: "var(--paper-2)",
                 display: "grid",
                 placeItems: "center",
+                flexShrink: 0,
               }}
             >
               <Briefcase size={24} />
             </div>
-            <div style={{ flex: 1 }}>
-              <div className="tx-caption" style={{ marginBottom: 4, display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                <span>{DETAIL.company}</span>
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <div
+                className="tx-caption"
+                style={{ marginBottom: 4, display: "inline-flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}
+              >
+                <span>{job.employerName ?? "Employer"}</span>
                 <span>·</span>
                 <span
                   style={{ color: "var(--emerald)", cursor: "help", borderBottom: "1px dotted var(--emerald)" }}
@@ -75,45 +219,43 @@ export default function JobseekerJobDetailPage() {
                 className="tx-serif"
                 style={{ fontSize: 30, fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.028em" }}
               >
-                {jobTitle}
+                {job.positionTitle}
               </div>
-              <div style={{ display: "flex", gap: 18, marginTop: 12, color: "var(--ink-3)", flexWrap: "wrap" }}>
+              <div
+                style={{ display: "flex", gap: 18, marginTop: 12, color: "var(--ink-3)", flexWrap: "wrap" }}
+              >
+                {job.location && (
+                  <span className="tx-caption" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    <MapPin size={13} />
+                    {job.location}
+                  </span>
+                )}
+                {job.employmentType && (
+                  <span className="tx-caption" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
+                    <Briefcase size={13} />
+                    {job.employmentType}
+                  </span>
+                )}
+                {job.startingSalary && (
+                  <span
+                    className="tx-caption tx-mono"
+                    style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--ink-2)" }}
+                  >
+                    {job.startingSalary}
+                  </span>
+                )}
                 <span className="tx-caption" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <MapPin size={13} />{DETAIL.location}
-                </span>
-                <span className="tx-caption" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <Briefcase size={13} />{DETAIL.type}
-                </span>
-                <span
-                  className="tx-caption tx-mono"
-                  style={{ display: "inline-flex", alignItems: "center", gap: 5, color: "var(--ink-2)" }}
-                >
-                  {DETAIL.salary}
-                </span>
-                <span className="tx-caption" style={{ display: "inline-flex", alignItems: "center", gap: 5 }}>
-                  <Clock size={13} />{DETAIL.posted}
+                  <Clock size={13} />
+                  {formatPosted(job.publishedAt)}
                 </span>
               </div>
-            </div>
-            <div
-              className="tx-mono"
-              style={{
-                padding: "5px 10px",
-                borderRadius: 999,
-                background: "var(--teal-4)",
-                color: "var(--teal)",
-                fontSize: 12,
-                letterSpacing: "0.04em",
-              }}
-            >
-              {DETAIL.match}% match
             </div>
           </div>
 
           <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "20px 0" }} />
 
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3.5">
-            {DETAIL.facts.map(([k, v]) => (
+            {facts.map(([k, v]) => (
               <div key={k}>
                 <div
                   className="tx-micro"
@@ -127,50 +269,66 @@ export default function JobseekerJobDetailPage() {
           </div>
         </div>
 
-        <div className="gw-card" style={{ padding: 28, marginTop: 16 }}>
-          <div className="tx-h3" style={{ marginBottom: 12 }}>About the role</div>
-          <p className="tx-body-lg" style={{ maxWidth: 640 }}>{DETAIL.about}</p>
-
-          <div className="tx-h3" style={{ marginTop: 28, marginBottom: 12 }}>What you&apos;ll do</div>
-          <ul style={{ paddingLeft: 18, margin: 0, color: "var(--ink-2)", fontSize: 14, lineHeight: 1.65 }}>
-            {DETAIL.duties.map((d) => <li key={d}>{d}</li>)}
-          </ul>
-
-          <div className="tx-h3" style={{ marginTop: 28, marginBottom: 12 }}>Required skills</div>
-          <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
-            {DETAIL.skills.map((s) => (
-              <span key={s} className="gw-chip" style={{ height: 26 }}>{s}</span>
-            ))}
+        {skills.length > 0 && (
+          <div className="gw-card" style={{ padding: 28, marginTop: 16 }}>
+            <div className="tx-h3" style={{ marginBottom: 12 }}>Required skills</div>
+            <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
+              {skills.map((s) => (
+                <span key={s} className="gw-chip" style={{ height: 26 }}>{s}</span>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       <aside>
         <div className="gw-card" style={{ padding: 20, position: "sticky", top: 80 }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 10 }}>
             <div className="tx-eyebrow">Your application</div>
-            <Bookmark size={14} style={{ color: "var(--ink-4)", cursor: "pointer" }} />
+            <button
+              type="button"
+              onClick={() => saveMutation.mutate(Boolean(job.isSaved))}
+              disabled={saveMutation.isPending}
+              aria-label={job.isSaved ? "Remove from saved" : "Save for later"}
+              style={{
+                background: "transparent",
+                border: 0,
+                padding: 0,
+                cursor: saveMutation.isPending ? "wait" : "pointer",
+                color: job.isSaved ? "var(--teal)" : "var(--ink-4)",
+              }}
+            >
+              <Bookmark size={14} fill={job.isSaved ? "currentColor" : "none"} />
+            </button>
           </div>
-          <div className="tx-h3">Ready to apply?</div>
+          <div className="tx-h3">
+            {job.hasApplied ? "You've applied" : isClosed ? "Closed" : "Ready to apply?"}
+          </div>
           <div className="tx-caption" style={{ marginTop: 4 }}>
-            Your profile is 72% complete and meets the requirements.
+            {job.hasApplied
+              ? `Status: ${job.applicationStatus ?? "under review"}`
+              : isClosed
+              ? "This listing is no longer accepting applications."
+              : `${job.applicationsCount ?? 0} ${job.applicationsCount === 1 ? "person has" : "people have"} applied so far.`}
           </div>
 
-          <div
-            style={{
-              marginTop: 16,
-              padding: 12,
-              background: "var(--teal-4)",
-              borderRadius: "var(--r-2)",
-              display: "flex",
-              gap: 10,
-            }}
-          >
-            <Sparkles size={14} style={{ color: "var(--teal)", marginTop: 1, flexShrink: 0 }} />
-            <div className="tx-caption" style={{ color: "var(--teal)", fontSize: 12.5 }}>
-              Your bookkeeping and Excel skills look like a fit. Match scores are software estimates, not decisions — the employer reviews every applicant.
+          {!job.hasApplied && !isClosed && (
+            <div
+              style={{
+                marginTop: 16,
+                padding: 12,
+                background: "var(--teal-4)",
+                borderRadius: "var(--r-2)",
+                display: "flex",
+                gap: 10,
+              }}
+            >
+              <Sparkles size={14} style={{ color: "var(--teal)", marginTop: 1, flexShrink: 0 }} />
+              <div className="tx-caption" style={{ color: "var(--teal)", fontSize: 12.5 }}>
+                Match scores are software estimates, not decisions — the employer reviews every applicant.
+              </div>
             </div>
-          </div>
+          )}
 
           <div style={{ marginTop: 12 }}>
             <ScamWarning context="application" />
@@ -178,8 +336,8 @@ export default function JobseekerJobDetailPage() {
 
           <div className="tx-micro" style={{ marginTop: 10, color: "var(--ink-4)", lineHeight: 1.5 }}>
             By applying, you agree your contact details, profile, and any attached documents become
-            visible to <strong>{DETAIL.company}</strong>. Only the employer you apply to and the
-            project maintainer can see your application. See{" "}
+            visible to <strong>{job.employerName ?? "this employer"}</strong>. Only the employer you
+            apply to and the project maintainer can see your application. See{" "}
             <a href="/privacy" style={{ color: "var(--teal)" }}>Privacy Policy</a> and{" "}
             <a href="/terms" style={{ color: "var(--teal)" }}>Terms of Use</a>.
           </div>
@@ -187,23 +345,29 @@ export default function JobseekerJobDetailPage() {
           <button
             type="button"
             className="gw-btn gw-btn--lg gw-btn--accent gw-btn--block"
-            style={{ marginTop: 16 }}
+            style={{ marginTop: 16, opacity: submitDisabled ? 0.6 : 1, cursor: submitDisabled ? "not-allowed" : "pointer" }}
+            onClick={() => applyMutation.mutate()}
+            disabled={submitDisabled}
           >
-            Submit application
+            {submitLabel}
           </button>
-          <button
-            type="button"
-            className="gw-btn gw-btn--ghost gw-btn--block"
-            style={{ marginTop: 8 }}
-          >
-            Save for later
-          </button>
+          {!job.hasApplied && (
+            <button
+              type="button"
+              className="gw-btn gw-btn--ghost gw-btn--block"
+              style={{ marginTop: 8 }}
+              onClick={() => saveMutation.mutate(Boolean(job.isSaved))}
+              disabled={saveMutation.isPending}
+            >
+              {job.isSaved ? "Saved" : "Save for later"}
+            </button>
+          )}
 
           <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "16px 0" }} />
 
           <div className="tx-h4" style={{ fontSize: 13, marginBottom: 8 }}>What happens next</div>
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {DETAIL.nextSteps.map(([t, w], i) => (
+            {NEXT_STEPS.map(([t, w], i) => (
               <div key={t} style={{ display: "flex", gap: 10 }}>
                 <div
                   style={{
@@ -229,7 +393,7 @@ export default function JobseekerJobDetailPage() {
           </div>
 
           <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "16px 0" }} />
-          <ReportButton target="job" identifier={params?.id ?? undefined} />
+          <ReportButton target="job" identifier={rawId} />
         </div>
       </aside>
     </div>
