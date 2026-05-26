@@ -1,5 +1,7 @@
 import Link from "next/link";
-import { GraduationCap, Wrench, Briefcase } from "lucide-react";
+import { GraduationCap, Wrench, Briefcase, ArrowRight } from "lucide-react";
+import { SiteHeader } from "@/components/gw/site-header";
+import { SiteFooter } from "@/components/gw/site-footer";
 
 const programs = [
   {
@@ -21,42 +23,78 @@ const programs = [
 
 export default function TrainingPage() {
   return (
-    <main className="min-h-screen bg-slate-50">
-      <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto max-w-6xl px-4 py-16 sm:px-6 lg:px-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.35em] text-blue-600">Training</p>
-          <h1 className="mt-3 text-4xl font-bold tracking-tight text-slate-900">Career Training Programs</h1>
-          <p className="mt-4 max-w-3xl text-base text-slate-600">
+    <div
+      className="gw"
+      style={{ background: "var(--paper)", minHeight: "100vh", fontFamily: "var(--font-ui)" }}
+    >
+      <SiteHeader />
+
+      {/* Hero */}
+      <section
+        className="px-4 sm:px-8 lg:px-14 py-12 lg:py-[72px]"
+        style={{ background: "var(--surface)", borderBottom: "1px solid var(--ink-7)" }}
+      >
+        <div style={{ maxWidth: 760 }}>
+          <div className="tx-eyebrow">Training</div>
+          <h1
+            className="tx-h1 text-[28px] sm:text-[34px]"
+            style={{ marginTop: 8, lineHeight: 1.1, letterSpacing: "-0.028em", fontWeight: 500 }}
+          >
+            Career Training Programs
+          </h1>
+          <p className="tx-body" style={{ marginTop: 12, color: "var(--ink-3)" }}>
             Curated programs that help jobseekers build in-demand capabilities.
           </p>
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-6xl gap-4 px-4 py-12 sm:px-6 lg:grid-cols-3 lg:px-8">
-        {programs.map((program) => (
-          <article key={program.title} className="rounded-2xl border border-slate-200 bg-white p-6">
-            <div className="mb-4 inline-flex h-11 w-11 items-center justify-center rounded-xl bg-blue-50 text-blue-600">
-              <program.icon className="h-5 w-5" />
-            </div>
-            <h2 className="text-lg font-semibold text-slate-900">{program.title}</h2>
-            <p className="mt-2 text-sm text-slate-600">{program.detail}</p>
-          </article>
-        ))}
-      </section>
-
-      <section className="mx-auto max-w-6xl px-4 pb-14 sm:px-6 lg:px-8">
-        <div className="rounded-2xl border border-slate-200 bg-white p-6">
-          <h2 className="text-lg font-semibold text-slate-900">Join as a jobseeker</h2>
-          <p className="mt-2 text-sm text-slate-600">
-            Create your account and start receiving recommendations for training and vacancies.
-          </p>
-          <div className="mt-5">
-            <Link href="/signup/jobseeker" className="rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-700">
-              Create Jobseeker Account
-            </Link>
-          </div>
+      {/* Programs */}
+      <section className="px-4 sm:px-8 lg:px-14 py-12">
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {programs.map((program) => {
+            const Icon = program.icon;
+            return (
+              <div key={program.title} className="gw-card" style={{ padding: 24 }}>
+                <div
+                  style={{
+                    width: 44,
+                    height: 44,
+                    borderRadius: "var(--r-2)",
+                    background: "var(--teal-4)",
+                    color: "var(--teal)",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  <Icon size={20} />
+                </div>
+                <div className="tx-h4" style={{ marginTop: 16 }}>{program.title}</div>
+                <p className="tx-caption" style={{ marginTop: 8, color: "var(--ink-4)" }}>
+                  {program.detail}
+                </p>
+              </div>
+            );
+          })}
         </div>
       </section>
-    </main>
+
+      {/* Join CTA */}
+      <section className="px-4 sm:px-8 lg:px-14 pb-16">
+        <div className="gw-card" style={{ padding: 28 }}>
+          <div className="tx-h4">Join as a jobseeker</div>
+          <p className="tx-body" style={{ marginTop: 8, color: "var(--ink-3)", maxWidth: 520 }}>
+            Create your account and start receiving recommendations for training and vacancies.
+          </p>
+          <Link href="/signup/jobseeker" style={{ display: "inline-block", marginTop: 20 }}>
+            <button type="button" className="gw-btn gw-btn--accent">
+              Create Jobseeker Account <ArrowRight size={14} />
+            </button>
+          </Link>
+        </div>
+      </section>
+
+      <SiteFooter />
+    </div>
   );
 }

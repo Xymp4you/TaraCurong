@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Building } from "lucide-react";
 import { Pill } from "@/components/gw/atoms";
 
@@ -38,49 +39,223 @@ function Donut({ data, size = 92, thickness = 14 }: { data: DonutDatum[]; size?:
   );
 }
 
-const STATS: { l: string; v: string; d: string; action?: boolean }[] = [
-  { l: "Jobseekers", v: "12,840", d: "+184 this week" },
-  { l: "Employers", v: "486", d: "+12 verified" },
-  { l: "Active jobs", v: "1,284", d: "+47 today" },
-  { l: "Applications", v: "8,431", d: "+312 today" },
-  { l: "Pending employers", v: "7", d: "Needs review", action: true },
-  { l: "Pending jobs", v: "14", d: "In moderation", action: true },
-  { l: "Admin requests", v: "3", d: "Officer access", action: true },
-];
-
-const JOB_STATUS_DATA = [
-  { l: "Active", v: 719, p: "56%", c: "var(--emerald)" },
-  { l: "Pending", v: 231, p: "18%", c: "var(--amber)" },
-  { l: "Closed", v: 205, p: "16%", c: "var(--slate)" },
-  { l: "Archived", v: 129, p: "10%", c: "var(--ink-4)" },
-];
-
-const REFERRAL_DATA = [
-  { l: "Hired", v: 524, p: "42%", c: "var(--emerald)" },
-  { l: "Issued", v: 349, p: "28%", c: "var(--sky)" },
-  { l: "Not hired", v: 250, p: "20%", c: "var(--rose)" },
-  { l: "Expired", v: 124, p: "10%", c: "var(--slate)" },
-];
-
-const TOP_EMPLOYERS = [
-  { n: "Dole Philippines, Inc.", h: 47, j: 12 },
-  { n: "General Tuna Corporation", h: 38, j: 8 },
-  { n: "Sykes Asia (Tacurong)", h: 29, j: 14 },
-  { n: "City Government of Tacurong", h: 22, j: 6 },
-  { n: "RD Pawnshop", h: 18, j: 4 },
-];
-
-const AUDIT_EVENTS = [
-  { t: "Employer approved", w: "Marigold Manpower Inc.", a: "L. Sandoval", c: "var(--emerald)", time: "08:42" },
-  { t: "Referral slip issued", w: "TC-2026-014872 · Bookkeeper / Dole", a: "M. Velasquez", c: "var(--sky)", time: "08:14" },
-  { t: "Admin access requested", w: "Ronaldo Aquino · Officer III", a: "—", c: "var(--amber)", time: "07:58" },
-  { t: "Job rejected", w: "Sales Rep · BBA Marketing — missing TIN", a: "L. Sandoval", c: "var(--rose)", time: "Yesterday" },
-  { t: "Hire outcome confirmed", w: "Records Officer · City Hall Tacurong", a: "system", c: "var(--emerald)", time: "Yesterday" },
-];
-
 const MONTHS = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May"];
 
+const formatNumber = (n: number) => new Intl.NumberFormat("en-US").format(n);
+
+const pct = (count: number, total: number) =>
+  total > 0 ? `${Math.round((count / total) * 100)}%` : "0%";
+
+// ---- API response shapes (subset of fields actually returned) ----
+interface OverviewResponse {
+  kpis: {
+    jobSeekers: { total: number };
+    employers: { total: number; pending: number };
+    jobs: { total: number; active: number; pending: number };
+    applications: { total: number };
+  };
+  jobStatusCounts: { status: string; count: number }[];
+}
+
+interface SummaryResponse {
+  usersCount: number;
+  employersCount: number;
+  jobsCount: number;
+  applicationsCount: number;
+  pendingEmployerCount: number;
+  pendingAdminRequests: number;
+  pendingJobs: number;
+}
+
+interface ReferralAnalyticsResponse {
+  totalReferrals: number;
+  referralsByStatus: { status: string; count: number }[];
+}
+
+interface HiringRateResponse {
+  employers: {
+    employerId: string;
+    employerName: string;
+    city: string;
+    totalReferrals: number;
+    hired: number;
+    forInterview: number;
+    hiringRate: number;
+  }[];
+  totalReferrals: number;
+}
+
+interface AuditFeedResponse {
+  totalEvents: number;
+  events: { timestamp: string; type: string; actor: string; detail: string }[];
+}
+
+// ---- JSX-shape types (unchanged from original constants) ----
+type StatRow = { l: string; v: string; d: string; action?: boolean };
+type DonutRow = { l: string; v: number; p: string; c: string };
+type EmployerRow = { n: string; h: number; j: number };
+type AuditRow = { t: string; w: string; a: string; c: string; time: string };
+
+// ---- Adapters: map API responses -> existing JSX shapes ----
+const NEUTRAL = "—";
+
+// Job status: map active/pending/closed/archived from overview.jobStatusCounts
+const JOB_STATUS_DEFS: { key: string; l: string; c: string }[] = [
+  { key: "active", l: "Active", c: "var(--emerald)" },
+  { key: "pending", l: "Pending", c: "var(--amber)" },
+  { key: "closed", l: "Closed", c: "var(--slate)" },
+  { key: "archived", l: "Archived", c: "var(--ink-4)" },
+];
+
+function adaptJobStatus(overview?: OverviewResponse): DonutRow[] {
+  const counts = new Map<string, number>();
+  (overview?.jobStatusCounts ?? []).forEach((s) => counts.set(s.status, s.count));
+  const total = (overview?.jobStatusCounts ?? []).reduce((a, s) => a + s.count, 0);
+  return JOB_STATUS_DEFS.map((d) => {
+    const v = counts.get(d.key) ?? 0;
+    return { l: d.l, v, p: pct(v, total), c: d.c };
+  });
+}
+
+// Referral outcomes: statuses returned are Pending, For Interview, Hired, Rejected, Withdrawn
+const REFERRAL_DEFS: { key: string; l: string; c: string }[] = [
+  { key: "Hired", l: "Hired", c: "var(--emerald)" },
+  { key: "For Interview", l: "For Interview", c: "var(--sky)" },
+  { key: "Pending", l: "Pending", c: "var(--amber)" },
+  { key: "Rejected", l: "Rejected", c: "var(--rose)" },
+  { key: "Withdrawn", l: "Withdrawn", c: "var(--slate)" },
+];
+
+function adaptReferrals(analytics?: ReferralAnalyticsResponse): DonutRow[] {
+  const counts = new Map<string, number>();
+  (analytics?.referralsByStatus ?? []).forEach((s) => counts.set(s.status, s.count));
+  const total = (analytics?.referralsByStatus ?? []).reduce((a, s) => a + s.count, 0);
+  return REFERRAL_DEFS.map((d) => {
+    const v = counts.get(d.key) ?? 0;
+    return { l: d.l, v, p: pct(v, total), c: d.c };
+  });
+}
+
+function adaptTopEmployers(hiring?: HiringRateResponse): EmployerRow[] {
+  return (hiring?.employers ?? [])
+    .slice()
+    .sort((a, b) => b.hired - a.hired || b.totalReferrals - a.totalReferrals)
+    .slice(0, 5)
+    // NOTE: no endpoint exposes active-jobs-per-employer; `j` shown as 0 (neutral).
+    .map((e) => ({ n: e.employerName, h: e.hired, j: 0 }));
+}
+
+const AUDIT_TONES: { match: (type: string) => boolean; c: string; t: string }[] = [
+  { match: (t) => t.includes("created") || t.includes("requested"), c: "var(--amber)", t: "Admin access requested" },
+  { match: (t) => t.includes("reviewed"), c: "var(--emerald)", t: "Admin request reviewed" },
+  { match: (t) => t.includes("cancelled"), c: "var(--slate)", t: "Account deletion cancelled" },
+  { match: (t) => t.includes("processed"), c: "var(--rose)", t: "Account deletion processed" },
+  { match: (t) => t.includes("deletion"), c: "var(--sky)", t: "Account deletion requested" },
+];
+
+function adaptAuditEvents(feed?: AuditFeedResponse): AuditRow[] {
+  return (feed?.events ?? []).slice(0, 5).map((e) => {
+    const tone = AUDIT_TONES.find((tn) => tn.match(e.type));
+    const d = new Date(e.timestamp);
+    const time = Number.isNaN(d.getTime())
+      ? NEUTRAL
+      : d.toLocaleTimeString("en-US", { hour: "2-digit", minute: "2-digit", hour12: false });
+    return {
+      t: tone?.t ?? e.type,
+      w: e.detail,
+      a: e.actor || NEUTRAL,
+      c: tone?.c ?? "var(--ink-4)",
+      time,
+    };
+  });
+}
+
 export default function AdminDashboardPage() {
+  const overviewQuery = useQuery<OverviewResponse>({
+    queryKey: ["admin", "dashboard", "overview"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/dashboard/overview");
+      if (!res.ok) throw new Error("Failed to fetch dashboard overview");
+      return res.json();
+    },
+  });
+
+  const summaryQuery = useQuery<SummaryResponse>({
+    queryKey: ["admin", "summary"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/summary");
+      if (!res.ok) throw new Error("Failed to fetch admin summary");
+      return res.json();
+    },
+  });
+
+  const referralsQuery = useQuery<ReferralAnalyticsResponse>({
+    queryKey: ["admin", "analytics", "referrals"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/analytics/referrals");
+      if (!res.ok) throw new Error("Failed to fetch referral analytics");
+      return res.json();
+    },
+  });
+
+  const hiringQuery = useQuery<HiringRateResponse>({
+    queryKey: ["admin", "analytics", "employer-hiring-rate"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/analytics/employer-hiring-rate");
+      if (!res.ok) throw new Error("Failed to fetch employer hiring rate");
+      return res.json();
+    },
+  });
+
+  const auditQuery = useQuery<AuditFeedResponse>({
+    queryKey: ["admin", "analytics", "audit-feed"],
+    queryFn: async () => {
+      const res = await fetch("/api/admin/analytics/audit-feed?limit=5");
+      if (!res.ok) throw new Error("Failed to fetch audit feed");
+      return res.json();
+    },
+  });
+
+  const overview = overviewQuery.data;
+  const summary = summaryQuery.data;
+
+  const kpiNum = (n?: number) => (typeof n === "number" ? formatNumber(n) : NEUTRAL);
+
+  // STATS cards. Subtitle deltas ("+184 this week" etc.) have NO source endpoint,
+  // so they are replaced with neutral, non-fabricated labels.
+  const STATS: StatRow[] = [
+    { l: "Jobseekers", v: kpiNum(overview?.kpis.jobSeekers.total), d: "Total registered" },
+    { l: "Employers", v: kpiNum(overview?.kpis.employers.total), d: "Total registered" },
+    { l: "Active jobs", v: kpiNum(overview?.kpis.jobs.active), d: "Currently active" },
+    { l: "Applications", v: kpiNum(overview?.kpis.applications.total), d: "Total received" },
+    {
+      l: "Pending employers",
+      v: kpiNum(overview?.kpis.employers.pending),
+      d: "Needs review",
+      action: true,
+    },
+    {
+      l: "Pending jobs",
+      v: kpiNum(overview?.kpis.jobs.pending),
+      d: "In moderation",
+      action: true,
+    },
+    {
+      l: "Admin requests",
+      v: kpiNum(summary?.pendingAdminRequests),
+      d: "Officer access",
+      action: true,
+    },
+  ];
+
+  const JOB_STATUS_DATA = adaptJobStatus(overview);
+  const REFERRAL_DATA = adaptReferrals(referralsQuery.data);
+  const TOP_EMPLOYERS = adaptTopEmployers(hiringQuery.data);
+  const AUDIT_EVENTS = adaptAuditEvents(auditQuery.data);
+
+  const jobsTotal = overview?.kpis.jobs.total ?? 0;
+  const referralsTotal = referralsQuery.data?.totalReferrals ?? 0;
+
   return (
     <div className="gw" style={{ maxWidth: 1380 }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
@@ -224,7 +399,7 @@ export default function AdminDashboardPage() {
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
           <div className="gw-card" style={{ padding: 20 }}>
             <div className="tx-h3">Job status</div>
-            <div className="tx-caption" style={{ marginTop: 2, marginBottom: 12 }}>1,284 jobs total</div>
+            <div className="tx-caption" style={{ marginTop: 2, marginBottom: 12 }}>{formatNumber(jobsTotal)} jobs total</div>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               <Donut data={JOB_STATUS_DATA.map((d) => ({ v: parseInt(d.p), c: d.c }))} />
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
@@ -242,7 +417,7 @@ export default function AdminDashboardPage() {
 
           <div className="gw-card" style={{ padding: 20 }}>
             <div className="tx-h3">Referral outcomes</div>
-            <div className="tx-caption" style={{ marginTop: 2, marginBottom: 12 }}>1,247 slips issued</div>
+            <div className="tx-caption" style={{ marginTop: 2, marginBottom: 12 }}>{formatNumber(referralsTotal)} slips issued</div>
             <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
               <Donut data={REFERRAL_DATA.map((d) => ({ v: parseInt(d.p), c: d.c }))} />
               <div style={{ flex: 1, display: "flex", flexDirection: "column", gap: 6 }}>
@@ -264,6 +439,12 @@ export default function AdminDashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-[18px]">
         <div className="gw-card" style={{ padding: 22 }}>
           <div className="tx-h3" style={{ marginBottom: 14 }}>Top hiring employers</div>
+          {hiringQuery.isLoading && (
+            <div className="tx-caption" style={{ padding: "10px 0", color: "var(--ink-4)" }}>Loading…</div>
+          )}
+          {!hiringQuery.isLoading && TOP_EMPLOYERS.length === 0 && (
+            <div className="tx-caption" style={{ padding: "10px 0", color: "var(--ink-4)" }}>No employer hiring activity yet.</div>
+          )}
           {TOP_EMPLOYERS.map((e, i) => (
             <div
               key={e.n}
@@ -312,6 +493,12 @@ export default function AdminDashboardPage() {
               Full log →
             </Link>
           </div>
+          {auditQuery.isLoading && (
+            <div className="tx-caption" style={{ padding: "10px 0", color: "var(--ink-4)" }}>Loading…</div>
+          )}
+          {!auditQuery.isLoading && AUDIT_EVENTS.length === 0 && (
+            <div className="tx-caption" style={{ padding: "10px 0", color: "var(--ink-4)" }}>No recent audit events.</div>
+          )}
           {AUDIT_EVENTS.map((e, i) => (
             <div
               key={`${e.t}-${i}`}

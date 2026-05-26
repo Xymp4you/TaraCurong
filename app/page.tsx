@@ -25,6 +25,12 @@ interface SummaryData {
   successfulReferrals: SummaryMetric;
 }
 
+interface LandingCategory {
+  name: string;
+  category: string;
+  jobs: string;
+}
+
 const defaultGeneralSettings: GeneralSettings = {
   siteName: "TaraCurong",
   siteDescription: "A community job platform for Tacurong City — built by an IT student",
@@ -84,17 +90,6 @@ const HOW_IT_WORKS = [
   { n: "04", t: "Show your referral QR", d: "Get a QR slip on your phone. Show it at the employer's office. Done." },
 ];
 
-const CATEGORIES = [
-  { t: "Food processing", c: "284 jobs", h: "Dole, Alsons Aquaculture, Marigold" },
-  { t: "Healthcare", c: "112 jobs", h: "Howard Hubbard, Tacurong Doctors" },
-  { t: "Customer support", c: "97 jobs", h: "Sykes, Concentrix" },
-  { t: "Trades & construction", c: "146 jobs", h: "Megaworld, AMA Resorts" },
-  { t: "Logistics & driving", c: "73 jobs", h: "Cebu Pacific Cargo, Toll" },
-  { t: "Accounting & finance", c: "44 jobs", h: "BDO, RCBC, local firms" },
-  { t: "Education", c: "38 jobs", h: "DepEd, MSU, Notre Dame" },
-  { t: "Hospitality", c: "59 jobs", h: "Greenleaf, KCC, Family Country" },
-];
-
 const POPULAR_TAGS = ["Cannery operator", "Bookkeeper", "Customer service", "Driver", "Healthcare aide", "Welder"];
 
 const FOOTER_COLUMNS = [
@@ -129,6 +124,17 @@ export default function Landing() {
     staleTime: 1000 * 60 * 5,
   });
 
+  const { data: categoriesData } = useQuery<{ categories: LandingCategory[] }>({
+    queryKey: ["landing", "categories"],
+    queryFn: async () => {
+      const response = await fetch("/api/landing/categories");
+      if (!response.ok) throw new Error("Failed to fetch categories");
+      return response.json();
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+  const categories = categoriesData?.categories ?? [];
+
   useEffect(() => {
     document.title = `${generalSettings.siteName} — ${generalSettings.siteDescription}`;
     ensureMetaTag("description", generalSettings.siteDescription);
@@ -136,9 +142,9 @@ export default function Landing() {
   }, [generalSettings]);
 
   const stats = [
-    { k: summaryData ? formatNumber(summaryData.totalApplicants.value) : "12,840", l: "Active jobseekers" },
-    { k: summaryData ? formatNumber(summaryData.activeEmployers.value) : "486", l: "Verified employers" },
-    { k: summaryData ? formatNumber(summaryData.successfulReferrals.value) : "3,217", l: "Successful placements" },
+    { k: summaryData ? formatNumber(summaryData.totalApplicants.value) : "—", l: "Active jobseekers" },
+    { k: summaryData ? formatNumber(summaryData.activeEmployers.value) : "—", l: "Verified employers" },
+    { k: summaryData ? formatNumber(summaryData.successfulReferrals.value) : "—", l: "Successful placements" },
   ];
 
   return (
@@ -271,12 +277,12 @@ export default function Landing() {
               letterSpacing: "-0.035em",
             }}
           >
-            Real work, found <em style={{ fontStyle: "italic", color: "var(--teal)" }}>quietly</em>,<br className="hidden sm:block" />
+            We help <em style={{ fontStyle: "italic", color: "var(--teal)" }}>you</em> find jobs<br className="hidden sm:block" />
             in Tacurong City.
           </h1>
           <p className="tx-body-lg" style={{ marginTop: 22, maxWidth: 540 }}>
-            The official TaraCurong platform that connects jobseekers with verified employers — and turns the paper
-            referral slip into a QR code your phone already knows how to show.
+            Apply to local employers we&apos;ve checked. Get your referral slip as a QR code on your
+            phone — easy to show, no paper to lose.
           </p>
 
           {/* Inline search */}
@@ -471,26 +477,37 @@ export default function Landing() {
               textDecoration: "none",
             }}
           >
-            Browse all 24 categories <ArrowRight size={14} />
+            {categories.length > 0
+              ? `Browse all ${categories.length} categories`
+              : "Browse all jobs"}{" "}
+            <ArrowRight size={14} />
           </Link>
         </div>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
-          {CATEGORIES.map((c) => (
-            <Link
-              key={c.t}
-              href={`/jobseeker/jobs?category=${encodeURIComponent(c.t)}`}
-              style={{ textDecoration: "none", color: "inherit" }}
-            >
-              <div className="gw-card gw-card--hover" style={{ padding: 18, cursor: "pointer" }}>
-                <div className="tx-h4">{c.t}</div>
-                <div className="tx-num tx-mono tx-micro" style={{ marginTop: 6, color: "var(--teal)" }}>
-                  {c.c}
+        {categories.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {categories.map((c) => (
+              <Link
+                key={c.category}
+                href={`/jobseeker/jobs?category=${encodeURIComponent(c.name)}`}
+                style={{ textDecoration: "none", color: "inherit" }}
+              >
+                <div className="gw-card gw-card--hover" style={{ padding: 18, cursor: "pointer" }}>
+                  <div className="tx-h4">{c.name}</div>
+                  <div className="tx-num tx-mono tx-micro" style={{ marginTop: 6, color: "var(--teal)" }}>
+                    {c.jobs}
+                  </div>
                 </div>
-                <div className="tx-caption" style={{ marginTop: 10, color: "var(--ink-4)" }}>{c.h}</div>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </Link>
+            ))}
+          </div>
+        ) : (
+          <div
+            className="gw-card tx-body"
+            style={{ padding: 24, color: "var(--ink-4)", textAlign: "center" }}
+          >
+            No open roles posted yet — check back soon.
+          </div>
+        )}
       </section>
 
       {/* Referral feature strip */}

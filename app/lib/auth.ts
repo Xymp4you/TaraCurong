@@ -3,34 +3,49 @@ import { createClient } from "./supabase-server";
 
 /**
  * Compatibility layer to replace NextAuth auth() call.
- * This checks the Supabase session and returns a session object
- * compatible with the existing codebase.
+ * Returns a session object compatible with the existing codebase.
+ *
+ * Uses getClaims() (local JWT verification via WebCrypto when the project uses
+ * asymmetric JWT signing keys) instead of getUser(), which always makes a
+ * network round-trip to the Supabase Auth server. Since auth() runs on every
+ * protected page and every API route, getUser() added ~150-250ms of latency to
+ * each request; getClaims() removes it once signing keys are enabled (and stays
+ * correct — falling back to a network verify — until then).
  */
 export const auth = async () => {
   try {
     const supabase = await createClient();
-    const { data: { user }, error } = await supabase.auth.getUser();
+    const { data, error } = await supabase.auth.getClaims();
 
-    if (error || !user) return null;
+    const claims = data?.claims as
+      | {
+          sub?: string;
+          email?: string;
+          exp?: number;
+          user_metadata?: Record<string, string | undefined>;
+        }
+      | undefined;
 
-    // Map Supabase user to the session format the app expects
-    // We assume role is stored in user_metadata or we fetch it from the database
-    const role = user.user_metadata?.role || "jobseeker";
-    const name = user.user_metadata?.name || 
-                 user.user_metadata?.full_name || 
-                 `${user.user_metadata?.first_name || ''} ${user.user_metadata?.last_name || ''}`.trim() || 
-                 user.email?.split('@')[0] ||
-                 "User";
+    if (error || !claims?.sub) return null;
+
+    const meta = claims.user_metadata ?? {};
+    const role = meta.role || "jobseeker";
+    const name =
+      meta.name ||
+      meta.full_name ||
+      `${meta.first_name || ""} ${meta.last_name || ""}`.trim() ||
+      claims.email?.split("@")[0] ||
+      "User";
 
     return {
       user: {
-        id: user.id,
-        email: user.email,
+        id: claims.sub,
+        email: claims.email,
         name: name,
         role: role,
-        image: user.user_metadata?.avatar_url || null,
+        image: meta.avatar_url || null,
       },
-      expires: new Date(Date.now() + 3600 * 1000).toISOString(), // Mock expiry
+      expires: new Date((claims.exp ?? Math.floor(Date.now() / 1000) + 3600) * 1000).toISOString(),
     };
   } catch (error) {
     console.error("[auth] Compatibility layer error:", error);

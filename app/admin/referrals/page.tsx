@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { Briefcase, ChevronDown, Download, Plus, QrCode, Sparkles } from "lucide-react";
 import { Pill, type PillTone } from "@/components/gw/atoms";
+import { queryFetcher } from "@/lib/query-fetcher";
 
 type RefStatus = "issued" | "hired" | "not_hired" | "expired";
 const REF_STATUS: Record<RefStatus, { tone: PillTone; label: string }> = {
@@ -13,14 +15,58 @@ const REF_STATUS: Record<RefStatus, { tone: PillTone; label: string }> = {
   expired: { tone: "slate", label: "Expired" },
 };
 
-const SLIPS: { s: string; j: string; job: string; i: string; st: RefStatus }[] = [
-  { s: "TC-2026-014872", j: "Juan M. Cruz", job: "Bookkeeper · Dole", i: "23 May", st: "issued" },
-  { s: "TC-2026-014871", j: "Andrea L. Sanchez", job: "Payroll Clerk · Sultan Kudarat Foods", i: "23 May", st: "issued" },
-  { s: "TC-2026-014866", j: "Mark T. Reyes", job: "QA Supervisor · Dole", i: "22 May", st: "hired" },
-  { s: "TC-2026-014812", j: "Lourdes M. Mendoza", job: "Records · City Hall", i: "20 May", st: "hired" },
-  { s: "TC-2026-014744", j: "Patrick C. Yu", job: "CSR · Sykes", i: "18 May", st: "not_hired" },
-  { s: "TC-2026-014680", j: "Rene G. Galicia", job: "Driver · Cebu Pacific", i: "15 May", st: "expired" },
-];
+// Shape returned by GET /api/referrals (subset of fields actually consumed here).
+interface ApiReferral {
+  id: string;
+  applicant: string;
+  vacancy: string;
+  employer: string;
+  dateReferred: string | null;
+  status: "Pending" | "For Interview" | "Hired" | "Rejected" | "Withdrawn";
+  referralSlipNumber: string | null;
+}
+
+// Row shape consumed by the table JSX (unchanged from the original mock).
+interface SlipRow {
+  s: string;
+  j: string;
+  job: string;
+  i: string;
+  st: RefStatus;
+}
+
+function mapApiStatus(status: ApiReferral["status"]): RefStatus {
+  switch (status) {
+    case "Hired":
+      return "hired";
+    case "Rejected":
+    case "Withdrawn":
+      return "not_hired";
+    default:
+      return "issued";
+  }
+}
+
+const issuedDateFormatter = new Intl.DateTimeFormat("en-US", { day: "numeric", month: "short" });
+
+function formatIssued(value: string | null): string {
+  if (!value) return "—";
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return "—";
+  return issuedDateFormatter.format(date);
+}
+
+function adaptReferral(r: ApiReferral): SlipRow {
+  const slipNumber = r.referralSlipNumber ?? r.id;
+  const job = [r.vacancy, r.employer].filter(Boolean).join(" · ");
+  return {
+    s: slipNumber,
+    j: r.applicant,
+    job,
+    i: formatIssued(r.dateReferred),
+    st: mapApiStatus(r.status),
+  };
+}
 
 function Stat({ label, value, delta, helper, down }: { label: string; value: string; delta?: string; helper?: string; down?: boolean }) {
   return (
@@ -40,6 +86,12 @@ function Stat({ label, value, delta, helper, down }: { label: string; value: str
 export default function AdminReferralsPage() {
   const [validity, setValidity] = useState(1); // index 0..2
   const [filter, setFilter] = useState(0);
+
+  const { data: referralsData, isLoading } = useQuery<ApiReferral[]>({
+    queryKey: ["admin", "referrals", "list"],
+    queryFn: () => queryFetcher<ApiReferral[]>("/api/referrals"),
+  });
+  const slips: SlipRow[] = (referralsData ?? []).map(adaptReferral);
 
   return (
     <div className="gw" style={{ maxWidth: 1320 }}>
@@ -305,24 +357,38 @@ export default function AdminReferralsPage() {
               </tr>
             </thead>
             <tbody>
-              {SLIPS.map((r, i) => (
-                <tr
-                  key={r.s}
-                  style={{ borderBottom: i < SLIPS.length - 1 ? "1px solid var(--ink-7)" : "none", cursor: "pointer" }}
-                >
-                  <td style={{ padding: "12px 16px" }}>
-                    <Link href={`/referral/${r.s}`} style={{ color: "inherit", textDecoration: "none" }}>
-                      <span className="tx-mono" style={{ fontSize: 11.5, color: "var(--ink-2)" }}>{r.s}</span>
-                    </Link>
-                  </td>
-                  <td style={{ padding: "12px 16px" }}>{r.j}</td>
-                  <td style={{ padding: "12px 16px", color: "var(--ink-2)" }}>{r.job}</td>
-                  <td style={{ padding: "12px 16px", color: "var(--ink-3)", fontSize: 12.5 }}>{r.i}</td>
-                  <td style={{ padding: "12px 16px" }}>
-                    <Pill tone={REF_STATUS[r.st].tone}>{REF_STATUS[r.st].label}</Pill>
+              {isLoading ? (
+                <tr>
+                  <td colSpan={5} style={{ padding: "12px 16px", color: "var(--ink-3)", fontSize: 12.5 }}>
+                    Loading…
                   </td>
                 </tr>
-              ))}
+              ) : slips.length === 0 ? (
+                <tr>
+                  <td colSpan={5} style={{ padding: "12px 16px", color: "var(--ink-3)", fontSize: 12.5 }}>
+                    No referral slips yet
+                  </td>
+                </tr>
+              ) : (
+                slips.map((r, i) => (
+                  <tr
+                    key={r.s}
+                    style={{ borderBottom: i < slips.length - 1 ? "1px solid var(--ink-7)" : "none", cursor: "pointer" }}
+                  >
+                    <td style={{ padding: "12px 16px" }}>
+                      <Link href={`/referral/${r.s}`} style={{ color: "inherit", textDecoration: "none" }}>
+                        <span className="tx-mono" style={{ fontSize: 11.5, color: "var(--ink-2)" }}>{r.s}</span>
+                      </Link>
+                    </td>
+                    <td style={{ padding: "12px 16px" }}>{r.j}</td>
+                    <td style={{ padding: "12px 16px", color: "var(--ink-2)" }}>{r.job}</td>
+                    <td style={{ padding: "12px 16px", color: "var(--ink-3)", fontSize: 12.5 }}>{r.i}</td>
+                    <td style={{ padding: "12px 16px" }}>
+                      <Pill tone={REF_STATUS[r.st].tone}>{REF_STATUS[r.st].label}</Pill>
+                    </td>
+                  </tr>
+                ))
+              )}
             </tbody>
           </table>
         </div>

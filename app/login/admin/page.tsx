@@ -8,7 +8,6 @@ import { AuthShell } from "@/components/auth/auth-shell";
 import { Button } from "@/components/ui/button";
 import { PendingApprovalModal } from "@/components/auth/pending-approval-modal";
 import { createClient } from "@/lib/supabase-client";
-import { isDemoMode, setDemoRoleCookie } from "@/lib/demo-mode";
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -80,7 +79,6 @@ export default function AdminLoginPage() {
       if (error) {
         setError("Invalid admin credentials.");
       } else if (data.user) {
-        if (isDemoMode()) setDemoRoleCookie("admin");
         router.push("/admin/dashboard");
       }
     } catch (submitError) {

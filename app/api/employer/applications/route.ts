@@ -23,9 +23,17 @@ async function handleListEmployerApplications(
     offset: 0,
   };
 
+  // Embed the applicant (jobseekers) and job so the employer UI can show real
+  // names / NSRP IDs. Use an inner join only when searching by applicant, so
+  // the search actually filters the parent rows.
+  const jobseekerEmbed =
+    "jobseekers" +
+    (normalizedQuery.search ? "!inner" : "") +
+    "(id, first_name, last_name, middle_name, nsrp_id, city, province, profile_image)";
+
   let supabaseQuery = db
     .from("applications")
-    .select("*, jobs(position_title)", { count: "exact" })
+    .select(`*, jobs(position_title), ${jobseekerEmbed}`, { count: "exact" })
     .eq("employer_id", ctx.user.id);
 
   if (normalizedQuery.status) {
@@ -37,7 +45,11 @@ async function handleListEmployerApplications(
   }
 
   if (normalizedQuery.search) {
-    supabaseQuery = supabaseQuery.or(`applicant_name.ilike.%${normalizedQuery.search}%,applicant_email.ilike.%${normalizedQuery.search}%`);
+    const term = normalizedQuery.search;
+    supabaseQuery = supabaseQuery.or(
+      `first_name.ilike.%${term}%,last_name.ilike.%${term}%,nsrp_id.ilike.%${term}%`,
+      { foreignTable: "jobseekers" }
+    );
   }
 
   const { data: applications, count, error } = await supabaseQuery

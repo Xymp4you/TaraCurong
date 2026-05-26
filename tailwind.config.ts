@@ -17,10 +17,10 @@ const config: Config = {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter Tight", "Satoshi", ...defaultTheme.fontFamily.sans],
-        display: ["Inter Tight", "Satoshi", ...defaultTheme.fontFamily.sans],
-        serif: ["Source Serif 4", ...defaultTheme.fontFamily.serif],
-        mono: ["JetBrains Mono", ...defaultTheme.fontFamily.mono],
+        sans: ["var(--font-inter-tight)", ...defaultTheme.fontFamily.sans],
+        display: ["var(--font-inter-tight)", ...defaultTheme.fontFamily.sans],
+        serif: ["var(--font-source-serif)", ...defaultTheme.fontFamily.serif],
+        mono: ["var(--font-jetbrains-mono)", ...defaultTheme.fontFamily.mono],
       },
       colors: {
         border: "hsl(var(--border))",

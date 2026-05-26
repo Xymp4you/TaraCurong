@@ -59,10 +59,16 @@ export function PrivacyToc({ sections }: PrivacyTocProps) {
               <a
                 href={`#${section.id}`}
                 aria-current={isActive ? "location" : undefined}
-                className={
+                className="block rounded-md px-3 py-2 text-sm transition-colors"
+                style={
                   isActive
-                    ? "block rounded-md border border-blue-200 bg-blue-50 px-3 py-2 text-sm font-semibold text-blue-800"
-                    : "block rounded-md px-3 py-2 text-sm text-slate-600 transition-colors hover:bg-slate-100 hover:text-slate-900"
+                    ? {
+                        background: "var(--teal-4)",
+                        border: "1px solid var(--teal-3)",
+                        color: "var(--teal)",
+                        fontWeight: 600,
+                      }
+                    : { color: "var(--ink-3)" }
                 }
               >
                 {section.label}

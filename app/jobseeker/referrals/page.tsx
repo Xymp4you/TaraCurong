@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { Check, MoreHorizontal } from "lucide-react";
 import { Pill, type PillTone } from "@/components/gw/atoms";
 
@@ -15,11 +16,38 @@ const REF_STATUS: Record<RefStatus, { tone: PillTone; label: string }> = {
 
 type Slip = { num: string; job: string; emp: string; valid: string; status: RefStatus };
 
-const SLIPS: Slip[] = [
-  { num: "TC-2026-014872", job: "Bookkeeper", emp: "Dole Philippines, Inc.", valid: "06 Jun 2026", status: "issued" },
-  { num: "TC-2026-013904", job: "Records Officer", emp: "City Hall Tacurong", valid: "Hired 18 Apr", status: "hired" },
-  { num: "TC-2026-012211", job: "Office Clerk", emp: "Marigold Manpower", valid: "Expired 02 Apr", status: "expired" },
-];
+// Shape returned by GET /api/jobseeker/referrals
+interface ApiReferralSlip {
+  id: string;
+  slipNumber: string;
+  issuedAt: string | null;
+  validUntil: string | null;
+  status: string;
+  qrCodeUrl: string | null;
+  jobTitle: string;
+  employerName: string;
+  employerAddress: string;
+}
+
+const KNOWN_STATUSES: RefStatus[] = ["issued", "hired", "not_hired", "expired"];
+
+const toRefStatus = (status: string): RefStatus =>
+  (KNOWN_STATUSES as string[]).includes(status) ? (status as RefStatus) : "issued";
+
+const formatValid = (validUntil: string | null): string => {
+  if (!validUntil) return "—";
+  const date = new Date(validUntil);
+  if (Number.isNaN(date.getTime())) return "—";
+  return date.toLocaleDateString("en-GB", { day: "2-digit", month: "short", year: "numeric" });
+};
+
+const adaptSlip = (slip: ApiReferralSlip): Slip => ({
+  num: slip.slipNumber,
+  job: slip.jobTitle,
+  emp: slip.employerName,
+  valid: formatValid(slip.validUntil),
+  status: toRefStatus(slip.status),
+});
 
 function Stat({ label, value, delta, helper, down }: { label: string; value: string; delta?: string; helper?: string; down?: boolean }) {
   return (
@@ -37,6 +65,18 @@ function Stat({ label, value, delta, helper, down }: { label: string; value: str
 }
 
 export default function JobseekerReferralsPage() {
+  const { data, isLoading } = useQuery<{ slips: ApiReferralSlip[] }>({
+    queryKey: ["jobseeker", "referrals"],
+    queryFn: async () => {
+      const response = await fetch("/api/jobseeker/referrals");
+      if (!response.ok) throw new Error("Failed to fetch referrals");
+      return response.json();
+    },
+    staleTime: 1000 * 60 * 5,
+  });
+
+  const slips: Slip[] = (data?.slips ?? []).map(adaptSlip);
+
   return (
     <div className="gw" style={{ maxWidth: 1200 }}>
       <div style={{ marginBottom: 18 }}>
@@ -51,8 +91,17 @@ export default function JobseekerReferralsPage() {
         <Stat label="Expired" value="3" delta="awaiting reissue" down />
       </div>
 
+      {isLoading ? (
+        <div className="gw-card tx-body" style={{ padding: 24, color: "var(--ink-4)", textAlign: "center" }}>
+          Loading referral slips…
+        </div>
+      ) : slips.length === 0 ? (
+        <div className="gw-card tx-body" style={{ padding: 24, color: "var(--ink-4)", textAlign: "center" }}>
+          No referral slips yet
+        </div>
+      ) : (
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {SLIPS.map((s) => (
+        {slips.map((s) => (
           <div
             key={s.num}
             className="gw-card gw-card--hover"
@@ -127,6 +176,7 @@ export default function JobseekerReferralsPage() {
           </div>
         ))}
       </div>
+      )}
     </div>
   );
 }

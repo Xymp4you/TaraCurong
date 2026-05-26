@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { enforceRateLimit, getClientIp, getRequestId } from "@/lib/api-guardrails";
+import { db } from "@/lib/db";
 
 const defaultGeneralSettings = {
   siteName: "TaraCurong",
@@ -41,7 +42,26 @@ export async function GET(request: NextRequest) {
     );
   }
 
-  return NextResponse.json(defaultGeneralSettings, {
+  // Read the global "general" settings row (user_id/role null = site-wide)
+  // and merge it over the defaults. Defaults stand in until an admin saves
+  // overrides, so the response is always complete.
+  let settings: Record<string, unknown> = { ...defaultGeneralSettings };
+  try {
+    const { data } = await db
+      .from("settings")
+      .select("value")
+      .eq("key", "general")
+      .is("user_id", null)
+      .maybeSingle();
+
+    if (data?.value && typeof data.value === "object") {
+      settings = { ...defaultGeneralSettings, ...(data.value as Record<string, unknown>) };
+    }
+  } catch {
+    // Fall back to defaults if the settings store is unavailable.
+  }
+
+  return NextResponse.json(settings, {
     headers: {
       "X-Request-ID": requestId,
       "X-RateLimit-Remaining": String(rateLimit.remaining),

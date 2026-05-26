@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { Mail, MapPin, Phone, Clock, Globe, Send } from "lucide-react";
+import { SiteHeader } from "@/components/gw/site-header";
+import { SiteFooter } from "@/components/gw/site-footer";
 
 export const metadata = {
   title: "Contact Us | TaraCurong",
@@ -8,36 +10,59 @@ export const metadata = {
 
 export default function ContactPage() {
   return (
-    <main className="min-h-screen bg-slate-50 pb-20">
+    <div
+      className="gw"
+      style={{ background: "var(--paper)", minHeight: "100vh", fontFamily: "var(--font-ui)" }}
+    >
+      <SiteHeader />
+
       {/* Header Section */}
-      <section className="bg-blue-700 text-white py-20 px-4 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,_var(--tw-gradient-stops))] from-blue-500/20 via-transparent to-transparent opacity-50"></div>
-        <div className="max-w-6xl mx-auto text-center relative z-10">
-          <span className="inline-flex rounded-full bg-blue-600/50 px-3 py-1 text-sm font-semibold tracking-wide text-blue-100 ring-1 ring-inset ring-blue-500/30 mb-6">
-            Helpdesk & Support
-          </span>
-          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl lg:text-6xl mb-6">
+      <section
+        className="px-4 sm:px-8 lg:px-14 py-12 lg:py-[72px]"
+        style={{ background: "var(--surface)", borderBottom: "1px solid var(--ink-7)" }}
+      >
+        <div className="mx-auto text-center" style={{ maxWidth: 760 }}>
+          <div className="tx-eyebrow">Helpdesk & Support</div>
+          <h1
+            className="tx-h1 text-[28px] sm:text-[34px]"
+            style={{ marginTop: 8, lineHeight: 1.1, letterSpacing: "-0.028em", fontWeight: 500 }}
+          >
             Get in Touch
           </h1>
-          <p className="text-lg text-blue-100 max-w-2xl mx-auto leading-relaxed">
+          <p
+            className="tx-body"
+            style={{ marginTop: 12, color: "var(--ink-3)", marginLeft: "auto", marginRight: "auto", maxWidth: 560 }}
+          >
             Have questions or need assistance? Our TaraCurong team is here to help you navigate your employment journey.
           </p>
         </div>
       </section>
 
       {/* Main Content */}
-      <section className="max-w-6xl mx-auto px-4 py-12 sm:px-6 lg:px-8 -mt-12 relative z-10">
+      <section className="px-4 sm:px-8 lg:px-14 py-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          
+
           {/* Contact Info Cards */}
           <div className="lg:col-span-1 space-y-6">
-            <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex items-start space-x-4 transition-all hover:shadow-lg hover:border-blue-300">
-              <div className="bg-blue-100 text-blue-600 rounded-lg p-3 shrink-0">
+            <div className="gw-card flex items-start space-x-4" style={{ padding: 24 }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "var(--r-2)",
+                  background: "var(--teal-4)",
+                  color: "var(--teal)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
                 <MapPin className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 mb-2">Office Location</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">
+                <h3 className="tx-h4" style={{ marginBottom: 8 }}>Office Location</h3>
+                <p className="tx-caption" style={{ color: "var(--ink-4)" }}>
                   TaraCurong<br />
                   A community project by John Aerol Tapales<br />
                   Tacurong City, Sultan Kudarat
@@ -45,33 +70,65 @@ export default function ContactPage() {
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex items-start space-x-4 transition-all hover:shadow-lg hover:border-emerald-300">
-              <div className="bg-emerald-100 text-emerald-600 rounded-lg p-3 shrink-0">
+            <div className="gw-card flex items-start space-x-4" style={{ padding: 24 }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "var(--r-2)",
+                  background: "var(--emerald-bg)",
+                  color: "var(--emerald)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
                 <Clock className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 mb-2">Service Hours</h3>
-                <p className="text-slate-600 text-sm leading-relaxed">
+                <h3 className="tx-h4" style={{ marginBottom: 8 }}>Service Hours</h3>
+                <p className="tx-caption" style={{ color: "var(--ink-4)" }}>
                   Monday–Friday<br />
                   8:00 AM–5:00 PM<br />
-                  <span className="italic text-slate-500 font-medium">(Excluding public holidays)</span>
+                  <span style={{ fontStyle: "italic", color: "var(--ink-4)", fontWeight: 500 }}>(Excluding public holidays)</span>
                 </p>
               </div>
             </div>
 
-            <div className="bg-white rounded-2xl shadow-md border border-slate-200 p-6 flex items-start space-x-4 transition-all hover:shadow-lg hover:border-purple-300">
-              <div className="bg-purple-100 text-purple-600 rounded-lg p-3 shrink-0">
+            <div className="gw-card flex items-start space-x-4" style={{ padding: 24 }}>
+              <div
+                style={{
+                  width: 44,
+                  height: 44,
+                  borderRadius: "var(--r-2)",
+                  background: "var(--violet-bg)",
+                  color: "var(--violet)",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  flexShrink: 0,
+                }}
+              >
                 <Phone className="w-6 h-6" />
               </div>
               <div>
-                <h3 className="font-semibold text-slate-900 mb-3">Connect With Us</h3>
+                <h3 className="tx-h4" style={{ marginBottom: 12 }}>Connect With Us</h3>
                 <div className="space-y-3">
-                  <a href="mailto:helpdesk@taracurong.com" className="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
-                    <Mail className="w-4 h-4 mr-3 shrink-0 text-slate-400" />
+                  <a
+                    href="mailto:helpdesk@taracurong.com"
+                    className="tx-caption flex items-center"
+                    style={{ color: "var(--ink-3)", fontWeight: 500, textDecoration: "none" }}
+                  >
+                    <Mail className="w-4 h-4 mr-3 shrink-0" style={{ color: "var(--ink-5)" }} />
                     helpdesk@taracurong.com
                   </a>
-                  <a href="tel:+63644771234" className="flex items-center text-sm font-medium text-slate-600 hover:text-blue-600 transition-colors">
-                    <Phone className="w-4 h-4 mr-3 shrink-0 text-slate-400" />
+                  <a
+                    href="tel:+63644771234"
+                    className="tx-caption flex items-center"
+                    style={{ color: "var(--ink-3)", fontWeight: 500, textDecoration: "none" }}
+                  >
+                    <Phone className="w-4 h-4 mr-3 shrink-0" style={{ color: "var(--ink-5)" }} />
                     (064) 477-1234
                   </a>
                 </div>
@@ -79,14 +136,18 @@ export default function ContactPage() {
             </div>
 
             {/* Quick Access Box from original page */}
-            <div className="bg-gradient-to-br from-slate-900 to-slate-800 rounded-2xl shadow-lg border border-slate-700 p-6 text-white">
-              <h2 className="text-lg font-bold">Need quick access?</h2>
-              <p className="mt-2 text-sm text-slate-300 font-medium">Use the role-specific sign-up or login pages below.</p>
-              <div className="mt-6 flex flex-col gap-3">
-                <Link href="/login" className="rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-blue-500 text-center transition-colors">
+            <div className="gw-card" style={{ padding: 24, background: "var(--ink)", borderColor: "var(--ink-2)" }}>
+              <h2 className="tx-h4" style={{ color: "#fff" }}>Need quick access?</h2>
+              <p className="tx-caption" style={{ marginTop: 8, color: "var(--ink-5)" }}>Use the role-specific sign-up or login pages below.</p>
+              <div style={{ marginTop: 24, display: "flex", flexDirection: "column", gap: 12 }}>
+                <Link href="/login" className="gw-btn gw-btn--accent gw-btn--block" style={{ textAlign: "center" }}>
                   Login to Account
                 </Link>
-                <Link href="/signup/employer" className="rounded-lg border border-slate-600 bg-transparent px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-700 text-center transition-colors">
+                <Link
+                  href="/signup/employer"
+                  className="gw-btn gw-btn--block"
+                  style={{ textAlign: "center", border: "1px solid var(--ink-3)", color: "#fff", background: "transparent" }}
+                >
                   Employer Sign Up
                 </Link>
               </div>
@@ -94,41 +155,41 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Form & Messaging */}
-          <div className="lg:col-span-2 bg-white rounded-2xl shadow-md border border-slate-200 p-8 md:p-10">
-            <div className="mb-8 border-b border-slate-100 pb-8">
-              <h2 className="text-3xl font-extrabold text-slate-900 tracking-tight">Send us a Message</h2>
-              <p className="text-slate-600 mt-3 text-lg">
+          <div className="lg:col-span-2 gw-card" style={{ padding: 32 }}>
+            <div style={{ marginBottom: 32, paddingBottom: 32, borderBottom: "1px solid var(--ink-7)" }}>
+              <h2 className="tx-h2">Send us a Message</h2>
+              <p className="tx-body" style={{ marginTop: 12, color: "var(--ink-3)" }}>
                 Fill out the form below and our helpdesk team will get back to you as soon as possible.
               </p>
             </div>
-            
+
             <form className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div>
-                  <label htmlFor="first-name" className="block text-sm font-bold text-slate-700">First name</label>
-                  <div className="mt-2">
-                    <input type="text" name="first-name" id="first-name" className="block w-full rounded-lg border-0 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-4 py-3 bg-slate-50" placeholder="Juan" />
+                  <label htmlFor="first-name" className="gw-label">First name</label>
+                  <div style={{ marginTop: 8 }}>
+                    <input type="text" name="first-name" id="first-name" className="gw-input" placeholder="Juan" />
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="last-name" className="block text-sm font-bold text-slate-700">Last name</label>
-                  <div className="mt-2">
-                    <input type="text" name="last-name" id="last-name" className="block w-full rounded-lg border-0 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-4 py-3 bg-slate-50" placeholder="Dela Cruz" />
+                  <label htmlFor="last-name" className="gw-label">Last name</label>
+                  <div style={{ marginTop: 8 }}>
+                    <input type="text" name="last-name" id="last-name" className="gw-input" placeholder="Dela Cruz" />
                   </div>
                 </div>
               </div>
 
               <div>
-                <label htmlFor="email" className="block text-sm font-bold text-slate-700">Email address</label>
-                <div className="mt-2">
-                  <input type="email" name="email" id="email" className="block w-full rounded-lg border-0 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-4 py-3 bg-slate-50" placeholder="juan@example.com" />
+                <label htmlFor="email" className="gw-label">Email address</label>
+                <div style={{ marginTop: 8 }}>
+                  <input type="email" name="email" id="email" className="gw-input" placeholder="juan@example.com" />
                 </div>
               </div>
 
               <div>
-                <label htmlFor="subject" className="block text-sm font-bold text-slate-700">Subject</label>
-                <div className="mt-2">
-                  <select id="subject" name="subject" className="block w-full rounded-lg border-0 shadow-sm ring-1 ring-inset ring-slate-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-4 py-3 bg-slate-50 text-slate-900">
+                <label htmlFor="subject" className="gw-label">Subject</label>
+                <div style={{ marginTop: 8 }}>
+                  <select id="subject" name="subject" className="gw-input">
                     <option>General Inquiry</option>
                     <option>Job Seeker Assistance</option>
                     <option>Employer Onboarding</option>
@@ -138,14 +199,14 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-sm font-bold text-slate-700">Message</label>
-                <div className="mt-2">
-                  <textarea id="message" name="message" rows={5} className="block w-full rounded-lg border-0 shadow-sm ring-1 ring-inset ring-slate-300 placeholder:text-slate-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6 px-4 py-3 bg-slate-50" placeholder="How can we help you?"></textarea>
+                <label htmlFor="message" className="gw-label">Message</label>
+                <div style={{ marginTop: 8 }}>
+                  <textarea id="message" name="message" rows={5} className="gw-input" style={{ height: "auto", paddingTop: 10, paddingBottom: 10 }} placeholder="How can we help you?"></textarea>
                 </div>
               </div>
 
-              <div className="pt-4 flex justify-end">
-                <button type="button" className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-8 py-3.5 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 transition-all w-full sm:w-auto">
+              <div style={{ paddingTop: 16, display: "flex", justifyContent: "flex-end" }}>
+                <button type="button" className="gw-btn gw-btn--accent gw-btn--lg w-full sm:w-auto">
                   <Send className="w-4 h-4 mr-2" />
                   Send Message
                 </button>
@@ -155,6 +216,8 @@ export default function ContactPage() {
 
         </div>
       </section>
-    </main>
+
+      <SiteFooter />
+    </div>
   );
 }

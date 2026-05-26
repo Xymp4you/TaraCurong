@@ -1,7 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { useQuery } from "@tanstack/react-query";
 import { Bookmark, Briefcase, Building, ChevronDown, MapPin, Search, X } from "lucide-react";
 import { Pill, type PillTone } from "@/components/gw/atoms";
 
@@ -17,6 +19,7 @@ const JOB_STATUS: Record<JobStatus, { tone: PillTone; label: string }> = {
 };
 
 type Job = {
+  id: string;
   title: string;
   company: string;
   location: string;
@@ -24,18 +27,59 @@ type Job = {
   type: string;
   posted: string;
   status: JobStatus;
-  match: number;
   saved?: boolean;
 };
 
-const JOBS: Job[] = [
-  { title: "Bookkeeper", company: "Dole Philippines, Inc.", location: "Tacurong · On-site", salary: "₱18,000 – ₱24,000", type: "Full-time", posted: "2d ago", status: "active", match: 94, saved: true },
-  { title: "Junior Accountant", company: "Sultan Kudarat CPA", location: "Tacurong · On-site", salary: "₱20,000 – ₱28,000", type: "Full-time", posted: "Today", status: "active", match: 88 },
-  { title: "Account Assistant", company: "RD Pawnshop", location: "Tacurong · Hybrid", salary: "₱15,000 – ₱18,000", type: "Full-time", posted: "5h ago", status: "active", match: 86 },
-  { title: "Records Officer", company: "City Hall Tacurong", location: "City Hall · On-site", salary: "₱17,500 fixed", type: "Contract", posted: "1d ago", status: "active", match: 81 },
-  { title: "Office Clerk", company: "City Treasurer's Office", location: "City Hall · On-site", salary: "₱14,200 – ₱16,000", type: "Full-time", posted: "3d ago", status: "active", match: 76 },
-  { title: "Payroll Encoder", company: "Marigold Manpower", location: "Tacurong · Remote OK", salary: "₱22,000 – ₱30,000", type: "Full-time", posted: "1w ago", status: "active", match: 72 },
-];
+// Shape returned by GET /api/jobseeker/jobs
+type ApiJob = {
+  id: string;
+  positionTitle: string | null;
+  location: string | null;
+  city: string | null;
+  province: string | null;
+  employmentType: string | null;
+  startingSalary: string | null;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  salaryPeriod: string | null;
+  vacancies: number | null;
+  createdAt: string | null;
+  employerId: string | null;
+  establishmentName: string | null;
+  employerName: string | null;
+};
+
+type JobsResponse = {
+  jobs: ApiJob[];
+  data?: ApiJob[];
+  pagination?: { limit: number; offset: number; total: number; hasMore: boolean };
+};
+
+function formatPosted(iso: string | null): string {
+  if (!iso) return "Recently";
+  const days = Math.floor((Date.now() - new Date(iso).getTime()) / 86400000);
+  if (days < 1) return "Today";
+  if (days === 1) return "1d ago";
+  if (days < 7) return `${days}d ago`;
+  if (days < 30) return `${Math.floor(days / 7)}w ago`;
+  if (days < 365) return `${Math.floor(days / 30)}mo ago`;
+  return `${Math.floor(days / 365)}y ago`;
+}
+
+// Map the API job shape onto the existing JSX `Job` shape.
+function adaptJob(j: ApiJob): Job {
+  return {
+    id: j.id,
+    title: j.positionTitle ?? "Untitled role",
+    company: j.establishmentName ?? j.employerName ?? "Unknown employer",
+    location: j.location ?? "Tacurong",
+    salary: j.startingSalary ?? "Salary not specified",
+    type: j.employmentType ?? "—",
+    posted: formatPosted(j.createdAt),
+    // API only returns active/open jobs; no per-job status field is exposed.
+    status: "active",
+  };
+}
 
 const FILTERS = [
   { h: "Salary range", v: "₱15k – ₱35k", chips: ["₱20k +", "₱25k +", "₱35k +"] },
@@ -45,7 +89,7 @@ const FILTERS = [
 
 function JobCard({ j }: { j: Job }) {
   return (
-    <Link href={`/jobseeker/jobs/${encodeURIComponent(j.title)}`} style={{ textDecoration: "none", color: "inherit" }}>
+    <Link href={`/jobseeker/jobs/${encodeURIComponent(j.id)}`} style={{ textDecoration: "none", color: "inherit" }}>
       <div className="gw-card gw-card--hover" style={{ padding: 18, display: "flex", flexDirection: "column", gap: 12, cursor: "pointer", height: "100%" }}>
         <div style={{ display: "flex", alignItems: "flex-start", gap: 12 }}>
           <div
@@ -87,7 +131,6 @@ function JobCard({ j }: { j: Job }) {
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
           <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
             <Pill tone={JOB_STATUS[j.status].tone}>{JOB_STATUS[j.status].label}</Pill>
-            <span className="tx-micro tx-mono" style={{ color: "var(--ink-3)" }}>· {j.match}% match</span>
           </div>
           <span className="tx-micro" style={{ color: "var(--ink-4)" }}>{j.posted}</span>
         </div>
@@ -96,10 +139,37 @@ function JobCard({ j }: { j: Job }) {
   );
 }
 
-export default function JobseekerJobsPage() {
-  const [query, setQuery] = useState("");
+function JobseekerJobsContent() {
+  const searchParams = useSearchParams();
+  const urlQuery = searchParams?.get("q") ?? "";
+  // Landing page links here with ?category=; the API treats it as a text search term.
+  const urlCategory = searchParams?.get("category") ?? "";
+  const initialQuery = urlQuery || urlCategory;
+
+  const [query, setQuery] = useState(initialQuery);
   const [activeFilter, setActiveFilter] = useState("All");
   const chips = ["All", "Full-time", "Part-time", "Contract", "On-site", "Hybrid", "Remote"];
+
+  // Pass the typed query (or the incoming category) through as the API's text search.
+  const searchTerm = query.trim() || urlCategory.trim();
+  const typeFilter = activeFilter !== "All" ? activeFilter : "";
+
+  const { data, isLoading, isError } = useQuery<JobsResponse>({
+    queryKey: ["jobseeker", "jobs", { q: searchTerm, type: typeFilter }],
+    queryFn: async () => {
+      const params = new URLSearchParams();
+      if (searchTerm) params.set("q", searchTerm);
+      if (typeFilter) params.set("type", typeFilter);
+      const qs = params.toString();
+      const res = await fetch(`/api/jobseeker/jobs${qs ? `?${qs}` : ""}`);
+      if (!res.ok) throw new Error("Failed to load jobs");
+      return res.json();
+    },
+  });
+
+  const apiJobs = data?.jobs ?? data?.data ?? [];
+  const jobs = apiJobs.map(adaptJob);
+  const total = data?.pagination?.total ?? jobs.length;
 
   return (
     <div className="gw" style={{ maxWidth: 1320 }}>
@@ -182,15 +252,37 @@ export default function JobseekerJobsPage() {
         <div>
           <div style={{ display: "flex", alignItems: "center", marginBottom: 14 }}>
             <span className="tx-caption">
-              Showing <span className="tx-mono" style={{ color: "var(--ink)" }}>1–{JOBS.length}</span> of{" "}
-              <span className="tx-mono" style={{ color: "var(--ink)" }}>284</span> jobs in Tacurong
+              Showing <span className="tx-mono" style={{ color: "var(--ink)" }}>{jobs.length === 0 ? 0 : `1–${jobs.length}`}</span> of{" "}
+              <span className="tx-mono" style={{ color: "var(--ink)" }}>{total}</span> jobs in Tacurong
             </span>
           </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {JOBS.map((j) => <JobCard key={j.title} j={j} />)}
-          </div>
+          {isLoading ? (
+            <div className="gw-card tx-body" style={{ padding: 24, color: "var(--ink-4)", textAlign: "center" }}>
+              Loading jobs…
+            </div>
+          ) : isError ? (
+            <div className="gw-card tx-body" style={{ padding: 24, color: "var(--ink-4)", textAlign: "center" }}>
+              Couldn&apos;t load jobs. Please try again.
+            </div>
+          ) : jobs.length === 0 ? (
+            <div className="gw-card tx-body" style={{ padding: 24, color: "var(--ink-4)", textAlign: "center" }}>
+              No jobs found
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {jobs.map((j) => <JobCard key={j.id} j={j} />)}
+            </div>
+          )}
         </div>
       </div>
     </div>
+  );
+}
+
+export default function JobseekerJobsPage() {
+  return (
+    <Suspense fallback={null}>
+      <JobseekerJobsContent />
+    </Suspense>
   );
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useQuery } from "@tanstack/react-query";
 import { Plus, Sparkles } from "lucide-react";
 import { Pill, type PillTone } from "@/components/gw/atoms";
 
@@ -15,26 +16,86 @@ const JOB_STATUS: Record<JobStatus, { tone: PillTone; label: string }> = {
   suspended: { tone: "rose", label: "Suspended" },
 };
 
-const FUNNEL = [
-  { l: "Applied", n: 142, w: 100 },
-  { l: "Reviewed", n: 87, w: 61 },
-  { l: "Shortlisted", n: 34, w: 24 },
-  { l: "Interview", n: 12, w: 8.5 },
-  { l: "Hired", n: 5, w: 3.5 },
+// ---------------------------------------------------------------------------
+// API types + adapters (data source only — no UI shape changes)
+// ---------------------------------------------------------------------------
+
+type ApiEnvelope<T> = { success: boolean; data: T };
+
+// Application statuses that map onto the hiring funnel stages.
+const FUNNEL_STAGES: { status: string; label: string }[] = [
+  { status: "pending", label: "Applied" },
+  { status: "reviewed", label: "Reviewed" },
+  { status: "shortlisted", label: "Shortlisted" },
+  { status: "interview", label: "Interview" },
+  { status: "hired", label: "Hired" },
 ];
 
-const TOP_MATCHES = [
-  { n: "Juan M. Cruz", b: "5y · bookkeeping · QuickBooks", m: 94, ini: "JC" },
-  { n: "Andrea L. Sanchez", b: "3y · payroll · Tacurong", m: 91, ini: "AS" },
-  { n: "Mark T. Reyes", b: "4y · BIR filing · CPA board", m: 89, ini: "MR" },
-  { n: "Cristina P. Dela Cruz", b: "6y · finance team lead", m: 85, ini: "CD" },
-];
+type FunnelRow = { l: string; n: number; w: number };
 
-const ACTIVE_JOBS: { t: string; n: number; h: number; p: string; s: JobStatus }[] = [
-  { t: "Bookkeeper", n: 47, h: 1, p: "Posted 2d ago", s: "active" },
-  { t: "Forklift Operator (×3)", n: 28, h: 2, p: "Posted 1w ago", s: "active" },
-  { t: "QA Supervisor", n: 18, h: 0, p: "Closing 30 May", s: "active" },
-];
+async function fetchFunnel(): Promise<FunnelRow[]> {
+  // The applications endpoint has no dedicated funnel route, so we derive
+  // stage counts by reading pagination.total for each status filter.
+  const counts = await Promise.all(
+    FUNNEL_STAGES.map(async (stage) => {
+      const res = await fetch(
+        `/api/employer/applications?status=${stage.status}&limit=1&offset=0`
+      );
+      if (!res.ok) throw new Error("Failed to fetch applications funnel");
+      const json: ApiEnvelope<{ pagination: { total: number } }> = await res.json();
+      return json.data?.pagination?.total ?? 0;
+    })
+  );
+
+  const top = counts[0] ?? 0;
+  return FUNNEL_STAGES.map((stage, i) => {
+    const n = counts[i] ?? 0;
+    return {
+      l: stage.label,
+      n,
+      // Width is relative to the top-of-funnel count; falls back to 0 when empty.
+      w: top > 0 ? (n / top) * 100 : 0,
+    };
+  });
+}
+
+type ApiJob = {
+  positionTitle?: string;
+  position_title?: string;
+  status?: string;
+  job_status?: string;
+  createdAt?: string | null;
+  created_at?: string | null;
+};
+
+type ActiveJobRow = { t: string; p: string; s: JobStatus };
+
+function postedLabel(createdAt?: string | null): string {
+  if (!createdAt) return "Recently posted";
+  const created = new Date(createdAt).getTime();
+  if (Number.isNaN(created)) return "Recently posted";
+  const days = Math.floor((Date.now() - created) / (1000 * 60 * 60 * 24));
+  if (days <= 0) return "Posted today";
+  if (days === 1) return "Posted 1d ago";
+  if (days < 7) return `Posted ${days}d ago`;
+  const weeks = Math.floor(days / 7);
+  return weeks === 1 ? "Posted 1w ago" : `Posted ${weeks}w ago`;
+}
+
+function toJobStatus(value?: string): JobStatus {
+  return value && value in JOB_STATUS ? (value as JobStatus) : "active";
+}
+
+async function fetchActiveJobs(): Promise<ActiveJobRow[]> {
+  const res = await fetch("/api/employer/jobs?status=active&limit=100&offset=0");
+  if (!res.ok) throw new Error("Failed to fetch jobs");
+  const json: ApiEnvelope<{ jobs: ApiJob[] }> = await res.json();
+  return (json.data?.jobs ?? []).map((job) => ({
+    t: job.positionTitle ?? job.position_title ?? "Untitled role",
+    p: postedLabel(job.createdAt ?? job.created_at),
+    s: toJobStatus(job.status ?? job.job_status),
+  }));
+}
 
 function Stat({ label, value, delta, helper, down }: { label: string; value: string; delta?: string; helper?: string; down?: boolean }) {
   return (
@@ -52,6 +113,18 @@ function Stat({ label, value, delta, helper, down }: { label: string; value: str
 }
 
 export default function EmployerDashboardPage() {
+  const { data: funnel, isLoading: funnelLoading } = useQuery<FunnelRow[]>({
+    queryKey: ["employer", "dashboard", "funnel"],
+    queryFn: fetchFunnel,
+    staleTime: 1000 * 60,
+  });
+
+  const { data: activeJobs, isLoading: jobsLoading } = useQuery<ActiveJobRow[]>({
+    queryKey: ["employer", "dashboard", "active-jobs"],
+    queryFn: fetchActiveJobs,
+    staleTime: 1000 * 60,
+  });
+
   return (
     <div className="gw" style={{ maxWidth: 1320 }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24, gap: 16, flexWrap: "wrap" }}>
@@ -91,7 +164,13 @@ export default function EmployerDashboardPage() {
           </div>
 
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            {FUNNEL.map((s) => (
+            {funnelLoading && (
+              <div className="tx-caption" style={{ color: "var(--ink-4)" }}>Loading funnel…</div>
+            )}
+            {!funnelLoading && (funnel ?? []).every((s) => s.n === 0) && (
+              <div className="tx-caption" style={{ color: "var(--ink-4)" }}>No applications yet.</div>
+            )}
+            {(funnel ?? []).map((s) => (
               <div key={s.l} style={{ display: "flex", alignItems: "center", gap: 16 }}>
                 <div style={{ width: 90 }}>
                   <div className="tx-h4" style={{ fontSize: 13 }}>{s.l}</div>
@@ -171,50 +250,9 @@ export default function EmployerDashboardPage() {
               <Sparkles size={10} /> AI
             </Pill>
           </div>
-          {TOP_MATCHES.map((p, i) => (
-            <div
-              key={p.n}
-              style={{
-                padding: "12px 0",
-                borderTop: i === 0 ? "none" : "1px solid var(--ink-7)",
-                display: "flex",
-                alignItems: "center",
-                gap: 12,
-              }}
-            >
-              <div
-                style={{
-                  width: 30,
-                  height: 30,
-                  borderRadius: "50%",
-                  background: i === 0 ? "var(--violet-bg)" : "var(--paper-2)",
-                  color: i === 0 ? "var(--violet)" : "var(--ink-2)",
-                  display: "grid",
-                  placeItems: "center",
-                  font: "600 11px/1 var(--font-ui)",
-                  border: "1px solid var(--ink-7)",
-                }}
-              >
-                {p.ini}
-              </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <div className="tx-h4" style={{ fontSize: 13.5 }}>{p.n}</div>
-                <div className="tx-micro" style={{ marginTop: 2 }}>{p.b}</div>
-              </div>
-              <div
-                className="tx-mono"
-                style={{
-                  padding: "3px 8px",
-                  borderRadius: 999,
-                  background: "var(--violet-bg)",
-                  color: "var(--violet)",
-                  fontSize: 11.5,
-                }}
-              >
-                {p.m}%
-              </div>
-            </div>
-          ))}
+          <div className="tx-caption" style={{ padding: "12px 0", color: "var(--ink-4)" }}>
+            Open a specific job in the matching console to see AI-ranked candidates.
+          </div>
           <Link href="/employer/matching">
             <button type="button" className="gw-btn gw-btn--ghost gw-btn--block" style={{ marginTop: 14 }}>
               Open AI matching console
@@ -234,8 +272,14 @@ export default function EmployerDashboardPage() {
             Manage all jobs
           </Link>
         </div>
+        {jobsLoading && (
+          <div className="tx-caption" style={{ color: "var(--ink-4)" }}>Loading jobs…</div>
+        )}
+        {!jobsLoading && (activeJobs ?? []).length === 0 && (
+          <div className="tx-caption" style={{ color: "var(--ink-4)" }}>No active jobs yet.</div>
+        )}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-          {ACTIVE_JOBS.map((j) => (
+          {(activeJobs ?? []).map((j) => (
             <div key={j.t} style={{ padding: 16, border: "1px solid var(--ink-7)", borderRadius: "var(--r-3)" }}>
               <div
                 style={{
@@ -254,11 +298,11 @@ export default function EmployerDashboardPage() {
               <div style={{ display: "flex", gap: 16 }}>
                 <div>
                   <div className="tx-micro" style={{ color: "var(--ink-3)" }}>Applicants</div>
-                  <div className="tx-h3 tx-mono" style={{ marginTop: 2 }}>{j.n}</div>
+                  <div className="tx-h3 tx-mono" style={{ marginTop: 2 }}>—</div>
                 </div>
                 <div>
                   <div className="tx-micro" style={{ color: "var(--ink-3)" }}>Hired</div>
-                  <div className="tx-h3 tx-mono" style={{ marginTop: 2, color: "var(--emerald)" }}>{j.h}</div>
+                  <div className="tx-h3 tx-mono" style={{ marginTop: 2, color: "var(--emerald)" }}>—</div>
                 </div>
               </div>
             </div>

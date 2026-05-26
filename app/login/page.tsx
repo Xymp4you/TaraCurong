@@ -6,7 +6,6 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Seal } from "@/components/gw/atoms";
 import { createClient } from "@/lib/supabase-client";
-import { isDemoMode, setDemoRoleCookie } from "@/lib/demo-mode";
 
 type UserRole = "jobseeker" | "employer" | "admin";
 
@@ -83,7 +82,6 @@ function LoginContent() {
       if (authError) {
         setError(getFriendlyAuthError(authError.message));
       } else if (data.user) {
-        if (isDemoMode()) setDemoRoleCookie(role === "admin" ? "jobseeker" : role);
         const dashboardPaths: Record<Exclude<UserRole, "admin">, string> = {
           employer: "/employer/dashboard",
           jobseeker: "/jobseeker/dashboard",

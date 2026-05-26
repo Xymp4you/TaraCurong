@@ -1,42 +1,9 @@
 import { createServerClient, type CookieOptions } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
-import { DEMO_ROLE_COOKIE, isDemoMode } from './demo-mode'
-import { readServerCookieRole } from './supabase-mock'
 
 export async function updateSession(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
-  // ---- Demo mode: no real Supabase. Read role from a cookie. ----
-  if (isDemoMode()) {
-    const role = readServerCookieRole(request.cookies.get(DEMO_ROLE_COOKIE)?.value)
-    const finalRole = role ?? null
-
-    console.log(`[Middleware:demo] Path: ${pathname} | Role: ${finalRole}`)
-
-    const redirectToLogin = (target: string) =>
-      NextResponse.redirect(new URL(target, request.url))
-
-    if (pathname.startsWith('/jobseeker') && finalRole !== 'jobseeker') {
-      return redirectToLogin('/login?role=jobseeker')
-    }
-    if (pathname.startsWith('/employer') && finalRole !== 'employer') {
-      return redirectToLogin('/login?role=employer')
-    }
-    if (pathname.startsWith('/admin') && finalRole !== 'admin') {
-      return redirectToLogin('/login/admin')
-    }
-
-    if (finalRole && (pathname === '/login' || pathname === '/signup' || pathname === '/')) {
-      const dashboardPath = finalRole === 'admin' ? '/admin/dashboard'
-        : finalRole === 'employer' ? '/employer/dashboard'
-        : '/jobseeker/dashboard'
-      return NextResponse.redirect(new URL(dashboardPath, request.url))
-    }
-
-    return NextResponse.next({ request })
-  }
-
-  // ---- Real Supabase path ----
   let response = NextResponse.next({
     request,
   })
@@ -96,10 +63,17 @@ export async function updateSession(request: NextRequest) {
     }
   )
 
-  const { data: { user } } = await supabase.auth.getUser()
+  // getClaims() verifies the JWT locally (WebCrypto) when the project uses
+  // asymmetric signing keys — no network round-trip per navigation like
+  // getUser(). Falls back to a network verify with legacy symmetric secrets.
+  const { data: claimsData } = await supabase.auth.getClaims()
+  const claims = claimsData?.claims as
+    | { sub?: string; user_metadata?: Record<string, string | undefined> }
+    | undefined
+  const user = claims?.sub ? { id: claims.sub } : null
 
-  // Get role from metadata first, then fall back to database if needed
-  let role = user?.user_metadata?.role
+  // Get role from JWT metadata first, then fall back to database if needed
+  let role = claims?.user_metadata?.role
 
   if (user && !role) {
     const { data: userData } = await supabase

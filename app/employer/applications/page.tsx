@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { ChevronDown, ChevronLeft, ChevronRight, Download, Sparkles, Shield as ShieldIcon, X } from "lucide-react";
 import { Pill, type PillTone } from "@/components/gw/atoms";
 
@@ -15,31 +16,118 @@ const APP_STATUS: Record<AppStatus, { tone: PillTone; label: string }> = {
   withdrawn: { tone: "slate", label: "Withdrawn" },
 };
 
-type Row = { ini: string; n: string; w: string; m: number; d: string; s: AppStatus; selected?: boolean };
+type Row = { id: string; ini: string; n: string; w: string; m: number; d: string; s: AppStatus; nsrp: string | null; selected?: boolean };
 
-const ROWS: Row[] = [
-  { ini: "JC", n: "Juan M. Cruz", w: "5y · Tacurong", m: 94, d: "12 May", s: "interview", selected: true },
-  { ini: "AS", n: "Andrea L. Sanchez", w: "3y · Koronadal", m: 91, d: "10 May", s: "shortlisted" },
-  { ini: "MR", n: "Mark T. Reyes", w: "4y · Tacurong", m: 89, d: "08 May", s: "shortlisted" },
-  { ini: "CD", n: "Cristina P. Dela Cruz", w: "6y · Tacurong", m: 85, d: "07 May", s: "under_review" },
-  { ini: "RG", n: "Rene G. Galicia", w: "2y · Sarangani", m: 82, d: "06 May", s: "under_review" },
-  { ini: "LM", n: "Lourdes M. Mendoza", w: "4y · Tacurong", m: 78, d: "05 May", s: "under_review" },
-  { ini: "PC", n: "Patrick C. Yu", w: "1y · Tacurong", m: 71, d: "03 May", s: "submitted" },
-  { ini: "VB", n: "Victoria B. Lee", w: "8y · Davao", m: 68, d: "01 May", s: "rejected" },
-];
+// Shape returned by GET /api/employer/applications (a row from the `applications`
+// table plus nested jobs(position_title) and jobseekers(...) joins).
+interface ApiApplication {
+  id: string;
+  job_id: string | null;
+  jobseeker_id: string | null;
+  employer_id: string | null;
+  status: string | null;
+  match_score: number | null;
+  submitted_at: string | null;
+  created_at: string | null;
+  jobs?: { position_title: string | null } | null;
+  jobseekers?: {
+    id: string;
+    first_name: string | null;
+    last_name: string | null;
+    middle_name: string | null;
+    nsrp_id: string | null;
+    city: string | null;
+    province: string | null;
+  } | null;
+}
 
-const FILTERS = [
-  { l: "All", n: 47, active: true },
-  { l: "New", n: 12 },
-  { l: "Under review", n: 18 },
-  { l: "Shortlisted", n: 11 },
-  { l: "Interview", n: 3 },
-  { l: "Hired", n: 1 },
-];
+interface ApplicationsApiResponse {
+  success: boolean;
+  data: {
+    applications: ApiApplication[];
+    pagination: { limit: number; offset: number; total: number; hasMore: boolean };
+  };
+}
+
+// API/DB status enum -> UI AppStatus enum.
+const API_STATUS_TO_UI: Record<string, AppStatus> = {
+  pending: "submitted",
+  submitted: "submitted",
+  reviewed: "under_review",
+  under_review: "under_review",
+  shortlisted: "shortlisted",
+  interview: "interview",
+  hired: "hired",
+  rejected: "rejected",
+  withdrawn: "withdrawn",
+};
+
+const formatApplied = (iso: string | null): string => {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  return d.toLocaleDateString("en-US", { day: "2-digit", month: "short" });
+};
+
+// Typed adapter: API applicant shape -> table Row shape the JSX expects.
+// Applicant name / initials / nsrp_id come from the joined jobseekers row.
+// Experience (years) lives in a separate table and isn't fetched here, so it
+// stays a neutral placeholder rather than a fabricated value.
+const toRow = (a: ApiApplication): Row => {
+  const s = API_STATUS_TO_UI[a.status ?? ""] ?? "submitted";
+  const js = a.jobseekers;
+  const fullName = js
+    ? [js.first_name, js.last_name].filter(Boolean).join(" ").trim()
+    : "";
+  const initials = fullName
+    ? fullName.split(/\s+/).map((p) => p[0]).slice(0, 2).join("").toUpperCase()
+    : "—";
+  return {
+    id: a.id,
+    ini: initials,
+    n: fullName || "Applicant",
+    w: "—",
+    m: typeof a.match_score === "number" ? Math.round(a.match_score) : 0,
+    d: formatApplied(a.submitted_at ?? a.created_at),
+    s,
+    nsrp: js?.nsrp_id ?? null,
+  };
+};
 
 export default function EmployerApplicationsPage() {
   const [activeRow, setActiveRow] = useState(0);
-  const sel = ROWS[activeRow];
+
+  const { data, isLoading } = useQuery<ApplicationsApiResponse>({
+    queryKey: ["employer", "applications"],
+    queryFn: async () => {
+      const response = await fetch("/api/employer/applications");
+      if (!response.ok) throw new Error("Failed to fetch applications");
+      return response.json();
+    },
+    staleTime: 1000 * 60 * 2,
+  });
+
+  const ROWS = useMemo<Row[]>(
+    () => (data?.data?.applications ?? []).map(toRow),
+    [data]
+  );
+
+  // Derive filter chip counts by grouping applications on (UI) status.
+  const FILTERS = useMemo(() => {
+    const count = (pred: (s: AppStatus) => boolean) =>
+      ROWS.filter((r) => pred(r.s)).length;
+    return [
+      { l: "All", n: ROWS.length, active: true },
+      { l: "New", n: count((s) => s === "submitted") },
+      { l: "Under review", n: count((s) => s === "under_review") },
+      { l: "Shortlisted", n: count((s) => s === "shortlisted") },
+      { l: "Interview", n: count((s) => s === "interview") },
+      { l: "Hired", n: count((s) => s === "hired") },
+    ];
+  }, [ROWS]);
+
+  const EMPTY_ROW: Row = { id: "", ini: "—", n: "—", w: "—", m: 0, d: "—", s: "submitted", nsrp: null };
+  const sel = ROWS[activeRow] ?? EMPTY_ROW;
 
   return (
     <div className="gw" style={{ display: "flex", gap: 0, height: "calc(100vh - 56px)", maxWidth: "100%", marginInline: "-24px" }}>
@@ -127,11 +215,25 @@ export default function EmployerApplicationsPage() {
               </tr>
             </thead>
             <tbody>
-              {ROWS.map((r, i) => {
+              {isLoading && (
+                <tr>
+                  <td colSpan={6} style={{ padding: "32px 16px", textAlign: "center", color: "var(--ink-3)", fontSize: 13 }}>
+                    Loading applicants…
+                  </td>
+                </tr>
+              )}
+              {!isLoading && ROWS.length === 0 && (
+                <tr>
+                  <td colSpan={6} style={{ padding: "32px 16px", textAlign: "center", color: "var(--ink-4)", fontSize: 13 }}>
+                    No applicants yet
+                  </td>
+                </tr>
+              )}
+              {!isLoading && ROWS.map((r, i) => {
                 const isActive = i === activeRow;
                 return (
                   <tr
-                    key={r.n}
+                    key={r.id}
                     onClick={() => setActiveRow(i)}
                     style={{
                       borderBottom: i < ROWS.length - 1 ? "1px solid var(--ink-7)" : "none",
@@ -158,7 +260,7 @@ export default function EmployerApplicationsPage() {
                         </div>
                         <div>
                           <div className="tx-h4" style={{ fontSize: 13.5 }}>{r.n}</div>
-                          <div className="tx-micro">NSRP-2026-000{(182 + i).toString().padStart(3, "0")}</div>
+                          <div className="tx-micro">{r.nsrp ?? "—"}</div>
                         </div>
                       </div>
                     </td>
@@ -281,7 +383,7 @@ export default function EmployerApplicationsPage() {
               <div className="tx-h2">{sel.n}</div>
               <div className="tx-caption" style={{ marginTop: 2 }}>29 yrs · Male · Tacurong</div>
               <div className="tx-mono" style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 4 }}>
-                NSRP-2026-000{(182 + activeRow).toString().padStart(3, "0")}
+                {sel.nsrp ?? "—"}
               </div>
             </div>
           </div>
