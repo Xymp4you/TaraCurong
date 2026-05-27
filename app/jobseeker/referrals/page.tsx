@@ -75,7 +75,22 @@ export default function JobseekerReferralsPage() {
     staleTime: 1000 * 60 * 5,
   });
 
-  const slips: Slip[] = (data?.slips ?? []).map(adaptSlip);
+  const rawSlips = data?.slips ?? [];
+  const slips: Slip[] = rawSlips.map(adaptSlip);
+
+  // Derived stat tiles (from the real slip data).
+  const now = Date.now();
+  const isFuture = (d: string | null) =>
+    !!d && !Number.isNaN(new Date(d).getTime()) && new Date(d).getTime() > now;
+  const totalIssued = rawSlips.length;
+  const hiredCount = rawSlips.filter((s) => toRefStatus(s.status) === "hired").length;
+  const expiredCount = rawSlips.filter(
+    (s) => toRefStatus(s.status) === "expired" || (!!s.validUntil && !isFuture(s.validUntil))
+  ).length;
+  const validNow = rawSlips.filter(
+    (s) => isFuture(s.validUntil) && !["hired", "not_hired", "expired"].includes(toRefStatus(s.status))
+  ).length;
+  const hireRate = totalIssued > 0 ? Math.round((hiredCount / totalIssued) * 100) : 0;
 
   return (
     <div className="gw" style={{ maxWidth: 1200 }}>
@@ -85,10 +100,10 @@ export default function JobseekerReferralsPage() {
       </div>
 
       <div style={{ display: "flex", gap: 14, marginBottom: 24 }}>
-        <Stat label="Total issued" value="6" />
-        <Stat label="Valid right now" value="1" delta="6 days left" helper="exp. 06 Jun" />
-        <Stat label="Resulted in hire" value="1" delta="17% rate" />
-        <Stat label="Expired" value="3" delta="awaiting reissue" down />
+        <Stat label="Total issued" value={String(totalIssued)} />
+        <Stat label="Valid right now" value={String(validNow)} />
+        <Stat label="Resulted in hire" value={String(hiredCount)} delta={totalIssued > 0 ? `${hireRate}% rate` : undefined} />
+        <Stat label="Expired" value={String(expiredCount)} down />
       </div>
 
       {isLoading ? (

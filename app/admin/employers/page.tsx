@@ -38,27 +38,22 @@ export default function AdminEmployersPage() {
     setLoading(true);
     setError("");
     try {
-      const responses = await Promise.all(
-        STATUS_FILTERS.map((status) =>
-          fetch(`/api/admin/employers?status=${status}`, { cache: "no-store" }).then((response) => ({ status, response }))
-        )
-      );
-
-      const failed = responses.find((item) => !item.response.ok);
-      if (failed) {
+      // Fetch the full set once; deriving per-status counts/filters client-side
+      // avoids the duplication that came from merging an "all" fetch with the
+      // individual-status fetches.
+      const response = await fetch(`/api/admin/employers?status=all`, { cache: "no-store" });
+      if (!response.ok) {
         setError("Unable to load employers");
+        setAllEmployers([]);
         setEmployers([]);
         return;
       }
 
-      const merged: Employer[] = [];
-      for (const item of responses) {
-        const payload = (await item.response.json()) as { employers: Employer[] };
-        merged.push(...(payload.employers ?? []));
-      }
+      const payload = (await response.json()) as { employers: Employer[] };
+      const all = payload.employers ?? [];
 
-      setAllEmployers(merged);
-      setEmployers(statusFilter === "all" ? merged : merged.filter((employer) => employer.accountStatus === statusFilter));
+      setAllEmployers(all);
+      setEmployers(statusFilter === "all" ? all : all.filter((employer) => employer.accountStatus === statusFilter));
     } finally {
       setLoading(false);
     }

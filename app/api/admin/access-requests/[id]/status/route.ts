@@ -64,7 +64,7 @@ export async function PATCH(
 
     const existing = await supabaseAdmin
       .from("admin_access_requests")
-      .select("id, email")
+      .select("id, email, name")
       .eq("id", id)
       .single();
 
@@ -95,6 +95,56 @@ export async function PATCH(
         { error: "Access request not found", requestId },
         { status: 404 }
       );
+    }
+
+    // Fulfillment: approving a request must actually provision an admin, or the
+    // approved person still can't log in. Promote their auth user to role=admin
+    // and create the admins profile row the admin login callback checks.
+    if (parsed.data.status === "approved") {
+      try {
+        const reqEmail = existing.data.email.toLowerCase();
+        const reqName = existing.data.name || reqEmail;
+        const list = await supabaseAdmin.auth.admin.listUsers({ page: 1, perPage: 1000 });
+        const authUser = list.data?.users?.find(
+          (u) => u.email?.toLowerCase() === reqEmail
+        );
+
+        if (authUser) {
+          await supabaseAdmin.auth.admin.updateUserById(authUser.id, {
+            user_metadata: { ...authUser.user_metadata, role: "admin" },
+          });
+          await supabaseAdmin.from("admins").upsert(
+            {
+              id: authUser.id,
+              email: reqEmail,
+              name: reqName,
+              password_hash: "auth_managed",
+              role: "admin",
+              is_active: true,
+            },
+            { onConflict: "id" }
+          );
+        } else {
+          // No auth account yet — create the admins row by email; the role
+          // metadata is set on first admin login (callback/admin).
+          const existingAdmin = await supabaseAdmin
+            .from("admins")
+            .select("id")
+            .eq("email", reqEmail)
+            .maybeSingle();
+          if (!existingAdmin.data) {
+            await supabaseAdmin.from("admins").insert({
+              email: reqEmail,
+              name: reqName,
+              password_hash: "auth_managed",
+              role: "admin",
+              is_active: true,
+            });
+          }
+        }
+      } catch (provisionError) {
+        console.error("Admin provisioning failed:", { requestId, provisionError });
+      }
     }
 
     const matchedUser = await supabaseAdmin

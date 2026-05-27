@@ -64,11 +64,6 @@ export const PUT = createPutHandler<EmployerProfileUpdateBody>(
     const dbPayload: Record<string, any> = {};
     for (const [key, value] of Object.entries(body)) {
       if (value !== undefined) {
-        // Special case for BIR 2303 naming mismatch
-        if (key === "bir2303File") {
-          dbPayload["bir_2303_file"] = value;
-          continue;
-        }
         const snakeKey = key.replace(/[A-Z]/g, letter => `_${letter.toLowerCase()}`);
         dbPayload[snakeKey] = value;
       }

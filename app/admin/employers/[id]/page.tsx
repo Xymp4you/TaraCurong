@@ -204,7 +204,6 @@ export default function AdminViewEmployerProfilePage() {
             <Card className="p-6 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               <InfoItem label="Establishment Name" value={profile.establishment_name} icon={Building} />
               <InfoItem label="Acronym/Abbreviation" value={profile.acronym_abbreviation} />
-              <InfoItem label="Tax ID (TIN)" value={profile.company_tax_id || profile.tin} icon={Hash} />
               <InfoItem label="Industry" value={profile.industry || profile.industry_code?.join(", ")} icon={Briefcase} />
               <InfoItem label="Type of Establishment" value={profile.type_of_establishment} />
               <InfoItem label="Total Work Force" value={profile.total_paid_employees || profile.total_work_force} icon={Users} />
@@ -229,68 +228,13 @@ export default function AdminViewEmployerProfilePage() {
             </Card>
           </section>
 
-          {/* Section: Compliance / Files */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-3 text-slate-900">
-              <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
-                <Shield className="h-4 w-4" />
-              </div>
-              <h3 className="text-lg font-bold">III. Compliance & Legal Documents</h3>
-            </div>
-            <Card className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <FileItem label="BIR 2303" subtitle="Registration Certificate" fileUrl={profile.bir_2303_file} />
-                <FileItem label="Business Permit" subtitle="Mayor's Permit / LGU" fileUrl={profile.business_permit_file} />
-                <FileItem label="DOLE Certification" subtitle="Registration File" fileUrl={profile.dole_certification_file} />
-                <FileItem label="Company Profile" subtitle="Company Overview" fileUrl={profile.company_profile_file} />
-              </div>
-
-              <div className="pt-6 border-t border-slate-100">
-                <div className="flex items-center justify-between p-4 bg-slate-900 rounded-2xl text-white">
-                  <div className="flex items-center gap-4">
-                    <div className="h-12 w-12 bg-white/10 rounded-xl flex items-center justify-center">
-                      <Globe className="h-6 w-6 text-violet-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold">SRS Subscription Status</p>
-                      <p className="text-xs text-slate-400">Profile Status</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {profile.srs_subscriber_intent || profile.is_srs_subscribed ? (
-                      <span className="px-3 py-1 bg-emerald-500 text-white text-[10px] font-bold rounded-full uppercase tracking-widest shadow-lg shadow-emerald-500/20">Subscribed</span>
-                    ) : (
-                      <span className="px-3 py-1 bg-slate-700 text-slate-400 text-[10px] font-bold rounded-full uppercase tracking-widest border border-white/5">Not Opted In</span>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </Card>
-          </section>
-
-          {/* Section: SRS Footer / Certification */}
-          <section className="space-y-4">
-            <div className="flex items-center gap-3 text-slate-900">
-              <div className="h-8 w-8 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
-                <CheckCircle2 className="h-4 w-4" />
-              </div>
-              <h3 className="text-lg font-bold">IV. Profile Certification</h3>
-            </div>
-            <Card className="p-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-              <InfoItem label="Prepared By" value={profile.srs_prepared_by} />
-              <InfoItem label="Designation" value={profile.srs_prepared_designation} />
-              <InfoItem label="Date Prepared" value={profile.srs_prepared_date ? formatDate(profile.srs_prepared_date) : null} icon={Calendar} />
-              <InfoItem label="Contact Info" value={profile.srs_prepared_contact} icon={Phone} />
-            </Card>
-          </section>
-
           {/* Section: Company Description */}
           <section className="space-y-4">
             <div className="flex items-center gap-3 text-slate-900">
               <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600">
                 <Info className="h-4 w-4" />
               </div>
-              <h3 className="text-lg font-bold">V. Company Description</h3>
+              <h3 className="text-lg font-bold">III. Company Description</h3>
             </div>
             <Card className="p-6">
               <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">

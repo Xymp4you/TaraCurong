@@ -1,5 +1,6 @@
 import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
+import { supabaseAdmin } from "@/lib/supabase";
 import { EmployerSidebar } from "@/components/employer-sidebar";
 import { Breadcrumbs } from "@/components/ui/breadcrumbs";
 import { MobileHeader } from "./mobile-header";
@@ -12,9 +13,22 @@ export default async function EmployerLayout({
   const session = await auth();
   const user = session?.user;
   const role = (user as { role?: string } | undefined)?.role;
+  const userId = (user as { id?: string } | undefined)?.id;
 
   if (!session || !user || role !== "employer") {
     redirect("/login?role=employer");
+  }
+
+  // Only approved employers may use the portal; pending/rejected/suspended
+  // accounts are sent to the approval-waiting screen.
+  const { data: employer } = await supabaseAdmin
+    .from("employers")
+    .select("account_status")
+    .eq("id", userId ?? "")
+    .single();
+
+  if (!employer || employer.account_status !== "approved") {
+    redirect("/pending-approval");
   }
 
   const userData = {

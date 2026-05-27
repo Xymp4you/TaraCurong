@@ -1,9 +1,42 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowRight, Building } from "lucide-react";
 import { Pill } from "@/components/gw/atoms";
+
+// ---- Activity trend (real data) ----
+type TrendPoint = { month: string; applications: number; referrals: number; hires: number };
+interface TimelineResponse {
+  months: number;
+  monthlyTrends: TrendPoint[];
+}
+
+// Build an SVG polyline `points` string for one numeric series, scaled into a
+// 600x200 viewBox (20px top padding, baseline at 200) against a shared max.
+function seriesPoints(values: number[], max: number): string {
+  const n = values.length;
+  if (n === 0) return "";
+  const safeMax = max > 0 ? max : 1;
+  const stepX = n > 1 ? 600 / (n - 1) : 0;
+  return values
+    .map((v, i) => {
+      const x = n > 1 ? i * stepX : 300;
+      const y = 200 - (v / safeMax) * 180;
+      return `${x.toFixed(1)},${y.toFixed(1)}`;
+    })
+    .join(" ");
+}
+
+const momDelta = (values: number[]): string => {
+  if (values.length < 2) return "";
+  const last = values[values.length - 1] ?? 0;
+  const prev = values[values.length - 2] ?? 0;
+  if (prev === 0) return last > 0 ? "+100% MoM" : "";
+  const change = Math.round(((last - prev) / prev) * 100);
+  return `${change >= 0 ? "+" : ""}${change}% MoM`;
+};
 
 type DonutDatum = { v: number; c: string };
 
@@ -38,8 +71,6 @@ function Donut({ data, size = 92, thickness = 14 }: { data: DonutDatum[]; size?:
     </svg>
   );
 }
-
-const MONTHS = ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr", "May"];
 
 const formatNumber = (n: number) => new Intl.NumberFormat("en-US").format(n);
 
@@ -216,6 +247,31 @@ export default function AdminDashboardPage() {
     },
   });
 
+  // Activity-trend range toggle (months) + real timeline data.
+  const [rangeMonths, setRangeMonths] = useState(12);
+  const timelineQuery = useQuery<TimelineResponse>({
+    queryKey: ["admin", "analytics", "timeline", rangeMonths],
+    queryFn: async () => {
+      const res = await fetch(`/api/admin/analytics/timeline?months=${rangeMonths}`);
+      if (!res.ok) throw new Error("Failed to fetch timeline");
+      return res.json();
+    },
+  });
+
+  // Today's date/time — set after mount to avoid SSR hydration mismatch.
+  const [nowLabel, setNowLabel] = useState("");
+  useEffect(() => {
+    setNowLabel(
+      new Date().toLocaleString("en-PH", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        hour: "2-digit",
+        minute: "2-digit",
+      }) + " PHT"
+    );
+  }, []);
+
   const overview = overviewQuery.data;
   const summary = summaryQuery.data;
 
@@ -256,6 +312,26 @@ export default function AdminDashboardPage() {
   const jobsTotal = overview?.kpis.jobs.total ?? 0;
   const referralsTotal = referralsQuery.data?.totalReferrals ?? 0;
 
+  // ---- Activity trend derived values ----
+  const trends = timelineQuery.data?.monthlyTrends ?? [];
+  const appsSeries = trends.map((t) => t.applications);
+  const refsSeries = trends.map((t) => t.referrals);
+  const hiresSeries = trends.map((t) => t.hires);
+  const trendMax = Math.max(1, ...appsSeries, ...refsSeries, ...hiresSeries);
+  const trendMonths = trends.map((t) => t.month);
+  const trendHasActivity = trendMax > 1 || appsSeries.some((v) => v > 0) || refsSeries.some((v) => v > 0);
+  const TREND_LEGEND = [
+    { c: "var(--teal)", l: "Applications", v: formatNumber(appsSeries.reduce((a, b) => a + b, 0)), d: momDelta(appsSeries) },
+    { c: "var(--violet)", l: "Referrals issued", v: formatNumber(refsSeries.reduce((a, b) => a + b, 0)), d: momDelta(refsSeries), dash: true },
+    { c: "var(--ink-2)", l: "Hires confirmed", v: formatNumber(hiresSeries.reduce((a, b) => a + b, 0)), d: momDelta(hiresSeries) },
+  ];
+  const RANGE_OPTIONS: { label: string; months: number }[] = [
+    { label: "3M", months: 3 },
+    { label: "6M", months: 6 },
+    { label: "12M", months: 12 },
+    { label: "All", months: 24 },
+  ];
+
   return (
     <div className="gw" style={{ maxWidth: 1380 }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 20, gap: 16, flexWrap: "wrap" }}>
@@ -263,7 +339,7 @@ export default function AdminDashboardPage() {
           <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>
             TaraCurong operations · Tacurong City
           </h1>
-          <p className="tx-caption" style={{ marginTop: 4 }}>Tuesday, 23 May · 9:14 PHT</p>
+          <p className="tx-caption" style={{ marginTop: 4 }}>{nowLabel}</p>
         </div>
         <Pill tone="emerald">All systems normal</Pill>
       </div>
@@ -308,10 +384,16 @@ export default function AdminDashboardPage() {
               </div>
             </div>
             <div className="gw-toggle">
-              <button type="button">3M</button>
-              <button type="button">6M</button>
-              <button type="button" className="active">12M</button>
-              <button type="button">All</button>
+              {RANGE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.label}
+                  type="button"
+                  className={rangeMonths === opt.months ? "active" : ""}
+                  onClick={() => setRangeMonths(opt.months)}
+                >
+                  {opt.label}
+                </button>
+              ))}
             </div>
           </div>
 
@@ -329,48 +411,33 @@ export default function AdminDashboardPage() {
                   strokeDasharray={y === 200 ? "0" : "3 4"}
                 />
               ))}
-              <path
-                d="M0,170 C50,150 100,160 150,140 S250,90 300,80 S400,70 450,60 S550,40 600,30"
-                fill="none"
-                stroke="var(--teal)"
-                strokeWidth="2"
-              />
-              <path
-                d="M0,170 C50,150 100,160 150,140 S250,90 300,80 S400,70 450,60 S550,40 600,30 L600,200 L0,200 Z"
-                fill="var(--teal-4)"
-                opacity="0.5"
-              />
-              <path
-                d="M0,180 C80,170 150,160 220,150 S380,130 450,120 S550,110 600,90"
-                fill="none"
-                stroke="var(--violet)"
-                strokeWidth="1.5"
-                strokeDasharray="4 4"
-              />
-              <path
-                d="M0,190 C100,185 180,180 250,170 S400,150 470,145 S560,135 600,125"
-                fill="none"
-                stroke="var(--ink-2)"
-                strokeWidth="1.5"
-              />
-              <circle cx="600" cy="30" r="3.5" fill="var(--teal)" />
-              <circle cx="600" cy="90" r="3.5" fill="var(--violet)" />
-              <circle cx="600" cy="125" r="3.5" fill="var(--ink-2)" />
+              {trendHasActivity && (
+                <>
+                  <polyline points={seriesPoints(appsSeries, trendMax)} fill="none" stroke="var(--teal)" strokeWidth="2" />
+                  <polyline points={seriesPoints(refsSeries, trendMax)} fill="none" stroke="var(--violet)" strokeWidth="1.5" strokeDasharray="4 4" />
+                  <polyline points={seriesPoints(hiresSeries, trendMax)} fill="none" stroke="var(--ink-2)" strokeWidth="1.5" />
+                </>
+              )}
             </svg>
+            {timelineQuery.isLoading ? (
+              <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
+                <span className="tx-caption" style={{ color: "var(--ink-4)" }}>Loading…</span>
+              </div>
+            ) : !trendHasActivity ? (
+              <div style={{ position: "absolute", inset: 0, display: "grid", placeItems: "center" }}>
+                <span className="tx-caption" style={{ color: "var(--ink-4)" }}>No activity in this period yet</span>
+              </div>
+            ) : null}
           </div>
           <div style={{ display: "flex", justifyContent: "space-between", marginTop: 10, color: "var(--ink-4)" }}>
-            {MONTHS.map((m) => (
-              <span key={m} className="tx-micro tx-mono">{m}</span>
+            {trendMonths.map((m, i) => (
+              <span key={`${m}-${i}`} className="tx-micro tx-mono">{m}</span>
             ))}
           </div>
 
           <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "20px 0 16px" }} />
           <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
-            {[
-              { c: "var(--teal)", l: "Applications", v: "8,431", d: "+18% MoM" },
-              { c: "var(--violet)", l: "Referrals issued", v: "1,247", d: "+9% MoM", dash: true },
-              { c: "var(--ink-2)", l: "Hires confirmed", v: "612", d: "+5% MoM" },
-            ].map((s) => (
+            {TREND_LEGEND.map((s) => (
               <div key={s.l} style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
                 <span
                   style={{

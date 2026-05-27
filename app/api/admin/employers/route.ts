@@ -40,6 +40,11 @@ export async function GET(req: Request) {
 
     const result = await query;
 
+    if (result.error) {
+      console.error("Admin employer list query error:", result.error);
+      return NextResponse.json({ error: "Failed to load employers" }, { status: 500 });
+    }
+
     const employers = (result.data ?? []).map((e: Record<string, unknown>) => ({
       id: e.id,
       establishmentName: e.establishment_name,

@@ -5,8 +5,9 @@ import { supabaseAdmin } from "@/lib/supabase";
 
 type TrendPoint = {
   month: string;
-  jobs: number;
   applications: number;
+  referrals: number;
+  hires: number;
 };
 
 function getMonthKey(date: Date): string {
@@ -49,25 +50,23 @@ export async function GET(request: NextRequest) {
     const requestedMonths = Number(searchParams.get("months") ?? "6");
     const months = Math.max(3, Math.min(24, Number.isFinite(requestedMonths) ? requestedMonths : 6));
 
-    const [jobsResult, appsResult] = await Promise.all([
-      supabaseAdmin.from("jobs").select("created_at"),
+    const [appsResult, refsResult] = await Promise.all([
       supabaseAdmin.from("applications").select("created_at"),
+      supabaseAdmin.from("referrals").select("created_at, status"),
     ]);
 
-    const jobs = jobsResult.data ?? [];
     const applications = appsResult.data ?? [];
+    const referrals = refsResult.data ?? [];
     const monthKeys = getLastMonths(months);
     const trendsMap = new Map<string, TrendPoint>();
 
     monthKeys.forEach((monthKey) => {
-      trendsMap.set(monthKey, { month: formatMonthLabel(monthKey), jobs: 0, applications: 0 });
-    });
-
-    jobs.forEach((item: Record<string, unknown>) => {
-      if (!item.created_at) return;
-      const key = getMonthKey(new Date(String(item.created_at)));
-      const trend = trendsMap.get(key);
-      if (trend) trend.jobs += 1;
+      trendsMap.set(monthKey, {
+        month: formatMonthLabel(monthKey),
+        applications: 0,
+        referrals: 0,
+        hires: 0,
+      });
     });
 
     applications.forEach((item: Record<string, unknown>) => {
@@ -75,6 +74,15 @@ export async function GET(request: NextRequest) {
       const key = getMonthKey(new Date(String(item.created_at)));
       const trend = trendsMap.get(key);
       if (trend) trend.applications += 1;
+    });
+
+    referrals.forEach((item: Record<string, unknown>) => {
+      if (!item.created_at) return;
+      const key = getMonthKey(new Date(String(item.created_at)));
+      const trend = trendsMap.get(key);
+      if (!trend) return;
+      trend.referrals += 1;
+      if (String(item.status ?? "").toLowerCase() === "hired") trend.hires += 1;
     });
 
     const monthlyTrends = monthKeys

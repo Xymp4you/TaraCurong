@@ -1,9 +1,20 @@
 "use client";
 
 import Link from "next/link";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Plus, Sparkles } from "lucide-react";
 import { Pill, type PillTone } from "@/components/gw/atoms";
+import { createClient } from "@/lib/supabase-client";
+
+type EmployerSummary = {
+  jobsCount: number;
+  activeJobsCount: number;
+  applicationsCount: number;
+  pendingApplicationsCount: number;
+  hiredCount: number;
+  rejectedCount: number;
+};
 
 type JobStatus = "draft" | "pending" | "active" | "closed" | "archived" | "rejected" | "suspended";
 const JOB_STATUS: Record<JobStatus, { tone: PillTone; label: string }> = {
@@ -125,14 +136,39 @@ export default function EmployerDashboardPage() {
     staleTime: 1000 * 60,
   });
 
+  const { data: summaryEnv } = useQuery<ApiEnvelope<EmployerSummary>>({
+    queryKey: ["employer", "dashboard", "summary"],
+    queryFn: async () => {
+      const res = await fetch("/api/employer/dashboard");
+      if (!res.ok) throw new Error("Failed to fetch employer summary");
+      return res.json();
+    },
+    staleTime: 1000 * 60,
+  });
+  const summary = summaryEnv?.data;
+  const kpi = (n?: number) => (typeof n === "number" ? new Intl.NumberFormat("en-US").format(n) : "—");
+  const acceptedTotal = (summary?.hiredCount ?? 0) + (summary?.rejectedCount ?? 0);
+  const acceptRate = acceptedTotal > 0 ? `${Math.round(((summary?.hiredCount ?? 0) / acceptedTotal) * 100)}%` : "—";
+
+  // Employer name from the auth session (set after mount to avoid hydration mismatch).
+  const [employerName, setEmployerName] = useState("");
+  useEffect(() => {
+    createClient().auth.getClaims().then(({ data }) => {
+      const m = (data?.claims?.user_metadata ?? {}) as Record<string, string | undefined>;
+      setEmployerName(m.establishment_name || m.full_name || m.name || "");
+    });
+  }, []);
+
   return (
     <div className="gw" style={{ maxWidth: 1320 }}>
       <div style={{ display: "flex", alignItems: "flex-end", justifyContent: "space-between", marginBottom: 24, gap: 16, flexWrap: "wrap" }}>
         <div>
           <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>
-            Hello, Dole Philippines
+            {employerName ? `Hello, ${employerName}` : "Hello"}
           </h1>
-          <p className="tx-caption" style={{ marginTop: 4 }}>5 active jobs · 12 new applicants overnight</p>
+          <p className="tx-caption" style={{ marginTop: 4 }}>
+            {kpi(summary?.activeJobsCount)} active jobs · {kpi(summary?.pendingApplicationsCount)} awaiting review
+          </p>
         </div>
         <Link href="/employer/jobs/new">
           <button type="button" className="gw-btn gw-btn--primary">
@@ -142,10 +178,10 @@ export default function EmployerDashboardPage() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Stat label="Active jobs" value="5" delta="+1 this month" helper="2 pending" />
-        <Stat label="New applicants" value="12" delta="+12 today" helper="last 24h" />
-        <Stat label="Shortlisted" value="34" delta="+6 this week" />
-        <Stat label="Hires (May)" value="5" delta="+2 vs Apr" />
+        <Stat label="Active jobs" value={kpi(summary?.activeJobsCount)} helper={`${kpi(summary?.jobsCount)} total`} />
+        <Stat label="New applicants" value={kpi(summary?.pendingApplicationsCount)} helper="awaiting review" />
+        <Stat label="Applications" value={kpi(summary?.applicationsCount)} helper="all time" />
+        <Stat label="Hires" value={kpi(summary?.hiredCount)} helper="confirmed" />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1.5fr_1fr] gap-5 mt-5">
@@ -215,18 +251,18 @@ export default function EmployerDashboardPage() {
           <hr style={{ border: 0, borderTop: "1px solid var(--ink-7)", margin: "20px 0 16px" }} />
           <div style={{ display: "flex", gap: 20 }}>
             <div>
-              <div className="tx-eyebrow" style={{ fontSize: 10.5 }}>Time to hire</div>
-              <div className="tx-h3 tx-mono" style={{ marginTop: 4 }}>9.2 days</div>
+              <div className="tx-eyebrow" style={{ fontSize: 10.5 }}>Hired</div>
+              <div className="tx-h3 tx-mono" style={{ marginTop: 4 }}>{kpi(summary?.hiredCount)}</div>
             </div>
             <div style={{ width: 1, background: "var(--ink-7)", alignSelf: "stretch" }} />
             <div>
               <div className="tx-eyebrow" style={{ fontSize: 10.5 }}>Offer accept rate</div>
-              <div className="tx-h3 tx-mono" style={{ marginTop: 4 }}>83%</div>
+              <div className="tx-h3 tx-mono" style={{ marginTop: 4 }}>{acceptRate}</div>
             </div>
             <div style={{ width: 1, background: "var(--ink-7)", alignSelf: "stretch" }} />
             <div>
-              <div className="tx-eyebrow" style={{ fontSize: 10.5 }}>Top source</div>
-              <div className="tx-h3" style={{ marginTop: 4 }}>TaraCurong referrals</div>
+              <div className="tx-eyebrow" style={{ fontSize: 10.5 }}>Rejected</div>
+              <div className="tx-h3 tx-mono" style={{ marginTop: 4 }}>{kpi(summary?.rejectedCount)}</div>
             </div>
           </div>
         </div>

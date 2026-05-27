@@ -31,6 +31,13 @@ export async function GET(request: Request) {
       .single();
 
     if (!adminError && adminData) {
+      // Ensure the auth user carries role=admin so middleware grants /admin access.
+      if (user.user_metadata?.role !== "admin") {
+        await supabaseAdmin.auth.admin.updateUserById(user.id, {
+          user_metadata: { ...user.user_metadata, role: "admin" },
+        });
+        await supabase.auth.refreshSession();
+      }
       return NextResponse.redirect(`${origin}/admin/dashboard`);
     }
 
@@ -47,10 +54,8 @@ export async function GET(request: Request) {
         );
       }
       if (existingRequest.status === "approved") {
-        await supabaseAdmin
-          .from("admin_access_requests")
-          .update({ status: "pending", reviewed_at: null })
-          .eq("id", existingRequest.id);
+        // Approved but not yet provisioned into the admins table — surface as
+        // pending without destroying the approval.
         return NextResponse.redirect(
           `${origin}/login/admin?pending_approval=1&email=${encodeURIComponent(userEmail)}`
         );

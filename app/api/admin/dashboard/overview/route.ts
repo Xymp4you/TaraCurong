@@ -29,9 +29,12 @@ export async function GET() {
       recentApplicationsResult,
       recentEmployersResult,
     ] = await Promise.all([
+      // Count jobseekers from the authoritative `jobseekers` table (the admin
+      // Job Seekers list reads the same table). The legacy `users` table is
+      // populated inconsistently and was over/under-counting here.
       supabaseAdmin
-        .from("users")
-        .select("id, employment_status, registration_date", { count: "exact" }),
+        .from("jobseekers")
+        .select("id, employment_status, city", { count: "exact" }),
       supabaseAdmin
         .from("employers")
         .select("id, account_status, created_at", { count: "exact" }),
@@ -109,7 +112,7 @@ export async function GET() {
     }).length;
 
     const geoDistribution = users.reduce((acc, u) => {
-      const city = u.registration_date || "Unknown";
+      const city = u.city || "Unknown";
       if (!acc[city]) acc[city] = 0;
       acc[city]++;
       return acc;

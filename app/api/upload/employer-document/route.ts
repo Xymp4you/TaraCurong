@@ -11,11 +11,9 @@ const ALLOWED_DOCUMENT_TYPES = new Set([
 ]);
 
 const documentTypeValues = [
-  "srsFormFile",
-  "businessPermitFile",
-  "bir2303File",
-  "doleCertificationFile",
-  "companyProfileFile",
+  // Jobseeker identity verification (this endpoint is shared with jobseeker ID/selfie upload)
+  "idFileUrl",
+  "selfieFileUrl",
 ] as const;
 
 type DocumentType = (typeof documentTypeValues)[number];

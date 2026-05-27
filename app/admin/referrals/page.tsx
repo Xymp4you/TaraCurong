@@ -91,7 +91,20 @@ export default function AdminReferralsPage() {
     queryKey: ["admin", "referrals", "list"],
     queryFn: () => queryFetcher<ApiReferral[]>("/api/referrals"),
   });
-  const slips: SlipRow[] = (referralsData ?? []).map(adaptReferral);
+  const referrals = referralsData ?? [];
+  const slips: SlipRow[] = referrals.map(adaptReferral);
+
+  // Derived stat tiles (from the real referral data).
+  const now = new Date();
+  const issuedThisMonth = referrals.filter((r) => {
+    if (!r.dateReferred) return false;
+    const d = new Date(r.dateReferred);
+    return !Number.isNaN(d.getTime()) && d.getFullYear() === now.getFullYear() && d.getMonth() === now.getMonth();
+  }).length;
+  const inProgressCount = referrals.filter((r) => r.status === "Pending" || r.status === "For Interview").length;
+  const hiredCount = referrals.filter((r) => r.status === "Hired").length;
+  const notHiredCount = referrals.filter((r) => r.status === "Rejected" || r.status === "Withdrawn").length;
+  const conversion = referrals.length > 0 ? Math.round((hiredCount / referrals.length) * 100) : 0;
 
   return (
     <div className="gw" style={{ maxWidth: 1320 }}>
@@ -113,10 +126,10 @@ export default function AdminReferralsPage() {
       </div>
 
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-        <Stat label="Issued this month" value="184" delta="+12% vs Apr" />
-        <Stat label="Active right now" value="62" delta="avg. 8.4 days valid" />
-        <Stat label="Hires confirmed" value="78" delta="42% conversion" />
-        <Stat label="Expired without action" value="14" delta="needs follow-up" down />
+        <Stat label="Issued this month" value={String(issuedThisMonth)} />
+        <Stat label="In progress" value={String(inProgressCount)} />
+        <Stat label="Hires confirmed" value={String(hiredCount)} delta={referrals.length > 0 ? `${conversion}% conversion` : undefined} />
+        <Stat label="Not hired" value={String(notHiredCount)} down />
       </div>
 
       <div className="mt-[18px] grid grid-cols-1 lg:grid-cols-[1fr_1.6fr] gap-4">

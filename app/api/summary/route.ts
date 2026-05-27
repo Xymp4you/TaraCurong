@@ -59,8 +59,8 @@ export async function GET(request: NextRequest) {
       { count: successfulReferralsCount },
       { count: successfulReferralsPrevCount },
     ] = await Promise.all([
-      db.from("users").select("*", { count: "exact", head: true }),
-      db.from("users").select("*", { count: "exact", head: true }).lt("created_at", thirtyDaysAgo.toISOString()),
+      db.from("jobseekers").select("*", { count: "exact", head: true }),
+      db.from("jobseekers").select("*", { count: "exact", head: true }).lt("created_at", thirtyDaysAgo.toISOString()),
       db.from("employers").select("*", { count: "exact", head: true }).eq("account_status", "approved"),
       db.from("employers").select("*", { count: "exact", head: true }).eq("account_status", "approved").lt("created_at", thirtyDaysAgo.toISOString()),
       db.from("referrals").select("*", { count: "exact", head: true }).eq("status", "Hired"),

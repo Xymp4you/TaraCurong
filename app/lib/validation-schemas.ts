@@ -350,7 +350,6 @@ export const employerAccountProfileUpdateSchema = z
     establishmentName: z.string().min(2).max(255).optional(),
     acronymAbbreviation: z.string().max(50).nullable().optional(),
     industryCode: z.array(z.string()).optional(),
-    companyTaxId: z.string().max(50).nullable().optional(),
     typeOfEstablishment: z.string().max(100).nullable().optional(),
     totalPaidEmployees: z.number().int().min(0).optional(),
     totalVacantPositions: z.number().int().min(0).optional(),
@@ -376,13 +375,6 @@ export const employerAccountProfileUpdateSchema = z
     srsPreparedDesignation: z.string().max(100).nullable().optional(),
     srsPreparedDate: z.string().nullable().optional(),
     srsPreparedContact: z.string().max(50).nullable().optional(),
-
-    // Documents
-    srsFormFile: z.string().max(500).nullable().optional(),
-    businessPermitFile: z.string().max(500).nullable().optional(),
-    bir2303File: z.string().max(500).nullable().optional(),
-    doleCertificationFile: z.string().max(500).nullable().optional(),
-    companyProfileFile: z.string().max(500).nullable().optional(),
 
     // General
     description: z.string().max(5000).nullable().optional(),

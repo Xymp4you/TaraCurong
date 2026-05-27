@@ -42,7 +42,6 @@ export async function POST(req: Request) {
       establishment_name: profile.establishmentName,
       acronym_abbreviation: profile.acronymAbbreviation,
       industry_code: profile.industryCode,
-      company_tax_id: profile.companyTaxId,
       type_of_establishment: profile.typeOfEstablishment,
       total_paid_employees: profile.totalPaidEmployees,
       total_vacant_positions: profile.totalVacantPositions,
@@ -66,15 +65,9 @@ export async function POST(req: Request) {
       srs_prepared_date: profile.srsPreparedDate ? new Date(profile.srsPreparedDate).toISOString() : null,
       srs_prepared_contact: profile.srsPreparedContact,
 
-      business_permit_file: profile.businessPermitFile,
-      bir_2303_file: profile.bir2303File,
-      dole_certification_file: profile.doleCertificationFile,
-      company_profile_file: profile.companyProfileFile,
-
       description: profile.description,
       website: profile.website,
       profile_image: profile.profileImage,
-      tin: profile.companyTaxId, // Ensure tin matches companyTaxId if mapping requires it
 
       account_status: "approved", // Automatically approve since admin created it
       verified_at: new Date().toISOString(),
