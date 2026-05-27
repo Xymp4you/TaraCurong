@@ -25,6 +25,7 @@ export const STORAGE_BUCKETS = {
   profileImages: "profile-images",
   employerDocs: "employer-documents",
   jobAttachments: "job-attachments",
+  messageAttachments: "message-attachments",
 } as const;
 
 export type StorageBucket = (typeof STORAGE_BUCKETS)[keyof typeof STORAGE_BUCKETS];

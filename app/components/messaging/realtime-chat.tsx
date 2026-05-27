@@ -167,6 +167,7 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
         recipientId: activeThread.otherUserId,
         recipientRole: activeThread.otherUserRole,
         content: body.trim() || "📎 Attachment",
+        attachmentPaths: pendingAttachments,
       }),
     });
     if (res.ok) {
@@ -186,10 +187,12 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
     setUploadingFile(true);
     const form = new FormData();
     form.append("file", file);
-    const res = await fetch("/api/upload/resume", { method: "POST", body: form });
+    const res = await fetch("/api/upload/message-attachment", { method: "POST", body: form });
     if (res.ok) {
-      const data = await res.json() as { url?: string };
-      if (data.url) setPendingAttachments((prev) => [...prev, data.url!]);
+      const data = await res.json() as { path?: string };
+      // Store the storage path; it's persisted on the message and viewed via the
+      // signed-URL endpoint (private bucket).
+      if (data.path) setPendingAttachments((prev) => [...prev, data.path!]);
     }
     setUploadingFile(false);
   };
@@ -348,8 +351,8 @@ export function RealtimeChat({ currentUserId, currentUserRole, onStatusChange, s
                         {/* Attachments */}
                         {msg.attachment_urls?.length > 0 && (
                           <div className="mt-2 space-y-1">
-                            {msg.attachment_urls.map((url, i) => (
-                              <a key={i} href={url} target="_blank" rel="noreferrer"
+                            {msg.attachment_urls.map((path, i) => (
+                              <a key={i} href={`/api/files/message-attachment?path=${encodeURIComponent(path)}`} target="_blank" rel="noreferrer"
                                 className={`flex items-center gap-1.5 text-xs underline ${isMine ? "text-teal-100" : "text-teal-700"}`}>
                                 <FileText className="w-3 h-3" />
                                 Attachment {i + 1}

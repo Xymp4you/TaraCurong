@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, CheckCircle2, Loader2, Save } from "lucide-react";
+import { Camera, CheckCircle2, FileText, Loader2, Save, Upload } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { compressImage } from "@/lib/image-utils";
@@ -24,6 +24,7 @@ export default function JobseekerProfilePage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  const [uploadingResume, setUploadingResume] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const wizardRef = useRef<JobseekerProfileWizardRef>(null);
@@ -114,6 +115,44 @@ export default function JobseekerProfilePage() {
       setError("Unable to upload profile image");
     } finally {
       setUploadingImage(false);
+    }
+  };
+
+  const uploadResume = async (file: File) => {
+    setUploadingResume(true);
+    setError("");
+    setSuccess("");
+
+    try {
+      const formData = new FormData();
+      formData.append("file", file);
+
+      const uploadRes = await fetch("/api/upload/resume", { method: "POST", body: formData });
+      const uploadData = await uploadRes.json();
+      if (!uploadRes.ok || !uploadData.path) {
+        setError(uploadData.error ?? "Unable to upload resume");
+        return;
+      }
+
+      // Persist the storage path on the jobseeker profile (private bucket).
+      const saveRes = await fetch("/api/jobseeker/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeUrl: uploadData.path }),
+      });
+      if (!saveRes.ok) {
+        const saveData = await saveRes.json().catch(() => ({}));
+        setError(saveData.error ?? "Uploaded, but failed to save it to your profile");
+        return;
+      }
+
+      setProfile((prev) => (prev ? { ...prev, resume_url: uploadData.path } : prev));
+      setSuccess("Resume uploaded.");
+      router.refresh();
+    } catch {
+      setError("Unable to upload resume");
+    } finally {
+      setUploadingResume(false);
     }
   };
 
@@ -237,7 +276,41 @@ export default function JobseekerProfilePage() {
           </div>
         </Card>
 
-        <JobseekerProfileWizard 
+        <Card className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">Resume / CV</h3>
+              <p className="text-sm text-slate-500 mt-1">
+                Upload your resume (PDF, DOC, or DOCX — max 10MB). It can be shared with employers when you apply.
+              </p>
+              {profile.resume_url ? (
+                <a
+                  href={`/api/files/resume?path=${encodeURIComponent(profile.resume_url)}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 mt-3 text-sm font-semibold text-slate-900 underline"
+                >
+                  <FileText className="h-4 w-4" /> View current resume
+                </a>
+              ) : (
+                <p className="text-sm text-slate-400 mt-3">No resume uploaded yet.</p>
+              )}
+            </div>
+            <label className="inline-flex items-center gap-2 px-4 py-2 bg-slate-900 text-white rounded-lg cursor-pointer hover:bg-slate-800 text-sm font-semibold shrink-0 active:scale-95 transition-transform">
+              {uploadingResume ? <Loader2 className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
+              {uploadingResume ? "Uploading..." : profile.resume_url ? "Replace resume" : "Upload resume"}
+              <input
+                type="file"
+                className="hidden"
+                accept=".pdf,.doc,.docx,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                disabled={uploadingResume}
+                onChange={(e) => e.target.files?.[0] && uploadResume(e.target.files[0])}
+              />
+            </label>
+          </div>
+        </Card>
+
+        <JobseekerProfileWizard
           ref={wizardRef}
           initialProfile={profile} 
           initialResume={resume}

@@ -117,7 +117,7 @@ export async function POST(
     // The jobseekers table holds the canonical applicant record (no separate `users` table)
     const applicantResult = await supabaseAdmin
       .from("jobseekers")
-      .select("first_name, last_name, email")
+      .select("first_name, last_name, email, resume_url")
       .eq("id", session.user.id!)
       .single();
 
@@ -140,7 +140,8 @@ export async function POST(
         applicant_name: applicantName,
         applicant_email: applicantEmail,
         cover_letter: coverLetter || null,
-        resume_url: resumeUrl || null,
+        // Default to the jobseeker's profile resume when the apply form didn't supply one.
+        resume_url: resumeUrl || (applicantData?.resume_url as string | null) || null,
         expected_salary: expectedSalary || null,
         nsrp_forwarded: nsrpForwarded,
         extra_attachments: extraAttachments ? JSON.stringify(extraAttachments) : '[]',

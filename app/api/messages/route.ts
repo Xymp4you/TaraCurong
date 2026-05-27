@@ -19,6 +19,7 @@ const sendMessageSchema = z
     recipientRole: z.enum(["admin", "employer", "jobseeker"]).optional(),
     receiverRole: z.enum(["admin", "employer", "jobseeker"]).optional(),
     content: z.string().min(1).max(5000),
+    attachmentPaths: z.array(z.string().max(500)).max(10).optional(),
   })
   .strict();
 
@@ -224,7 +225,7 @@ export async function GET(req: Request) {
 
     let query = supabaseAdmin
       .from("messages")
-      .select("id, sender_id, recipient_id, content, read, read_at, created_at")
+      .select("id, sender_id, recipient_id, content, read, read_at, attachment_urls, created_at")
       .or(`and(sender_id.eq.${identity.userId},recipient_id.eq.${peerId}),and(sender_id.eq.${peerId},recipient_id.eq.${identity.userId})`)
       .order("created_at", { ascending: false })
       .limit(limit + 1);
@@ -304,8 +305,9 @@ export async function POST(req: Request) {
         recipient_id: targetRecipientId,
         content: payload.content.trim(),
         read: false,
+        attachment_urls: payload.attachmentPaths ?? [],
       })
-      .select("id, sender_id, recipient_id, content, created_at")
+      .select("id, sender_id, recipient_id, content, attachment_urls, created_at")
       .single();
 
     if (inserted.error || !inserted.data) {

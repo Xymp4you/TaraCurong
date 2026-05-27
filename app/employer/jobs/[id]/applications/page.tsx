@@ -160,7 +160,7 @@ export default function EmployerJobApplicationsPage() {
 
                 {application.resumeUrl ? (
                   <a
-                    href={application.resumeUrl}
+                    href={`/api/files/resume?path=${encodeURIComponent(application.resumeUrl)}`}
                     target="_blank"
                     rel="noreferrer"
                     className="text-sm text-teal-700 hover:underline mt-2 inline-block"

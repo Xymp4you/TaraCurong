@@ -100,14 +100,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Failed to upload resume", requestId }, { status: 500 });
     }
 
-    const { data } = supabaseAdmin.storage.from(STORAGE_BUCKETS.resumes).getPublicUrl(path);
-
+    // The resumes bucket is PRIVATE — return the storage path, not a public URL.
+    // Viewing is done through /api/files/resume which issues short-lived signed URLs.
     return NextResponse.json(
       {
         message: "Upload successful",
-        url: data.publicUrl,
-        bucket: STORAGE_BUCKETS.resumes,
         path,
+        bucket: STORAGE_BUCKETS.resumes,
         requestId,
       },
       {

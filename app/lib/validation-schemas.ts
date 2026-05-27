@@ -245,6 +245,7 @@ export const jobseekerProfileUpdateSchema = z.object({
   lastName: z.string().min(1, "Last name is required").max(100).optional(),
   middleName: z.string().max(100).nullable().optional(),
   suffix: z.string().max(20).nullable().optional(),
+  resumeUrl: z.string().max(1000).nullable().optional(),
   phone: phoneSchema.optional(),
   birthDate: dateStringSchema.optional(),
   gender: z.string().max(20).nullable().optional(),

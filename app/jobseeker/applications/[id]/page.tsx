@@ -226,7 +226,7 @@ export default function ApplicationDetailPage() {
                         <p className="text-xs text-slate-500">PDF Document</p>
                       </div>
                     </div>
-                    <Link href={application.resumeUrl} target="_blank">
+                    <Link href={`/api/files/resume?path=${encodeURIComponent(application.resumeUrl)}`} target="_blank">
                       <Button variant="ghost" size="sm" className="gap-1.5 text-teal-700 hover:text-teal-700 hover:bg-teal-50">
                         View File
                         <ExternalLink className="w-3.5 h-3.5" />
