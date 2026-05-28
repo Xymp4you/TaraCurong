@@ -68,7 +68,7 @@ export async function POST(req: NextRequest) {
             .from("applications")
             .select("id")
             .eq("job_id", jobId)
-            .eq("jobseeker_id", jobseekerId)
+            .eq("applicant_id", jobseekerId)
             .single();
 
           let applicationId = existingApp?.id;
@@ -78,7 +78,7 @@ export async function POST(req: NextRequest) {
               .from("applications")
               .insert({
                 job_id: jobId,
-                jobseeker_id: jobseekerId,
+                applicant_id: jobseekerId,
                 employer_id: job.employer_id,
                 status: "shortlisted",
                 source: "direct", // Must be 'direct' or 'referred' per CHECK constraint

@@ -157,6 +157,18 @@ export default function AdminViewProfilePage() {
               <InfoItem label="Email" value={profile.email} />
               <InfoItem label="Address" value={[profile.house_number, profile.barangay, profile.city, profile.province].filter(Boolean).join(", ")} />
               <InfoItem label="Zip Code" value={profile.zip_code} />
+              <div className="flex gap-3 py-2 border-b border-slate-50 last:border-0">
+                <div className="space-y-0.5">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Facebook</p>
+                  {profile.facebook_link ? (
+                    <a href={profile.facebook_link} target="_blank" rel="noopener noreferrer" className="text-sm text-sky-700 font-medium hover:underline break-all">
+                      View profile ↗
+                    </a>
+                  ) : (
+                    <p className="text-sm text-slate-900 font-medium">—</p>
+                  )}
+                </div>
+              </div>
             </div>
           </Card>
 
@@ -190,7 +202,22 @@ export default function AdminViewProfilePage() {
 
         {/* Center/Right Content: Profile fields */}
         <div className="lg:col-span-3 space-y-8">
-          
+
+          {/* Professional Summary (AI-assisted, jobseeker-reviewed) */}
+          {profile.resume_summary ? (
+            <Card className="p-6 bg-sky-50 border-sky-200">
+              <div className="flex items-center gap-2 text-slate-900">
+                <FileText className="h-5 w-5" />
+                <h3 className="text-lg font-bold">Professional Summary</h3>
+                <span className="ml-auto text-[10px] font-bold text-sky-700 uppercase tracking-widest">✨ AI-assisted</span>
+              </div>
+              <p className="mt-3 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{profile.resume_summary}</p>
+              <p className="mt-3 text-[11px] text-slate-400">
+                Drafted from the jobseeker&apos;s resume by AI and reviewed/edited by the jobseeker.
+              </p>
+            </Card>
+          ) : null}
+
           {/* Section: Personal Info Detail */}
           <section className="space-y-4">
             <div className="flex items-center justify-between">

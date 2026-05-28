@@ -49,9 +49,9 @@ export async function PATCH(req: Request) {
   if (applicationId) {
     query = query.eq("id", applicationId);
   } else if (jobseekerId && jobId) {
-    query = query.eq("jobseeker_id", jobseekerId).eq("job_id", jobId);
+    query = query.eq("applicant_id", jobseekerId).eq("job_id", jobId);
   } else if (jobseekerId) {
-    query = query.eq("jobseeker_id", jobseekerId);
+    query = query.eq("applicant_id", jobseekerId);
   } else {
     return NextResponse.json({ error: "Must provide applicationId or jobseekerId" }, { status: 400 });
   }

@@ -99,6 +99,7 @@ function buildForm(profile: Record<string, any>) {
     // General
     description:  profile.description   || "",
     website:      profile.website        || "",
+    socialLinks:  Array.isArray(profile.social_links) ? (profile.social_links as string[]) : [],
     profileImage: profile.profile_image  || "",
   };
 }
@@ -137,7 +138,11 @@ export default function EmployerProfileWizard({
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setSaving(true);
-    await onSave(form);
+    const payload = {
+      ...form,
+      socialLinks: form.socialLinks.map((s) => s.trim()).filter(Boolean),
+    };
+    await onSave(payload);
     setSaving(false);
   };
 
@@ -288,6 +293,42 @@ export default function EmployerProfileWizard({
                 <Field label="Company Website">
                   <Input name="website" value={form.website} onChange={handleChange} placeholder="https://example.com" />
                 </Field>
+
+                <div className="md:col-span-2">
+                  <Field label="Social Links">
+                    <div className="space-y-2">
+                      {form.socialLinks.map((link, i) => (
+                        <div key={i} className="flex gap-2">
+                          <input
+                            value={link}
+                            onChange={(e) =>
+                              set("socialLinks", form.socialLinks.map((l, j) => (j === i ? e.target.value : l)))
+                            }
+                            placeholder="https://facebook.com/yourpage"
+                            className="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm shadow-sm focus:border-slate-500 focus:ring-1 focus:ring-slate-500 outline-none"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => set("socialLinks", form.socialLinks.filter((_, j) => j !== i))}
+                            className="rounded-lg border border-slate-200 px-3 text-slate-400 hover:text-slate-700"
+                            aria-label="Remove link"
+                          >
+                            ✕
+                          </button>
+                        </div>
+                      ))}
+                      {form.socialLinks.length < 10 ? (
+                        <button
+                          type="button"
+                          onClick={() => set("socialLinks", [...form.socialLinks, ""])}
+                          className="text-sm font-medium text-slate-700 hover:text-slate-900"
+                        >
+                          + Add social link
+                        </button>
+                      ) : null}
+                    </div>
+                  </Field>
+                </div>
 
                 <div className="md:col-span-2">
                   <Field label="Company Description">

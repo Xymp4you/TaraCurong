@@ -54,7 +54,7 @@ export async function GET(req: Request) {
     if (shouldInclude("employer")) {
       let rows: any[] = [];
       if (identity.role === "jobseeker") {
-        const { data: appData } = await db.from("applications").select("employer_id").eq("jobseeker_id", identity.userId);
+        const { data: appData } = await db.from("applications").select("employer_id").eq("applicant_id", identity.userId);
         const empIds = [...new Set(appData?.map(a => a.employer_id).filter(Boolean))];
         if (empIds.length > 0) {
           let query = db.from("employers").select("id, establishment_name, email, account_status").in("id", empIds);

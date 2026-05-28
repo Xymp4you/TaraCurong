@@ -29,7 +29,7 @@ async function handleListEmployerApplications(
   const jobseekerEmbed =
     "jobseekers" +
     (normalizedQuery.search ? "!inner" : "") +
-    "(id, first_name, last_name, middle_name, nsrp_id, city, province, profile_image)";
+    "(id, first_name, last_name, middle_name, nsrp_id, city, province, profile_image, facebook_link, resume_summary)";
 
   let supabaseQuery = db
     .from("applications")

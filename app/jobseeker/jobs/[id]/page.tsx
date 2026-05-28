@@ -2,7 +2,13 @@
 
 import { useParams, useRouter } from "next/navigation";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { Bookmark, Briefcase, Clock, MapPin, Sparkles } from "lucide-react";
+import { BadgeCheck, Bookmark, Briefcase, Clock, Globe, Link2, MapPin, Sparkles } from "lucide-react";
+
+type EmployerReviews = {
+  average: number;
+  count: number;
+  reviews: Array<{ id: string; rating: number; comment: string | null; reviewer: string }>;
+};
 import { toast } from "sonner";
 import { ScamWarning } from "@/components/transparency/scam-warning";
 import { ReportButton } from "@/components/transparency/report-button";
@@ -95,6 +101,17 @@ export default function JobseekerJobDetailPage() {
       queryClient.invalidateQueries({ queryKey: ["job", rawId] });
     },
     onError: (err: Error) => toast.error(err.message),
+  });
+
+  const employerId = jobQuery.data?.employerId ?? null;
+  const reviewsQuery = useQuery<EmployerReviews>({
+    queryKey: ["employer-reviews", employerId],
+    enabled: Boolean(employerId),
+    queryFn: async () => {
+      const res = await fetch(`/api/employers/${employerId}/reviews`);
+      if (!res.ok) throw new Error("Failed to load reviews");
+      return res.json();
+    },
   });
 
   // Demo / invalid URL — show a friendly placeholder rather than a broken page.
@@ -214,6 +231,14 @@ export default function JobseekerJobDetailPage() {
                 >
                   ● Verified employer
                 </span>
+                {job.dtiRegistered ? (
+                  <>
+                    <span>·</span>
+                    <span style={{ color: "var(--emerald)", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                      <BadgeCheck size={12} /> DTI-registered
+                    </span>
+                  </>
+                ) : null}
               </div>
               <div
                 className="tx-serif"
@@ -279,6 +304,95 @@ export default function JobseekerJobDetailPage() {
             </div>
           </div>
         )}
+
+        {/* About the employer — trust signals + reviews */}
+        <div className="gw-card" style={{ padding: 28, marginTop: 16 }}>
+          <div className="tx-h3" style={{ marginBottom: 12 }}>About the employer</div>
+
+          {job.dtiRegistered ? (
+            <div
+              style={{
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 6,
+                background: "var(--emerald-bg)",
+                color: "var(--emerald)",
+                borderRadius: 999,
+                padding: "4px 10px",
+                fontSize: 12,
+                fontWeight: 600,
+                marginBottom: 12,
+              }}
+            >
+              <BadgeCheck size={14} /> DTI-registered business
+            </div>
+          ) : null}
+
+          <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+            {reviewsQuery.data && reviewsQuery.data.count > 0 ? (
+              <>
+                <span style={{ color: "var(--amber)", fontSize: 15, letterSpacing: 1 }}>
+                  {"★".repeat(Math.round(reviewsQuery.data.average))}
+                  {"☆".repeat(5 - Math.round(reviewsQuery.data.average))}
+                </span>
+                <span className="tx-body" style={{ fontWeight: 600 }}>{reviewsQuery.data.average.toFixed(1)}</span>
+                <span className="tx-caption">
+                  ({reviewsQuery.data.count} {reviewsQuery.data.count === 1 ? "review" : "reviews"})
+                </span>
+              </>
+            ) : (
+              <span className="tx-caption" style={{ color: "var(--ink-4)" }}>No reviews yet</span>
+            )}
+          </div>
+
+          {job.website || (job.socialLinks && job.socialLinks.length > 0) ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 6, marginBottom: 12 }}>
+              {job.website ? (
+                <a
+                  href={job.website}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tx-caption"
+                  style={{ color: "var(--teal)", display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", wordBreak: "break-all" }}
+                >
+                  <Globe size={13} /> {job.website}
+                </a>
+              ) : null}
+              {(job.socialLinks ?? []).map((url, i) => (
+                <a
+                  key={i}
+                  href={url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tx-caption"
+                  style={{ color: "var(--teal)", display: "inline-flex", alignItems: "center", gap: 6, textDecoration: "none", wordBreak: "break-all" }}
+                >
+                  <Link2 size={13} /> {url}
+                </a>
+              ))}
+            </div>
+          ) : null}
+
+          {reviewsQuery.data && reviewsQuery.data.reviews.length > 0 ? (
+            <div style={{ display: "flex", flexDirection: "column", gap: 0, marginTop: 4 }}>
+              {reviewsQuery.data.reviews.slice(0, 5).map((r) => (
+                <div key={r.id} style={{ borderTop: "1px solid var(--ink-7)", padding: "10px 0" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", gap: 8 }}>
+                    <span className="tx-h4" style={{ fontSize: 13 }}>{r.reviewer}</span>
+                    <span style={{ color: "var(--amber)", fontSize: 12 }}>
+                      {"★".repeat(r.rating)}{"☆".repeat(5 - r.rating)}
+                    </span>
+                  </div>
+                  {r.comment ? <p className="tx-caption" style={{ marginTop: 4 }}>{r.comment}</p> : null}
+                </div>
+              ))}
+            </div>
+          ) : null}
+
+          <p className="tx-micro" style={{ color: "var(--ink-4)", marginTop: 12, lineHeight: 1.5 }}>
+            These signals help you judge an employer — they aren&apos;t guarantees. Use your own judgment before sharing personal info.
+          </p>
+        </div>
       </div>
 
       <aside>

@@ -43,7 +43,7 @@ export async function GET(
     const jobResult = await supabaseAdmin
       .from("jobs")
       .select(
-        "id, employer_id, position_title, minimum_education_required, main_skill_desired, years_of_experience_required, starting_salary, job_status, vacancies, is_active, archived, created_at, updated_at, category, work_setup, psoc_code, featured, slots_remaining, employers!inner(establishment_name, email, contact_person, contact_phone, city, province)"
+        "id, employer_id, position_title, minimum_education_required, main_skill_desired, years_of_experience_required, starting_salary, job_status, vacancies, is_active, archived, created_at, updated_at, category, work_setup, psoc_code, featured, slots_remaining, employers!inner(establishment_name, email, contact_person, contact_phone, city, province, website, social_links, dti_registration_file)"
       )
       .eq("id", jobId)
       .eq("archived", false)
@@ -74,7 +74,7 @@ export async function GET(
         .from("applications")
         .select("status")
         .eq("job_id", jobId)
-        .eq("jobseeker_id", session.user.id)
+        .eq("applicant_id", session.user.id)
         .maybeSingle();
 
       if (existingApp) {
@@ -144,6 +144,9 @@ export async function GET(
       hasApplied,
       applicationStatus,
       isSaved,
+      website: toNullableString(empData?.website),
+      socialLinks: Array.isArray(empData?.social_links) ? (empData.social_links as string[]) : [],
+      dtiRegistered: Boolean(empData?.dti_registration_file),
       ...contactInfo,
     };
 

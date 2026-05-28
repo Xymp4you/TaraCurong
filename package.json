@@ -79,6 +79,7 @@
     "next": "^15.0.0",
     "next-auth": "^5.0.0-beta",
     "next-intl": "^3.0.0",
+    "pdf-parse": "^2.4.5",
     "pg": "^8.11.0",
     "postcss": "^8.4.0",
     "postgres": "^3.4.0",

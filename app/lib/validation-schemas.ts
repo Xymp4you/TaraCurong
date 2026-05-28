@@ -41,6 +41,12 @@ export const signupJobseekerRequestSchema = z.object({
   firstName: z.string().min(1, "First name required").max(100),
   lastName: z.string().min(1, "Last name required").max(100),
   email: emailSchema,
+  facebookLink: z
+    .string()
+    .trim()
+    .min(1, "Facebook profile link is required")
+    .max(200)
+    .refine((v) => /(facebook\.com|fb\.com|fb\.me)\/.+/i.test(v), "Enter a valid Facebook profile link"),
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")
@@ -49,6 +55,17 @@ export const signupJobseekerRequestSchema = z.object({
   phone: phoneSchema.optional(),
   dateOfBirth: dateStringSchema.optional(),
   registrationType: z.enum(["new_graduate", "returning_worker", "career_changer"]).optional(),
+  // Optional onboarding details collected by the multi-step signup wizard.
+  birthDate: dateStringSchema.optional(),
+  gender: z.string().max(20).optional(),
+  civilStatus: z.string().max(50).optional(),
+  barangay: z.string().max(100).optional(),
+  city: z.string().max(100).optional(),
+  province: z.string().max(100).optional(),
+  preferredOccupation1: z.string().max(100).optional(),
+  preferredOccupation2: z.string().max(100).optional(),
+  preferredOccupation3: z.string().max(100).optional(),
+  otherSkills: z.array(z.string().max(100)).max(30).optional(),
 });
 
 export const signupEmployerRequestSchema = z.object({
@@ -246,6 +263,13 @@ export const jobseekerProfileUpdateSchema = z.object({
   middleName: z.string().max(100).nullable().optional(),
   suffix: z.string().max(20).nullable().optional(),
   resumeUrl: z.string().max(1000).nullable().optional(),
+  resumeSummary: z.string().max(3000).nullable().optional(),
+  facebookLink: z
+    .string()
+    .trim()
+    .max(200)
+    .refine((v) => v === "" || /(facebook\.com|fb\.com|fb\.me)\/.+/i.test(v), "Enter a valid Facebook profile link")
+    .optional(),
   phone: phoneSchema.optional(),
   birthDate: dateStringSchema.optional(),
   gender: z.string().max(20).nullable().optional(),
@@ -355,6 +379,9 @@ export const employerAccountProfileUpdateSchema = z
     totalPaidEmployees: z.number().int().min(0).optional(),
     totalVacantPositions: z.number().int().min(0).optional(),
     srsSubscriberIntent: z.boolean().optional(),
+
+    // Company social links (website field already defined below)
+    socialLinks: z.array(z.string().trim().min(1).max(300)).max(10).optional(),
 
     // SRS Form 2 — Geographic Identification
     province: z.string().min(2).max(100).optional(),

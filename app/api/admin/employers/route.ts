@@ -28,7 +28,7 @@ export async function GET(req: Request) {
     let query = supabaseAdmin
       .from("employers")
       .select(
-        "id, establishment_name, contact_person, contact_phone, email, city, province, account_status, created_at, company_tax_id, industry",
+        "id, establishment_name, contact_person, contact_phone, email, city, province, account_status, created_at, company_tax_id, industry, dti_registration_file",
         { count: "exact" }
       )
       .eq("is_archived", false)
@@ -57,6 +57,7 @@ export async function GET(req: Request) {
       createdAt: e.created_at,
       tin: e.company_tax_id,
       industry: e.industry,
+      dtiRegistered: Boolean(e.dti_registration_file),
     }));
 
     return NextResponse.json({ employers, status: normalizedStatus });

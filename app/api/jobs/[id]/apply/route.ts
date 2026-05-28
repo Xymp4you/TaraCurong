@@ -4,6 +4,11 @@ import { auth } from "@/lib/auth";
 import { enforceRateLimit, getRequestId } from "@/lib/api-guardrails";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logAuditAction } from "@/lib/audit";
+import {
+  JOBSEEKER_REQUIRED_COLS,
+  REQUIRED_JOBSEEKER_FIELDS,
+  missingFields,
+} from "@/lib/profile-completeness";
 
 const applySchema = z.object({
   coverLetter: z.string().max(5000).optional(),
@@ -93,7 +98,11 @@ export async function POST(
       );
     }
 
-    if (jobData.job_status !== "Open" || !jobData.is_active || jobData.archived) {
+    // Status vocabulary is inconsistent across the codebase — accept any of the
+    // values that other read paths treat as "applyable" (active is the
+    // canonical state; Open/open are legacy values used elsewhere).
+    const APPLYABLE_STATUSES = new Set(["active", "Open", "open"]);
+    if (!APPLYABLE_STATUSES.has(jobData.job_status) || !jobData.is_active || jobData.archived) {
       return NextResponse.json(
         { error: "This job is no longer available" },
         { status: 400, headers: { "X-Request-ID": getRequestId(request) } }
@@ -115,13 +124,36 @@ export async function POST(
     }
 
     // The jobseekers table holds the canonical applicant record (no separate `users` table)
+    const applicantSelect = ["first_name", "last_name", "email", "resume_url", ...JOBSEEKER_REQUIRED_COLS]
+      .filter((c, i, arr) => arr.indexOf(c) === i)
+      .join(", ");
     const applicantResult = await supabaseAdmin
       .from("jobseekers")
-      .select("first_name, last_name, email, resume_url")
+      .select(applicantSelect)
       .eq("id", session.user.id!)
       .single();
 
     const applicantData = applicantResult.data as Record<string, unknown> | null;
+
+    // Profile-completeness gate: enforce the same required fields the signup
+    // wizard collects, so older accounts can't bypass them by applying directly.
+    // A body-supplied resumeUrl (upload-and-apply path) satisfies the resume
+    // requirement even when the jobseeker hasn't set a profile resume yet.
+    const dataForGate = resumeUrl
+      ? { ...applicantData, resume_url: applicantData?.resume_url || resumeUrl }
+      : applicantData;
+    const missing = missingFields(dataForGate, REQUIRED_JOBSEEKER_FIELDS);
+    if (missing.length) {
+      return NextResponse.json(
+        {
+          error: "Complete your profile before applying",
+          message: `Please complete your profile first. Missing: ${missing.join(", ")}.`,
+          code: "PROFILE_INCOMPLETE",
+          missing,
+        },
+        { status: 403, headers: { "X-Request-ID": getRequestId(request) } }
+      );
+    }
 
     // Fall back to session-provided identity if the DB lookup fails
     const applicantName = applicantData
@@ -149,6 +181,14 @@ export async function POST(
       })
       .select("*")
       .single();
+
+    if (inserted.error || !inserted.data) {
+      console.error("[POST /api/jobs/[id]/apply] Failed to insert application:", inserted.error);
+      return NextResponse.json(
+        { error: "Failed to submit application", details: inserted.error?.message },
+        { status: 500, headers: { "X-Request-ID": getRequestId(request) } }
+      );
+    }
 
     await logAuditAction({
       userId: session.user.id!,

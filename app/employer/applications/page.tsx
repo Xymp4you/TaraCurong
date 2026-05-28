@@ -16,7 +16,7 @@ const APP_STATUS: Record<AppStatus, { tone: PillTone; label: string }> = {
   withdrawn: { tone: "slate", label: "Withdrawn" },
 };
 
-type Row = { id: string; ini: string; n: string; w: string; m: number; d: string; s: AppStatus; nsrp: string | null; selected?: boolean };
+type Row = { id: string; ini: string; n: string; w: string; m: number; d: string; s: AppStatus; nsrp: string | null; fb: string | null; summary: string | null; selected?: boolean };
 
 // Shape returned by GET /api/employer/applications (a row from the `applications`
 // table plus nested jobs(position_title) and jobseekers(...) joins).
@@ -38,6 +38,8 @@ interface ApiApplication {
     nsrp_id: string | null;
     city: string | null;
     province: string | null;
+    facebook_link: string | null;
+    resume_summary: string | null;
   } | null;
 }
 
@@ -91,6 +93,8 @@ const toRow = (a: ApiApplication): Row => {
     d: formatApplied(a.submitted_at ?? a.created_at),
     s,
     nsrp: js?.nsrp_id ?? null,
+    fb: js?.facebook_link ?? null,
+    summary: js?.resume_summary ?? null,
   };
 };
 
@@ -126,7 +130,7 @@ export default function EmployerApplicationsPage() {
     ];
   }, [ROWS]);
 
-  const EMPTY_ROW: Row = { id: "", ini: "—", n: "—", w: "—", m: 0, d: "—", s: "submitted", nsrp: null };
+  const EMPTY_ROW: Row = { id: "", ini: "—", n: "—", w: "—", m: 0, d: "—", s: "submitted", nsrp: null, fb: null, summary: null };
   const sel = ROWS[activeRow] ?? EMPTY_ROW;
 
   return (
@@ -385,6 +389,17 @@ export default function EmployerApplicationsPage() {
               <div className="tx-mono" style={{ fontSize: 11, color: "var(--ink-3)", marginTop: 4 }}>
                 {sel.nsrp ?? "—"}
               </div>
+              {sel.fb ? (
+                <a
+                  href={sel.fb}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="tx-micro"
+                  style={{ color: "var(--teal)", marginTop: 4, display: "inline-block", textDecoration: "none" }}
+                >
+                  Facebook profile ↗
+                </a>
+              ) : null}
             </div>
           </div>
 
@@ -399,7 +414,7 @@ export default function EmployerApplicationsPage() {
           </div>
         </div>
 
-        {/* AI rationale */}
+        {/* Professional summary (AI-assisted, jobseeker-reviewed) */}
         <div style={{ padding: "0 22px 22px" }}>
           <div
             style={{
@@ -420,34 +435,18 @@ export default function EmployerApplicationsPage() {
                   textTransform: "uppercase",
                 }}
               >
-                Why this matches
+                Professional summary
               </span>
             </div>
-            <p className="tx-body" style={{ fontSize: 13, color: "var(--ink-2)", margin: 0 }}>
-              {sel.n.split(" ")[0]} has {sel.w}, hands-on QuickBooks and Excel, and lives within 25 km of the
-              Tacurong cannery. The payroll and BIR-filing background lines up cleanly with this role&apos;s
-              reconciliation requirements.
-            </p>
-            <div style={{ display: "flex", gap: 6, marginTop: 10, flexWrap: "wrap" }}>
-              {[
-                { l: "Skills overlap", v: "9/10" },
-                { l: "Experience", v: "5y / 3y req" },
-                { l: "Location", v: "12 km" },
-              ].map((c) => (
-                <span
-                  key={c.l}
-                  style={{
-                    padding: "3px 8px",
-                    background: "rgba(255,255,255,0.6)",
-                    borderRadius: 999,
-                    fontSize: 11,
-                  }}
-                >
-                  <span style={{ color: "var(--ink-3)" }}>{c.l} </span>
-                  <span className="tx-mono" style={{ color: "var(--violet)" }}>{c.v}</span>
-                </span>
-              ))}
-            </div>
+            {sel.summary ? (
+              <p className="tx-body" style={{ fontSize: 13, color: "var(--ink-2)", margin: 0, whiteSpace: "pre-wrap" }}>
+                {sel.summary}
+              </p>
+            ) : (
+              <p className="tx-body" style={{ fontSize: 13, color: "var(--ink-3)", margin: 0, fontStyle: "italic" }}>
+                This applicant hasn&apos;t added a professional summary yet.
+              </p>
+            )}
           </div>
         </div>
 

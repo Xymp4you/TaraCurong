@@ -334,8 +334,8 @@ const JobseekerProfileWizard = forwardRef<JobseekerProfileWizardRef, {
                   <input name="suffix" value={form.suffix} onChange={handleChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-slate-500" />
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Phone <span className="text-red-500">*</span></label>
-                  <input name="phone" value={form.phone} onChange={handleChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-slate-500" required />
+                  <label className="text-sm font-medium text-slate-700">Phone</label>
+                  <input name="phone" value={form.phone} onChange={handleChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-slate-500" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-700">Birth Date <span className="text-red-500">*</span></label>
@@ -350,8 +350,8 @@ const JobseekerProfileWizard = forwardRef<JobseekerProfileWizardRef, {
                   </select>
                 </div>
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Religion <span className="text-red-500">*</span></label>
-                  <input name="religion" value={form.religion} onChange={handleChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-slate-500" required />
+                  <label className="text-sm font-medium text-slate-700">Religion</label>
+                  <input name="religion" value={form.religion} onChange={handleChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm focus:ring-slate-500" />
                 </div>
                 <div>
                   <label className="text-sm font-medium text-slate-700">Civil Status <span className="text-red-500">*</span></label>
@@ -458,8 +458,8 @@ const JobseekerProfileWizard = forwardRef<JobseekerProfileWizardRef, {
               <h3 className="text-lg font-semibold text-slate-900 border-b pb-2">Employment Status</h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm font-medium text-slate-700">Current Status <span className="text-red-500">*</span></label>
-                  <select name="employmentStatus" value={form.employmentStatus} onChange={handleChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" required>
+                  <label className="text-sm font-medium text-slate-700">Current Status</label>
+                  <select name="employmentStatus" value={form.employmentStatus} onChange={handleChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm">
                     <option value="">Select Status</option>
                     <option value="Employed">Employed</option>
                     <option value="Unemployed">Unemployed</option>
@@ -772,8 +772,8 @@ const JobseekerProfileWizard = forwardRef<JobseekerProfileWizardRef, {
                 <h4 className="text-sm font-semibold text-slate-900 mb-3">Preferred Work Location (Local)</h4>
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                   <div>
-                    <label className="text-sm font-medium text-slate-700">Location 1 <span className="text-red-500">*</span></label>
-                    <input name="preferredWorkLocationLocal1" value={form.preferredWorkLocationLocal1} onChange={handleChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" placeholder="e.g. Davao City" required />
+                    <label className="text-sm font-medium text-slate-700">Location 1</label>
+                    <input name="preferredWorkLocationLocal1" value={form.preferredWorkLocationLocal1} onChange={handleChange} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" placeholder="e.g. Davao City" />
                   </div>
                   <div>
                     <label className="text-sm font-medium text-slate-700">Location 2</label>

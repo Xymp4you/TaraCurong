@@ -26,6 +26,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 type ApplicationDetail = {
   id: string;
   status: string;
+  employerId: string | null;
   submittedAt: string;
   reviewedAt: string | null;
   interviewDate: string | null;
@@ -72,6 +73,54 @@ export default function ApplicationDetailPage() {
 
     void load();
   }, [id]);
+
+  // ---- Rate this employer (jobseeker who applied) ----
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewComment, setReviewComment] = useState("");
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewSaved, setReviewSaved] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const employerId = application?.employerId ?? null;
+
+  useEffect(() => {
+    if (!employerId) return;
+    fetch(`/api/employers/${employerId}/reviews`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => {
+        if (d?.myReview) {
+          setReviewRating(d.myReview.rating || 0);
+          setReviewComment(d.myReview.comment || "");
+          setReviewSaved(true);
+        }
+      })
+      .catch(() => {});
+  }, [employerId]);
+
+  const submitReview = async () => {
+    if (!employerId || reviewRating < 1) {
+      setReviewError("Please choose a star rating.");
+      return;
+    }
+    setReviewSubmitting(true);
+    setReviewError("");
+    try {
+      const res = await fetch(`/api/employers/${employerId}/reviews`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ rating: reviewRating, comment: reviewComment.trim() || undefined }),
+      });
+      if (!res.ok) {
+        const d = await res.json().catch(() => ({}));
+        setReviewError(d.error || "Failed to submit review");
+        return;
+      }
+      setReviewSaved(true);
+    } catch {
+      setReviewError("Failed to submit review");
+    } finally {
+      setReviewSubmitting(false);
+    }
+  };
 
   const getStatusConfig = (status: string) => {
     switch (status) {
@@ -268,6 +317,42 @@ export default function ApplicationDetailPage() {
               </div>
             </Card>
           )}
+
+          {/* Rate this employer */}
+          <Card className="p-6 border-slate-200">
+            <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3">Rate this employer</h3>
+            <p className="text-xs text-slate-500 mb-3">
+              Your honest rating helps other jobseekers decide. It shows publicly as your first name + last initial.
+            </p>
+            <div className="flex items-center gap-1 mb-3">
+              {[1, 2, 3, 4, 5].map((n) => (
+                <button
+                  key={n}
+                  type="button"
+                  onClick={() => setReviewRating(n)}
+                  className="text-2xl leading-none"
+                  style={{ color: n <= reviewRating ? "#f59e0b" : "#cbd5e1" }}
+                  aria-label={`${n} star${n > 1 ? "s" : ""}`}
+                >
+                  ★
+                </button>
+              ))}
+            </div>
+            <textarea
+              value={reviewComment}
+              onChange={(e) => setReviewComment(e.target.value)}
+              rows={3}
+              placeholder="Share your experience with this employer (optional)"
+              className="w-full rounded-lg border border-slate-300 px-3 py-2 text-sm outline-none focus:ring-2 ring-sky-300"
+            />
+            {reviewError ? <p className="mt-2 text-xs text-red-600">{reviewError}</p> : null}
+            {reviewSaved && !reviewError ? (
+              <p className="mt-2 text-xs text-emerald-600">Thanks — your review has been saved.</p>
+            ) : null}
+            <Button onClick={submitReview} disabled={reviewSubmitting} className="mt-3 w-full" size="sm">
+              {reviewSubmitting ? "Saving..." : reviewSaved ? "Update review" : "Submit review"}
+            </Button>
+          </Card>
 
           <Card className="p-6 border-slate-200">
             <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider mb-4">Job Summary</h3>

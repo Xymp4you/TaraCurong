@@ -5,6 +5,11 @@ import { safeDatabaseOperation, successResponse, errorResponse, createApiError, 
 import { listEmployerJobs } from "@/lib/db-helpers";
 import { supabaseAdmin } from "@/lib/supabase";
 import { tryCreateNotification } from "@/lib/notifications";
+import {
+  EMPLOYER_REQUIRED_COLS,
+  REQUIRED_EMPLOYER_FIELDS,
+  missingFields,
+} from "@/lib/profile-completeness";
 import { z } from "zod";
 
 type EmployerJobsListQuery = z.infer<typeof employerJobsListQuerySchema>;
@@ -82,31 +87,53 @@ export const POST = createPostHandler<CreateJobPostingBody>(
       );
     }
 
-    // --- Approval Gate Middleware ---
-    // Check if the employer's profile is approved before allowing job posting
+    // --- Profile-completeness gate ---
+    // Employers are now auto-active (no admin approval), but they still can't
+    // post jobs until the required establishment info is filled — same rules
+    // the signup wizard enforces, applied to older accounts too.
     const employerData = await safeDatabaseOperation(
       async () => {
         const { data, error } = await supabaseAdmin
           .from("employers")
-          .select("account_status")
+          .select(["account_status", ...EMPLOYER_REQUIRED_COLS].join(", "))
           .eq("id", ctx.user!.id)
           .single();
         if (error) throw error;
-        return data;
+        return data as unknown as Record<string, unknown> | null;
       },
-      "checkAccountStatus"
+      "checkEmployerProfile"
     );
 
-    if (!employerData.success || employerData.data?.account_status !== "approved") {
+    if (!employerData.success) {
+      return errorResponse(
+        createApiError(ErrorCode.DATABASE_ERROR, "Unable to verify employer profile"),
+        ctx.requestId
+      );
+    }
+
+    if (employerData.data?.account_status === "suspended") {
       return errorResponse(
         createApiError(
-          ErrorCode.FORBIDDEN, 
-          "Your employer profile must be approved by an administrator before you can post jobs. If you recently updated your profile, it may be pending re-approval."
+          ErrorCode.FORBIDDEN,
+          "Your employer account has been suspended. Contact TaraCurong support."
         ),
         ctx.requestId
       );
     }
-    // ----------------------------
+
+    const missing = missingFields(employerData.data, REQUIRED_EMPLOYER_FIELDS);
+    if (missing.length) {
+      return errorResponse(
+        createApiError(
+          ErrorCode.FORBIDDEN,
+          `Complete your employer profile before posting jobs. Missing: ${missing.join(", ")}.`,
+          `Please complete your employer profile first. Missing: ${missing.join(", ")}.`,
+          { code: "PROFILE_INCOMPLETE", missing }
+        ),
+        ctx.requestId
+      );
+    }
+    // -------------------------------
 
     const payload = body;
     if (!payload) {
@@ -136,7 +163,9 @@ export const POST = createPostHandler<CreateJobPostingBody>(
             salary_max: payload.salaryMax || null,
             salary_period: payload.salaryPeriod || "monthly",
             vacancies: payload.vacancies || 1,
-            job_status: "pending", 
+            // Employers are auto-active in this community project, so new postings
+            // are immediately visible to jobseekers. Admins can still suspend later.
+            job_status: "active",
             work_setup: payload.employmentType || "onsite",
             work_type: payload.workType || "Full-time",
             employment_contract_type: payload.employmentContractType || null,

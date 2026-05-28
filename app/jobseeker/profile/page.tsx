@@ -3,7 +3,7 @@ export const dynamic = "force-dynamic";
 
 import { useEffect, useState, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import { Camera, CheckCircle2, FileText, Loader2, Save, Upload } from "lucide-react";
+import { Camera, CheckCircle2, FileText, Link2, Loader2, Save, Upload } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { compressImage } from "@/lib/image-utils";
@@ -25,6 +25,11 @@ export default function JobseekerProfilePage() {
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uploadingResume, setUploadingResume] = useState(false);
+  const [facebookLink, setFacebookLink] = useState("");
+  const [savingFacebook, setSavingFacebook] = useState(false);
+  const [resumeSummary, setResumeSummary] = useState("");
+  const [generatingSummary, setGeneratingSummary] = useState(false);
+  const [savingSummary, setSavingSummary] = useState(false);
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const wizardRef = useRef<JobseekerProfileWizardRef>(null);
@@ -86,6 +91,87 @@ export default function JobseekerProfilePage() {
   useEffect(() => {
     void loadData();
   }, []);
+
+  // Initialize the editable Facebook link + AI summary once the profile loads.
+  useEffect(() => {
+    if (profile) {
+      setFacebookLink(profile.facebook_link || "");
+      setResumeSummary(profile.resume_summary || "");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile?.id]);
+
+  const generateSummary = async () => {
+    setGeneratingSummary(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch("/api/jobseeker/resume-summary", { method: "POST" });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setError(data.error ?? "Unable to generate a summary right now.");
+        return;
+      }
+      setResumeSummary(data.summary || "");
+      setSuccess("Draft summary generated. Review and edit it, then click Save summary.");
+    } catch {
+      setError("Unable to generate a summary right now.");
+    } finally {
+      setGeneratingSummary(false);
+    }
+  };
+
+  const saveSummary = async () => {
+    setSavingSummary(true);
+    setError("");
+    setSuccess("");
+    try {
+      const res = await fetch("/api/jobseeker/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ resumeSummary: resumeSummary.trim() }),
+      });
+      if (!res.ok) {
+        const handled = await handleApiError(res, { showToast: false });
+        setError(handled.message);
+        return;
+      }
+      const data = await res.json();
+      if (data.profile) setProfile(data.profile);
+      setSuccess("Summary saved.");
+    } catch {
+      setError("Unable to save summary");
+    } finally {
+      setSavingSummary(false);
+    }
+  };
+
+  const saveFacebook = async () => {
+    setSavingFacebook(true);
+    setError("");
+    setSuccess("");
+    try {
+      const raw = facebookLink.trim();
+      const normalized = raw && !/^https?:\/\//i.test(raw) ? `https://${raw}` : raw;
+      const res = await fetch("/api/jobseeker/profile", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ facebookLink: normalized }),
+      });
+      if (!res.ok) {
+        const handled = await handleApiError(res, { showToast: false });
+        setError(handled.message);
+        return;
+      }
+      const data = await res.json();
+      if (data.profile) setProfile(data.profile);
+      setSuccess("Facebook link saved.");
+    } catch {
+      setError("Unable to save Facebook link");
+    } finally {
+      setSavingFacebook(false);
+    }
+  };
 
   const uploadProfileImage = async (file: File) => {
     setUploadingImage(true);
@@ -308,6 +394,84 @@ export default function JobseekerProfilePage() {
               />
             </label>
           </div>
+        </Card>
+
+        <Card className="p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h3 className="text-lg font-bold text-slate-900">Professional summary</h3>
+              <p className="text-sm text-slate-500 mt-1">
+                A short paragraph that introduces you to employers. Generate a draft from your
+                uploaded resume (or your CV details), then edit it to sound like you.
+              </p>
+            </div>
+            <Button
+              type="button"
+              onClick={generateSummary}
+              disabled={generatingSummary || savingSummary}
+              className="bg-sky-600 text-white hover:bg-sky-700 shrink-0"
+            >
+              {generatingSummary ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <FileText className="h-4 w-4 mr-2" />}
+              {generatingSummary ? "Generating..." : "✨ Generate from resume"}
+            </Button>
+          </div>
+
+          <textarea
+            value={resumeSummary}
+            onChange={(e) => setResumeSummary(e.target.value)}
+            rows={5}
+            maxLength={3000}
+            placeholder="e.g. I'm a customer service representative with 3 years of experience in retail..."
+            className="mt-4 w-full rounded-lg border border-slate-300 p-3 text-sm outline-none ring-sky-300 focus:ring-2"
+          />
+
+          <div className="mt-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <p className="text-xs text-slate-400">
+              ✨ AI-generated drafts are a starting point — always review for accuracy before saving.
+            </p>
+            <Button
+              type="button"
+              onClick={saveSummary}
+              disabled={savingSummary || generatingSummary}
+              className="bg-slate-900 text-white hover:bg-slate-800 shrink-0"
+            >
+              {savingSummary ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+              {savingSummary ? "Saving..." : "Save summary"}
+            </Button>
+          </div>
+        </Card>
+
+        <Card className="p-6">
+          <h3 className="text-lg font-bold text-slate-900">Facebook profile</h3>
+          <p className="text-sm text-slate-500 mt-1">
+            Your public Facebook profile link — helps employers and TaraCurong confirm you&apos;re a real person.
+          </p>
+          <div className="mt-4 flex flex-col sm:flex-row gap-3">
+            <div className="relative flex-1">
+              <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+              <input
+                type="url"
+                value={facebookLink}
+                onChange={(e) => setFacebookLink(e.target.value)}
+                placeholder="https://facebook.com/your.profile"
+                className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-4 text-sm outline-none ring-sky-300 focus:ring-2"
+              />
+            </div>
+            <Button onClick={saveFacebook} disabled={savingFacebook} className="bg-slate-900 text-white hover:bg-slate-800 shrink-0">
+              {savingFacebook ? <Loader2 className="h-4 w-4 mr-2 animate-spin" /> : <Save className="h-4 w-4 mr-2" />}
+              {savingFacebook ? "Saving..." : "Save link"}
+            </Button>
+          </div>
+          {profile.facebook_link ? (
+            <a
+              href={profile.facebook_link}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 mt-3 text-sm font-semibold text-slate-900 underline"
+            >
+              <Link2 className="h-4 w-4" /> View current profile
+            </a>
+          ) : null}
         </Card>
 
         <JobseekerProfileWizard

@@ -207,6 +207,35 @@ export default function AdminViewEmployerProfilePage() {
               <InfoItem label="Industry" value={profile.industry || profile.industry_code?.join(", ")} icon={Briefcase} />
               <InfoItem label="Type of Establishment" value={profile.type_of_establishment} />
               <InfoItem label="Total Work Force" value={profile.total_paid_employees || profile.total_work_force} icon={Users} />
+              <InfoItem
+                label="Website"
+                icon={Globe}
+                value={
+                  profile.website ? (
+                    <a href={profile.website} target="_blank" rel="noopener noreferrer" className="text-sky-700 hover:underline">
+                      {profile.website}
+                    </a>
+                  ) : null
+                }
+              />
+              {Array.isArray(profile.social_links) && profile.social_links.length > 0 ? (
+                <div className="col-span-full">
+                  <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-1">Social Links</p>
+                  <div className="flex flex-wrap gap-x-4 gap-y-1">
+                    {profile.social_links.map((url: string, i: number) => (
+                      <a
+                        key={i}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1 text-sm text-sky-700 hover:underline break-all"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5 shrink-0" /> {url}
+                      </a>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </Card>
           </section>
 
@@ -228,13 +257,48 @@ export default function AdminViewEmployerProfilePage() {
             </Card>
           </section>
 
+          {/* Section: Business Registration */}
+          <section className="space-y-4">
+            <div className="flex items-center gap-3 text-slate-900">
+              <div className="h-8 w-8 rounded-lg bg-emerald-50 flex items-center justify-center text-emerald-600">
+                <FileText className="h-4 w-4" />
+              </div>
+              <h3 className="text-lg font-bold">III. Business Registration</h3>
+            </div>
+            <Card className="p-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="flex items-center gap-3">
+                  <div className="h-10 w-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-500">
+                    <FileText className="h-5 w-5" />
+                  </div>
+                  <div>
+                    <p className="text-sm font-bold text-slate-900">DTI Business Registration Certificate</p>
+                    <p className="text-xs text-slate-500">Submitted at signup</p>
+                  </div>
+                </div>
+                {profile.dti_registration_file ? (
+                  <a
+                    href={`/api/files/employer-document?path=${encodeURIComponent(profile.dti_registration_file)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-1.5 text-sm font-semibold text-sky-700 hover:underline"
+                  >
+                    View document <ExternalLink className="h-3.5 w-3.5" />
+                  </a>
+                ) : (
+                  <span className="text-sm text-slate-400">Not provided</span>
+                )}
+              </div>
+            </Card>
+          </section>
+
           {/* Section: Company Description */}
           <section className="space-y-4">
             <div className="flex items-center gap-3 text-slate-900">
               <div className="h-8 w-8 rounded-lg bg-slate-50 flex items-center justify-center text-slate-600">
                 <Info className="h-4 w-4" />
               </div>
-              <h3 className="text-lg font-bold">III. Company Description</h3>
+              <h3 className="text-lg font-bold">IV. Company Description</h3>
             </div>
             <Card className="p-6">
               <p className="text-sm text-slate-600 leading-relaxed whitespace-pre-wrap">

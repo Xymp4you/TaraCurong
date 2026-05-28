@@ -33,4 +33,8 @@ export type JobDetailResponse = JobDetailRecord & {
   applicationStatus?: string | null;
   isSaved?: boolean;
   applicationsCount?: number;
+  // Employer trust signals
+  website?: string | null;
+  socialLinks?: string[];
+  dtiRegistered?: boolean;
 };

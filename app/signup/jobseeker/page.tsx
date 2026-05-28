@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Eye, EyeOff, Lock, Mail, User } from "lucide-react";
+import { Eye, EyeOff, Link2, Lock, Mail, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { validatePasswordRules } from "@/lib/password-rules";
@@ -14,6 +14,7 @@ export default function JobseekerSignupPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
+  const [facebookLink, setFacebookLink] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -47,6 +48,10 @@ export default function JobseekerSignupPage() {
     if (!email.trim()) nextErrors.email = "Email is required";
     else if (!/^\S+@\S+\.\S+$/.test(email.trim())) nextErrors.email = "Enter a valid email";
 
+    if (!facebookLink.trim()) nextErrors.facebookLink = "Facebook profile link is required";
+    else if (!/(facebook\.com|fb\.com|fb\.me)\/.+/i.test(facebookLink.trim()))
+      nextErrors.facebookLink = "Enter a valid Facebook profile link";
+
     if (!password) nextErrors.password = "Password is required";
     else {
       const validation = validatePasswordRules(password);
@@ -71,6 +76,7 @@ export default function JobseekerSignupPage() {
           firstName: firstName.trim(),
           lastName: lastName.trim(),
           email,
+          facebookLink: facebookLink.trim(),
           password,
         }),
       });
@@ -172,6 +178,29 @@ export default function JobseekerSignupPage() {
             />
           </div>
           {fieldErrors.email ? <p className="mt-1 text-xs text-red-600">{fieldErrors.email}</p> : null}
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">Facebook profile link</label>
+          <div className="relative">
+            <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="url"
+              className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-4 text-sm outline-none ring-sky-300 focus:ring-2"
+              value={facebookLink}
+              onChange={(e) => {
+                setFacebookLink(e.target.value);
+                clearFieldError("facebookLink");
+              }}
+              placeholder="https://facebook.com/your.profile"
+              aria-invalid={!!fieldErrors.facebookLink}
+            />
+          </div>
+          {fieldErrors.facebookLink ? (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.facebookLink}</p>
+          ) : (
+            <p className="mt-1 text-xs text-slate-500">Helps employers and TaraCurong confirm you&apos;re a real person.</p>
+          )}
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2">

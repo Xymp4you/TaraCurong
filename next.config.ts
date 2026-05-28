@@ -3,6 +3,8 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
+  // pdf-parse uses dynamic requires / fs; keep it external so Next doesn't bundle it.
+  serverExternalPackages: ["pdf-parse"],
   typescript: {
     tsconfigPath: "./tsconfig.json",
     // Pre-existing type-check errors (~163) are tracked separately via `npm run type-check`.

@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
-import { CheckCircle2, Clock, RefreshCw, XCircle, Archive, ArrowRight, User, Hash, Briefcase, MapPin } from "lucide-react";
+import { CheckCircle2, Clock, RefreshCw, XCircle, Archive, ArrowRight, User, Hash, Briefcase, MapPin, BadgeCheck } from "lucide-react";
 import Link from "next/link";
 
 type Employer = {
@@ -20,13 +20,14 @@ type Employer = {
   createdAt: string;
   tin?: string;
   industry?: string;
+  dtiRegistered?: boolean;
 };
 
 const STATUS_FILTERS = ["all", "pending", "approved", "suspended"] as const;
 const ACTIONS = ["approved", "suspended"] as const;
 
 export default function AdminEmployersPage() {
-  const [statusFilter, setStatusFilter] = useState<(typeof STATUS_FILTERS)[number]>("pending");
+  const [statusFilter, setStatusFilter] = useState<(typeof STATUS_FILTERS)[number]>("all");
   const [searchQuery, setSearchQuery] = useState("");
   const [allEmployers, setAllEmployers] = useState<Employer[]>([]);
   const [employers, setEmployers] = useState<Employer[]>([]);
@@ -126,8 +127,8 @@ export default function AdminEmployersPage() {
     <div className="space-y-6">
       <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-200 pb-4">
         <div>
-          <h1 className="text-3xl font-bold text-slate-950">Employer Approvals</h1>
-          <p className="text-sm text-slate-600">Approve, reject, suspend, and track employer onboarding.</p>
+          <h1 className="text-3xl font-bold text-slate-950">Employers</h1>
+          <p className="text-sm text-slate-600">Monitor registered employers and suspend any that violate guidelines.</p>
         </div>
         <div className="flex items-center gap-2">
           <Link href="/admin/employers/create">
@@ -206,6 +207,11 @@ export default function AdminEmployersPage() {
                     >
                       {employer.establishmentName}
                     </Link>
+                    {employer.dtiRegistered ? (
+                      <span className="ml-2 inline-flex items-center gap-1 rounded-full bg-emerald-50 text-emerald-700 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide align-middle">
+                        <BadgeCheck className="h-3 w-3" /> DTI-registered
+                      </span>
+                    ) : null}
                     <p className="text-sm text-slate-600 mt-1 flex items-center gap-2">
                       <User className="h-3.5 w-3.5" /> {employer.contactPerson} ({employer.email})
                     </p>

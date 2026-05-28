@@ -9,7 +9,8 @@ Auth uses **Supabase** (not NextAuth/Drizzle, despite stale docs). `app/lib/auth
 
 **Role provisioning is split across a DB trigger + the auth callbacks:**
 - The `handle_new_user` trigger (docs/migrations/20260426_fix_auth_trigger.sql) fires on `auth.users` insert and creates a `jobseekers` OR `employers` row based on `raw_user_meta_data->>'role'`, defaulting to **jobseeker**. It does NOT create `admins` or `users` rows.
-- Google social login has no role → defaults to jobseeker. `app/auth/callback/route.ts` assigns the picked role (from `next`) for first-time social users; new employers become **pending** (`employers.account_status` default `pending`) and are routed to `/pending-approval`. The employer layout gates non-approved employers there.
+- Google social login has no role → defaults to jobseeker. `app/auth/callback/route.ts` assigns the picked role (from `next`) for first-time social users.
+- **Employers are AUTO-ACTIVE (no approval).** As of 2026-05-28 `employers.account_status`/`is_active` default to `approved`/`true` — a community project can't verify businesses, so the model is post-moderation: employers active on signup, admin monitors + can **suspend**. The employer layout gate only blocks non-`approved` (i.e. suspended) employers, sending them to `/pending-approval` (repurposed as an "account inactive/suspended" notice). Admin employers page (`/admin/employers`) keeps approve/suspend actions.
 
 **Admins require BOTH:** a Supabase auth user with `user_metadata.role='admin'` AND a `public.admins` row (the admin OAuth callback `app/api/auth/callback/admin/route.ts` matches by email). Approving an `admin_access_requests` row provisions both. Bootstrap the first admin with `node scripts/bootstrap-admin.cjs [email] [password]`.
 

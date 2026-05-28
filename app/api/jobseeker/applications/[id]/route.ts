@@ -36,6 +36,7 @@ export async function GET(
     // Map snake_case to camelCase for the frontend
     const application = {
       ...data,
+      employerId: data.employer_id,
       submittedAt: data.submitted_at,
       reviewedAt: data.reviewed_at,
       interviewDate: data.interview_date,

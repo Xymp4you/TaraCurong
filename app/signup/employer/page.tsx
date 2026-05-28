@@ -3,7 +3,7 @@
 import { FormEvent, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Building2, Eye, EyeOff, Lock, Mail } from "lucide-react";
+import { Building2, Eye, EyeOff, FileText, Globe, Link2, Lock, Mail, Plus, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { AuthShell } from "@/components/auth/auth-shell";
 import { validatePasswordRules } from "@/lib/password-rules";
@@ -19,6 +19,9 @@ export default function EmployerSignupPage() {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [dtiFile, setDtiFile] = useState<File | null>(null);
+  const [website, setWebsite] = useState("");
+  const [socialLinks, setSocialLinks] = useState<string[]>([]);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -59,6 +62,9 @@ export default function EmployerSignupPage() {
     if (!formData.confirmPassword) nextErrors.confirmPassword = "Confirm your password";
     else if (formData.password !== formData.confirmPassword) nextErrors.confirmPassword = "Passwords do not match";
 
+    if (dtiFile && !["application/pdf", "image/png", "image/jpeg", "image/webp"].includes(dtiFile.type))
+      nextErrors.dtiFile = "Upload a PDF or image (PNG/JPG)";
+
     if (Object.keys(nextErrors).length > 0) {
       setFieldErrors(nextErrors);
       return;
@@ -67,14 +73,19 @@ export default function EmployerSignupPage() {
     setLoading(true);
 
     try {
+      const fd = new FormData();
+      fd.append("establishmentName", formData.companyName.trim());
+      fd.append("email", formData.email);
+      fd.append("password", formData.password);
+      if (dtiFile) fd.append("dtiRegistrationFile", dtiFile);
+      if (website.trim()) fd.append("website", website.trim());
+      const cleanedSocials = socialLinks.map((s) => s.trim()).filter(Boolean);
+      if (cleanedSocials.length) fd.append("socialLinks", JSON.stringify(cleanedSocials));
+
+      // Multipart — let the browser set the boundary; do not set Content-Type.
       const response = await fetch("/api/auth/signup/employer", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          establishmentName: formData.companyName.trim(),
-          email: formData.email,
-          password: formData.password,
-        }),
+        body: fd,
       });
 
       if (!response.ok) {
@@ -211,6 +222,92 @@ export default function EmployerSignupPage() {
             {!fieldErrors.confirmPassword && liveConfirmPasswordError ? <p className="mt-1 text-xs text-red-600">{liveConfirmPasswordError}</p> : null}
             {fieldErrors.confirmPassword ? <p className="mt-1 text-xs text-red-600">{fieldErrors.confirmPassword}</p> : null}
           </div>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            DTI Business Registration Certificate <span className="font-normal text-slate-400">(optional)</span>
+          </label>
+          <label className="flex items-center gap-3 rounded-lg border border-dashed border-slate-300 px-4 py-3 cursor-pointer hover:border-slate-400 transition-colors">
+            <FileText className="h-5 w-5 text-slate-400 shrink-0" />
+            <span className="text-sm text-slate-600 truncate">
+              {dtiFile ? dtiFile.name : "Upload PDF or image (max 10MB)"}
+            </span>
+            <input
+              type="file"
+              className="hidden"
+              accept=".pdf,.png,.jpg,.jpeg,.webp,application/pdf,image/png,image/jpeg,image/webp"
+              onChange={(e) => {
+                setDtiFile(e.target.files?.[0] ?? null);
+                setFieldErrors((prev) => {
+                  const next = { ...prev };
+                  delete next.dtiFile;
+                  return next;
+                });
+              }}
+            />
+          </label>
+          {fieldErrors.dtiFile ? (
+            <p className="mt-1 text-xs text-red-600">{fieldErrors.dtiFile}</p>
+          ) : (
+            <p className="mt-1 text-xs text-slate-500">Optional — upload it if your business is DTI-registered to earn a verified badge. Small or unregistered businesses can skip this.</p>
+          )}
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Company website <span className="font-normal text-slate-400">(optional)</span>
+          </label>
+          <div className="relative">
+            <Globe className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+            <input
+              type="url"
+              className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-4 text-sm outline-none ring-sky-300 focus:ring-2"
+              value={website}
+              onChange={(e) => setWebsite(e.target.value)}
+              placeholder="https://yourcompany.com"
+            />
+          </div>
+        </div>
+
+        <div>
+          <label className="mb-1 block text-sm font-medium text-slate-700">
+            Social links <span className="font-normal text-slate-400">(optional)</span>
+          </label>
+          <div className="space-y-2">
+            {socialLinks.map((link, i) => (
+              <div key={i} className="flex gap-2">
+                <div className="relative flex-1">
+                  <Link2 className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+                  <input
+                    type="url"
+                    className="w-full rounded-lg border border-slate-300 py-2.5 pl-10 pr-4 text-sm outline-none ring-sky-300 focus:ring-2"
+                    value={link}
+                    onChange={(e) => setSocialLinks((prev) => prev.map((l, j) => (j === i ? e.target.value : l)))}
+                    placeholder="https://facebook.com/yourpage"
+                  />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setSocialLinks((prev) => prev.filter((_, j) => j !== i))}
+                  className="rounded-lg border border-slate-300 px-3 text-slate-400 hover:text-slate-700"
+                  aria-label="Remove link"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+            ))}
+            {socialLinks.length < 10 ? (
+              <button
+                type="button"
+                onClick={() => setSocialLinks((prev) => [...prev, ""])}
+                className="inline-flex items-center gap-1.5 text-sm font-medium text-sky-700 hover:text-sky-800"
+              >
+                <Plus className="h-4 w-4" /> Add social link
+              </button>
+            ) : null}
+          </div>
+          <p className="mt-1 text-xs text-slate-500">Facebook page, LinkedIn, etc. — helps people find your company online.</p>
         </div>
 
         <Button

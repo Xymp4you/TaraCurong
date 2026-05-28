@@ -25,7 +25,7 @@ export async function GET(
     const jobResult = await supabaseAdmin
       .from("jobs")
       .select(
-        "id, employer_id, position_title, description, work_setup, starting_salary, vacancies, main_skill_desired, created_at, employers!inner(establishment_name, city, province)"
+        "id, employer_id, position_title, description, work_setup, starting_salary, vacancies, main_skill_desired, created_at, employers!inner(establishment_name, city, province, website, social_links, dti_registration_file)"
       )
       .eq("id", id)
       .or("job_status.eq.Open,job_status.eq.open")
@@ -67,6 +67,9 @@ export async function GET(
         benefits: null,
         createdAt: job.created_at,
         establishmentName: (job.employers as unknown as Record<string, unknown>)?.establishment_name ?? null,
+        website: (job.employers as any)?.website ?? null,
+        socialLinks: Array.isArray((job.employers as any)?.social_links) ? (job.employers as any).social_links : [],
+        dtiRegistered: Boolean((job.employers as any)?.dti_registration_file),
       },
       hasApplied: Boolean(existingApplication),
       applicationStatus: existingApplication?.status ?? null,
