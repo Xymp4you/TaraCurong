@@ -109,7 +109,8 @@ export default function JobseekerProfilePage() {
       const res = await fetch("/api/jobseeker/resume-summary", { method: "POST" });
       const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        setError(data.error ?? "Unable to generate a summary right now.");
+        // Prefer the user-friendly `message` (with actionable guidance) over the technical title.
+        setError(data.message ?? data.error ?? "Unable to generate a summary right now.");
         return;
       }
       setResumeSummary(data.summary || "");

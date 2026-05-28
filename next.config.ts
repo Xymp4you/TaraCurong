@@ -3,8 +3,9 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   allowedDevOrigins: ["127.0.0.1", "localhost"],
-  // pdf-parse uses dynamic requires / fs; keep it external so Next doesn't bundle it.
-  serverExternalPackages: ["pdf-parse"],
+  // pdf-parse uses dynamic requires / fs and mammoth ships with JSZip + XML
+  // tooling — keep both external so Next doesn't try to bundle them.
+  serverExternalPackages: ["pdf-parse", "mammoth"],
   typescript: {
     tsconfigPath: "./tsconfig.json",
     // Pre-existing type-check errors (~163) are tracked separately via `npm run type-check`.
