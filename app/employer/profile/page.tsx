@@ -147,9 +147,25 @@ export default function EmployerProfilePage() {
               <h2 className="text-2xl font-bold text-slate-900">{profile.establishment_name}</h2>
               <p className="text-slate-500">{profile.email}</p>
               <div className="mt-2 flex gap-2 justify-center md:justify-start">
-                <span className="px-2 py-1 bg-amber-100 text-amber-700 text-xs font-semibold rounded-md uppercase tracking-wider">
-                  {profile.account_status || 'Pending Verification'}
-                </span>
+                {(() => {
+                  // Color the status pill based on the actual account_status so
+                  // an "approved" account doesn't look like it's pending review.
+                  const status = (profile.account_status as string | undefined) || "pending";
+                  const tone =
+                    status === "approved" ? "bg-emerald-100 text-emerald-700" :
+                    status === "suspended" || status === "rejected" ? "bg-rose-100 text-rose-700" :
+                    "bg-amber-100 text-amber-700";
+                  const label =
+                    status === "approved" ? "Active" :
+                    status === "suspended" ? "Suspended" :
+                    status === "rejected" ? "Rejected" :
+                    "Pending review";
+                  return (
+                    <span className={`px-2 py-1 ${tone} text-xs font-semibold rounded-md uppercase tracking-wider`}>
+                      {label}
+                    </span>
+                  );
+                })()}
               </div>
             </div>
           </div>

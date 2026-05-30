@@ -24,6 +24,21 @@ export const REQUIRED_EMPLOYER_FIELDS: RequiredField[] = [
   { col: "city", label: "City / Municipality" },
 ];
 
+// Additional fields that don't gate apply but DO count toward the profile
+// completeness pill / 80% threshold. Kept here (single source of truth) so the
+// pill and the apply gate can never silently drift apart.
+export const OPTIONAL_JOBSEEKER_COMPLETENESS_FIELDS: RequiredField[] = [
+  { col: "phone", label: "Phone" },
+  { col: "employment_status", label: "Employment status" },
+  { col: "religion", label: "Religion" },
+  { col: "preferred_work_location_local_1", label: "Preferred work location" },
+];
+
+export const JOBSEEKER_COMPLETENESS_FIELDS: RequiredField[] = [
+  ...REQUIRED_JOBSEEKER_FIELDS,
+  ...OPTIONAL_JOBSEEKER_COMPLETENESS_FIELDS,
+];
+
 export const JOBSEEKER_REQUIRED_COLS = REQUIRED_JOBSEEKER_FIELDS.map((f) => f.col);
 export const EMPLOYER_REQUIRED_COLS = REQUIRED_EMPLOYER_FIELDS.map((f) => f.col);
 

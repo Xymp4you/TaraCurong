@@ -504,7 +504,7 @@ function SignupLandingPage() {
                     />
                     {fieldErrors.email ? fieldError("email") : (
                       <div className="tx-micro" style={{ marginTop: 6, color: "var(--ink-4)" }}>
-                        We&apos;ll send a verification code here.
+                        We&apos;ll use this to send job alerts and important account updates.
                       </div>
                     )}
                   </div>

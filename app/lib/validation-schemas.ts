@@ -76,7 +76,10 @@ export const signupEmployerRequestSchema = z.object({
     .regex(/[A-Z]/, "Password must contain an uppercase letter")
     .regex(/[0-9]/, "Password must contain a number"),
   establishmentName: z.string().min(1, "Establishment name required").max(200),
-  contactPerson: z.string().max(100).optional(),
+  // Required end-to-end: the signup wizard collects it and the post-job gate
+  // demands it. Keeping the schema permissive here let blank values slip past
+  // the gate via the route's fallback (which used the company name as a stand-in).
+  contactPerson: z.string().min(1, "Contact person required").max(100),
   contactPhone: phoneSchema.optional(),
   industry: z.string().max(100).optional(),
   city: z.string().max(100).optional(),
@@ -264,11 +267,16 @@ export const jobseekerProfileUpdateSchema = z.object({
   suffix: z.string().max(20).nullable().optional(),
   resumeUrl: z.string().max(1000).nullable().optional(),
   resumeSummary: z.string().max(3000).nullable().optional(),
+  // Mirrors the signup rules: if the client sends facebookLink in a profile
+  // update, it must still be a real Facebook URL. Allowing an empty string here
+  // let users blank it after signup and then silently fail the apply gate next
+  // time. Omitting the field entirely (no key in the payload) is still fine.
   facebookLink: z
     .string()
     .trim()
+    .min(1, "Facebook profile link is required")
     .max(200)
-    .refine((v) => v === "" || /(facebook\.com|fb\.com|fb\.me)\/.+/i.test(v), "Enter a valid Facebook profile link")
+    .refine((v) => /(facebook\.com|fb\.com|fb\.me)\/.+/i.test(v), "Enter a valid Facebook profile link")
     .optional(),
   phone: phoneSchema.optional(),
   birthDate: dateStringSchema.optional(),

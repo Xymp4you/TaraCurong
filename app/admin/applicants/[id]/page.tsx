@@ -11,6 +11,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
+import { initialsDataUri } from "@/lib/avatar-fallback";
 
 type JobseekerProfile = Record<string, any>;
 type ResumeData = {
@@ -86,7 +87,7 @@ export default function AdminViewProfilePage() {
   }
 
   const fullName = `${profile.first_name || ""} ${profile.middle_name || ""} ${profile.last_name || ""} ${profile.suffix || ""}`.trim() || "Unnamed Job Seeker";
-  const profileImageSrc = profile.profile_image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.id}`;
+  const profileImageSrc = profile.profile_image || initialsDataUri(fullName);
 
   const InfoItem = ({ label, value, icon: Icon }: { label: string; value: any; icon?: any }) => (
     <div className="flex gap-3 py-2 border-b border-slate-50 last:border-0">
@@ -209,7 +210,7 @@ export default function AdminViewProfilePage() {
               <div className="flex items-center gap-2 text-slate-900">
                 <FileText className="h-5 w-5" />
                 <h3 className="text-lg font-bold">Professional Summary</h3>
-                <span className="ml-auto text-[10px] font-bold text-sky-700 uppercase tracking-widest">✨ AI-assisted</span>
+                <span className="ml-auto text-[10px] font-bold text-sky-700 uppercase tracking-widest">AI-assisted</span>
               </div>
               <p className="mt-3 text-sm text-slate-700 leading-relaxed whitespace-pre-wrap">{profile.resume_summary}</p>
               <p className="mt-3 text-[11px] text-slate-400">

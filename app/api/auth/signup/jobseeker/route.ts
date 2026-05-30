@@ -9,6 +9,7 @@ import {
 } from "@/lib/api-errors";
 import { supabaseAdmin } from "@/lib/supabase";
 import { hashPassword } from "@/lib/utils";
+import { randomUUID } from "node:crypto";
 import { z } from "zod";
 
 type SignupJobseekerBody = z.infer<typeof signupJobseekerRequestSchema>;
@@ -59,7 +60,13 @@ export const POST = createPostHandler<SignupJobseekerBody>(
         const rawFb = (body?.facebookLink || "").trim();
         const facebookLink = /^https?:\/\//i.test(rawFb) ? rawFb : `https://${rawFb}`;
 
-        const jobseekerUpdate: Record<string, unknown> = { facebook_link: facebookLink };
+        // NSRP ID stamped at signup so admin views never render "Profile ID:" blank.
+        // UUID-derived 8-char suffix gives ~4B distinct IDs, effectively collision-free.
+        const nsrpId = `NSRP-${randomUUID().replace(/-/g, "").slice(0, 8).toUpperCase()}`;
+        const jobseekerUpdate: Record<string, unknown> = {
+          facebook_link: facebookLink,
+          nsrp_id: nsrpId,
+        };
         const setIf = (col: string, val?: string | null) => {
           if (val && val.trim()) jobseekerUpdate[col] = val.trim();
         };

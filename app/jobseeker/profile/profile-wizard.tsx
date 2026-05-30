@@ -347,6 +347,7 @@ const JobseekerProfileWizard = forwardRef<JobseekerProfileWizardRef, {
                     <option value="">Select</option>
                     <option value="Male">Male</option>
                     <option value="Female">Female</option>
+                    <option value="Prefer not to say">Prefer not to say</option>
                   </select>
                 </div>
                 <div>
@@ -361,6 +362,7 @@ const JobseekerProfileWizard = forwardRef<JobseekerProfileWizardRef, {
                     <option value="Married">Married</option>
                     <option value="Widowed">Widowed</option>
                     <option value="Separated">Separated</option>
+                    <option value="Divorced">Divorced</option>
                   </select>
                 </div>
                 <div>
@@ -978,7 +980,7 @@ const JobseekerProfileWizard = forwardRef<JobseekerProfileWizardRef, {
                           const newLic = [...resume.licenses];
                           newLic[index].title = e.target.value;
                           setResume(prev => ({ ...prev, licenses: newLic }));
-                        }} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" placeholder="e.g. CPA,-bar, Board Exam" />
+                        }} className="mt-1 w-full rounded-md border border-slate-300 px-3 py-2 text-sm" placeholder="e.g. CPA, Bar exam, Board exam" />
                       </div>
                       <div>
                         <label className="text-sm font-medium text-slate-700">License Number</label>

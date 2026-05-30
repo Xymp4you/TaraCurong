@@ -128,6 +128,19 @@ const nextConfig: NextConfig = {
       destination: "/admin/:path*",
       permanent: true,
     },
+    // The old standalone signup pages sent skinny payloads that don't satisfy
+    // the wizard's new required fields; bounce any external traffic to the
+    // canonical multi-step wizard instead.
+    {
+      source: "/signup/jobseeker",
+      destination: "/signup?role=jobseeker",
+      permanent: true,
+    },
+    {
+      source: "/signup/employer",
+      destination: "/signup?role=employer",
+      permanent: true,
+    },
   ],
 };
 

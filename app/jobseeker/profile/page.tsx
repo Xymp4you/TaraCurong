@@ -7,6 +7,7 @@ import { Camera, CheckCircle2, FileText, Link2, Loader2, Save, Upload } from "lu
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { compressImage } from "@/lib/image-utils";
+import { initialsDataUri } from "@/lib/avatar-fallback";
 import { handleApiError } from "@/lib/error-utils";
 import JobseekerProfileWizard, { JobseekerProfileWizardRef } from "./profile-wizard";
 
@@ -308,7 +309,9 @@ export default function JobseekerProfilePage() {
   }
 
   const completionPercent = profile.profile_completeness ?? 0;
-  const profileImageSrc = profile.profile_image || `https://api.dicebear.com/7.x/avataaars/svg?seed=${profile.id}`;
+  const profileImageSrc =
+    profile.profile_image ||
+    initialsDataUri(`${profile.first_name ?? ""} ${profile.last_name ?? ""}`);
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">

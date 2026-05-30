@@ -144,7 +144,7 @@ export default function ContactPage() {
                   Login to Account
                 </Link>
                 <Link
-                  href="/signup/employer"
+                  href="/signup?role=employer"
                   className="gw-btn gw-btn--block"
                   style={{ textAlign: "center", border: "1px solid var(--ink-3)", color: "#fff", background: "transparent" }}
                 >

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
@@ -87,6 +87,15 @@ const FILTERS = [
   { h: "Education", v: "Any", chips: ["HS", "Vocational", "Bachelor's"] },
 ];
 
+// Location options surfaced in the search bar dropdown. Scoped to the Tacurong
+// area — the platform is a Tacurong-City community service, not a national
+// jobs board. Empty value means no location filter at all.
+const LOCATIONS = [
+  { value: "Tacurong City", label: "Tacurong City", short: "Tacurong City" },
+  { value: "Sultan Kudarat", label: "Sultan Kudarat (whole province)", short: "Sultan Kudarat" },
+  { value: "", label: "Show jobs anywhere", short: "Anywhere" },
+] as const;
+
 function JobCard({ j }: { j: Job }) {
   return (
     <Link href={`/jobseeker/jobs/${encodeURIComponent(j.id)}`} style={{ textDecoration: "none", color: "inherit" }}>
@@ -148,18 +157,32 @@ function JobseekerJobsContent() {
 
   const [query, setQuery] = useState(initialQuery);
   const [activeFilter, setActiveFilter] = useState("All");
+  const [location, setLocation] = useState<string>("Tacurong City");
+  const [locOpen, setLocOpen] = useState(false);
+  const locRef = useRef<HTMLDivElement>(null);
   const chips = ["All", "Full-time", "Part-time", "Contract", "On-site", "Hybrid", "Remote"];
+
+  // Close the location dropdown when clicking outside it.
+  useEffect(() => {
+    if (!locOpen) return;
+    const onDocClick = (e: MouseEvent) => {
+      if (locRef.current && !locRef.current.contains(e.target as Node)) setLocOpen(false);
+    };
+    document.addEventListener("mousedown", onDocClick);
+    return () => document.removeEventListener("mousedown", onDocClick);
+  }, [locOpen]);
 
   // Pass the typed query (or the incoming category) through as the API's text search.
   const searchTerm = query.trim() || urlCategory.trim();
   const typeFilter = activeFilter !== "All" ? activeFilter : "";
 
   const { data, isLoading, isError } = useQuery<JobsResponse>({
-    queryKey: ["jobseeker", "jobs", { q: searchTerm, type: typeFilter }],
+    queryKey: ["jobseeker", "jobs", { q: searchTerm, type: typeFilter, location }],
     queryFn: async () => {
       const params = new URLSearchParams();
       if (searchTerm) params.set("q", searchTerm);
       if (typeFilter) params.set("type", typeFilter);
+      if (location) params.set("location", location);
       const qs = params.toString();
       const res = await fetch(`/api/jobseeker/jobs${qs ? `?${qs}` : ""}`);
       if (!res.ok) throw new Error("Failed to load jobs");
@@ -170,12 +193,18 @@ function JobseekerJobsContent() {
   const apiJobs = data?.jobs ?? data?.data ?? [];
   const jobs = apiJobs.map(adaptJob);
   const total = data?.pagination?.total ?? jobs.length;
+  const selectedLoc = LOCATIONS.find((l) => l.value === location) ?? LOCATIONS[0];
+  const headerLine = isLoading
+    ? "Loading jobs…"
+    : total === 0
+      ? `No active jobs in ${selectedLoc.short} yet`
+      : `${total.toLocaleString()} active job${total === 1 ? "" : "s"} in ${selectedLoc.short}`;
 
   return (
     <div className="gw" style={{ maxWidth: 1320 }}>
       <div style={{ marginBottom: 18 }}>
         <h1 className="tx-h1" style={{ fontSize: 28, fontWeight: 500, letterSpacing: "-0.025em" }}>Find jobs</h1>
-        <p className="tx-caption" style={{ marginTop: 4 }}>1,284 active jobs · Updated 2 minutes ago</p>
+        <p className="tx-caption" style={{ marginTop: 4 }}>{headerLine}</p>
       </div>
 
       {/* Search bar */}
@@ -191,12 +220,83 @@ function JobseekerJobsContent() {
           />
         </div>
         <div style={{ width: 1, height: 22, background: "var(--ink-7)" }} />
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px", minWidth: 180 }}>
+        <div ref={locRef} style={{ position: "relative", display: "flex", alignItems: "center", gap: 8, padding: "0 12px", minWidth: 200 }}>
           <MapPin size={16} style={{ color: "var(--ink-4)" }} />
-          <span className="tx-body" style={{ color: "var(--ink-2)" }}>Tacurong + 25km</span>
-          <ChevronDown size={14} style={{ color: "var(--ink-4)", marginLeft: "auto" }} />
+          <button
+            type="button"
+            onClick={() => setLocOpen((o) => !o)}
+            style={{
+              flex: 1,
+              background: "transparent",
+              border: 0,
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              padding: "10px 0",
+              textAlign: "left",
+              color: "var(--ink-2)",
+              font: "inherit",
+            }}
+            aria-haspopup="listbox"
+            aria-expanded={locOpen}
+          >
+            <span className="tx-body" style={{ color: "var(--ink-2)" }}>{selectedLoc.short}</span>
+            <ChevronDown size={14} style={{ color: "var(--ink-4)", marginLeft: "auto", transform: locOpen ? "rotate(180deg)" : "none", transition: "transform 120ms" }} />
+          </button>
+          {locOpen && (
+            <ul
+              role="listbox"
+              style={{
+                position: "absolute",
+                top: "100%",
+                right: 0,
+                marginTop: 6,
+                minWidth: 240,
+                listStyle: "none",
+                padding: 6,
+                background: "var(--surface)",
+                border: "1px solid var(--ink-7)",
+                borderRadius: "var(--r-2)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.10)",
+                zIndex: 30,
+              }}
+            >
+              {LOCATIONS.map((opt) => {
+                const selected = opt.value === location;
+                return (
+                  <li key={opt.value || "anywhere"}>
+                    <button
+                      type="button"
+                      role="option"
+                      aria-selected={selected}
+                      onClick={() => { setLocation(opt.value); setLocOpen(false); }}
+                      style={{
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 8,
+                        width: "100%",
+                        textAlign: "left",
+                        padding: "9px 12px",
+                        background: selected ? "var(--paper-2)" : "transparent",
+                        border: 0,
+                        cursor: "pointer",
+                        fontSize: 13.5,
+                        color: "var(--ink)",
+                        borderRadius: "var(--r-1)",
+                        font: "inherit",
+                      }}
+                    >
+                      <span style={{ width: 14, color: "var(--teal)", fontWeight: 600 }}>{selected ? "✓" : ""}</span>
+                      <span>{opt.label}</span>
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
         </div>
-        <button type="button" className="gw-btn gw-btn--accent" style={{ height: 40 }}>Search</button>
+        <button type="button" className="gw-btn gw-btn--accent" style={{ height: 40 }} aria-label="Search">Search</button>
       </div>
 
       {/* Filter chips */}
@@ -253,7 +353,7 @@ function JobseekerJobsContent() {
           <div style={{ display: "flex", alignItems: "center", marginBottom: 14 }}>
             <span className="tx-caption">
               Showing <span className="tx-mono" style={{ color: "var(--ink)" }}>{jobs.length === 0 ? 0 : `1–${jobs.length}`}</span> of{" "}
-              <span className="tx-mono" style={{ color: "var(--ink)" }}>{total}</span> jobs in Tacurong
+              <span className="tx-mono" style={{ color: "var(--ink)" }}>{total}</span> jobs{location ? ` in ${selectedLoc.short}` : ""}
             </span>
           </div>
           {isLoading ? (

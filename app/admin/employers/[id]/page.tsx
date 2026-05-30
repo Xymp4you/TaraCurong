@@ -11,6 +11,7 @@ import {
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/utils";
+import { initialsDataUri } from "@/lib/avatar-fallback";
 
 type EmployerProfile = Record<string, any>;
 
@@ -77,7 +78,7 @@ export default function AdminViewEmployerProfilePage() {
   }
 
   const establishmentName = profile.establishment_name || "Unnamed Establishment";
-  const profileImageSrc = profile.profile_image || `https://api.dicebear.com/7.x/initials/svg?seed=${establishmentName}`;
+  const profileImageSrc = profile.profile_image || initialsDataUri(establishmentName);
 
   const InfoItem = ({ label, value, icon: Icon, fullWidth }: { label: string; value: any; icon?: any; fullWidth?: boolean }) => (
     <div className={`flex gap-3 py-2 border-b border-slate-50 last:border-0 ${fullWidth ? 'col-span-full' : ''}`}>

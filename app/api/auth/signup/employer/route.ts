@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     establishmentName: String(form.get("establishmentName") ?? "").trim(),
     email: String(form.get("email") ?? "").trim(),
     password: String(form.get("password") ?? ""),
-    contactPerson: String(form.get("contactPerson") ?? "").trim() || undefined,
+    contactPerson: String(form.get("contactPerson") ?? "").trim(),
     contactPhone: String(form.get("contactPhone") ?? "").trim() || undefined,
     industry: String(form.get("industry") ?? "").trim() || undefined,
     city: String(form.get("city") ?? "").trim() || undefined,
@@ -104,7 +104,10 @@ export async function POST(req: NextRequest) {
 
   const email = parsed.data.email.toLowerCase();
   const establishmentName = parsed.data.establishmentName.trim();
-  const contactPerson = (parsed.data.contactPerson || establishmentName).trim();
+  // contactPerson is now required by the schema, so trust it directly — no
+  // fallback to establishmentName (that previously masked an empty value and
+  // let it slip past the post-job profile-completeness gate).
+  const contactPerson = parsed.data.contactPerson.trim();
 
   const result = await safeDatabaseOperation(async () => {
     const [existingEmployer, existingJobseeker] = await Promise.all([

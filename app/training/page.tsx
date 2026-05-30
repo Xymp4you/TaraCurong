@@ -86,7 +86,7 @@ export default function TrainingPage() {
           <p className="tx-body" style={{ marginTop: 8, color: "var(--ink-3)", maxWidth: 520 }}>
             Create your account and start receiving recommendations for training and vacancies.
           </p>
-          <Link href="/signup/jobseeker" style={{ display: "inline-block", marginTop: 20 }}>
+          <Link href="/signup?role=jobseeker" style={{ display: "inline-block", marginTop: 20 }}>
             <button type="button" className="gw-btn gw-btn--accent">
               Create Jobseeker Account <ArrowRight size={14} />
             </button>

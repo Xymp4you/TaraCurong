@@ -5,28 +5,20 @@ import { auth } from "@/lib/auth";
 import { getRequestId } from "@/lib/api-guardrails";
 import { supabaseAdmin } from "@/lib/supabase";
 import { logAuditAction } from "@/lib/audit";
+import { JOBSEEKER_COMPLETENESS_FIELDS } from "@/lib/profile-completeness";
 
+// Single source of truth: JOBSEEKER_COMPLETENESS_FIELDS combines the apply-gate
+// requireds with a handful of optional fields. The 80% threshold then translates
+// to "all the gate requireds + most of the optionals filled".
 function computeProfileCompleteness(profile: Record<string, any>) {
-  const checks = [
-    Boolean(profile.first_name?.trim()),
-    Boolean(profile.last_name?.trim()),
-    Boolean(profile.birth_date),
-    Boolean(profile.gender?.trim()),
-    Boolean(profile.civil_status?.trim()),
-    Boolean(profile.phone?.trim()),
-    Boolean(profile.barangay?.trim()),
-    Boolean(profile.city?.trim()),
-    Boolean(profile.province?.trim()),
-    Boolean(profile.employment_status?.trim()),
-    // Added NSRP specific completeness checks
-    // Boolean(profile.tin?.trim()), // Made optional
-    Boolean(profile.religion?.trim()),
-    Boolean(profile.preferred_occupation_1?.trim()),
-    Boolean(profile.preferred_work_location_local_1?.trim()),
-  ];
+  const filled = JOBSEEKER_COMPLETENESS_FIELDS.filter((f) => {
+    const v = profile[f.col];
+    if (v === null || v === undefined) return false;
+    if (typeof v === "string" && v.trim() === "") return false;
+    return true;
+  }).length;
 
-  const filled = checks.filter(Boolean).length;
-  const completeness = Math.round((filled / checks.length) * 100);
+  const completeness = Math.round((filled / JOBSEEKER_COMPLETENESS_FIELDS.length) * 100);
 
   return {
     profileComplete: completeness >= 80,
