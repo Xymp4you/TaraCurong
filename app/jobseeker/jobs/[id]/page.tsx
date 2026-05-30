@@ -242,7 +242,7 @@ export default function JobseekerJobDetailPage() {
               </div>
               <div
                 className="tx-serif"
-                style={{ fontSize: 30, fontWeight: 400, lineHeight: 1.1, letterSpacing: "-0.028em" }}
+                style={{ fontSize: "clamp(22px, 6vw, 30px)", fontWeight: 400, lineHeight: 1.15, letterSpacing: "-0.028em", wordBreak: "break-word" }}
               >
                 {job.positionTitle}
               </div>

@@ -207,20 +207,21 @@ function JobseekerJobsContent() {
         <p className="tx-caption" style={{ marginTop: 4 }}>{headerLine}</p>
       </div>
 
-      {/* Search bar */}
-      <div className="gw-card" style={{ padding: 8, display: "flex", gap: 4, alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 8, padding: "0 12px", flex: 1 }}>
-          <Search size={16} style={{ color: "var(--ink-4)" }} />
-          <input
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="bookkeeper, accountant…"
-            className="tx-body"
-            style={{ border: 0, outline: 0, background: "transparent", flex: 1, padding: "10px 0", color: "var(--ink)" }}
-          />
-        </div>
-        <div style={{ width: 1, height: 22, background: "var(--ink-7)" }} />
-        <div ref={locRef} style={{ position: "relative", display: "flex", alignItems: "center", gap: 8, padding: "0 12px", minWidth: 200 }}>
+      {/* Search bar — stacks on mobile (query / location / button), single row on sm+ */}
+      <div className="gw-card" style={{ padding: 8 }}>
+        <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-1">
+          <div className="flex items-center gap-2 px-3 flex-1 min-w-0">
+            <Search size={16} style={{ color: "var(--ink-4)", flexShrink: 0 }} />
+            <input
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="bookkeeper, accountant…"
+              className="tx-body min-w-0"
+              style={{ border: 0, outline: 0, background: "transparent", flex: 1, padding: "10px 0", color: "var(--ink)" }}
+            />
+          </div>
+          <div className="hidden sm:block" style={{ width: 1, height: 22, background: "var(--ink-7)" }} />
+          <div ref={locRef} className="relative flex items-center gap-2 px-3 sm:min-w-[200px]">
           <MapPin size={16} style={{ color: "var(--ink-4)" }} />
           <button
             type="button"
@@ -296,7 +297,8 @@ function JobseekerJobsContent() {
             </ul>
           )}
         </div>
-        <button type="button" className="gw-btn gw-btn--accent" style={{ height: 40 }} aria-label="Search">Search</button>
+          <button type="button" className="gw-btn gw-btn--accent w-full sm:w-auto" style={{ height: 40 }} aria-label="Search">Search</button>
+        </div>
       </div>
 
       {/* Filter chips */}

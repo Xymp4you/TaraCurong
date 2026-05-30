@@ -362,14 +362,14 @@ function SignupLandingPage() {
         </h1>
         <p className="tx-body" style={{ marginTop: 8, color: "var(--ink-3)" }}>{subhead}</p>
 
-        {/* Progress steps */}
-        <div style={{ display: "flex", alignItems: "center", gap: 12, marginTop: 28, marginBottom: 24 }}>
+        {/* Progress steps — labels hide below sm to fit 390px viewports */}
+        <div className="flex items-center gap-2 sm:gap-3" style={{ marginTop: 28, marginBottom: 24 }}>
           {stepsForRole.map((s, i, arr) => {
             const current = i === step;
             const done = i < step;
             return (
-              <div key={s.key} style={{ display: "flex", alignItems: "center", gap: 12, flex: i < arr.length - 1 ? 1 : "0 0 auto" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+              <div key={s.key} className="flex items-center gap-2 sm:gap-3" style={{ flex: i < arr.length - 1 ? 1 : "0 0 auto" }}>
+                <div className="flex items-center gap-2">
                   <div
                     style={{
                       width: 22,
@@ -381,11 +381,12 @@ function SignupLandingPage() {
                       display: "grid",
                       placeItems: "center",
                       font: "500 11px/1 var(--font-mono)",
+                      flexShrink: 0,
                     }}
                   >
                     {done ? "✓" : i + 1}
                   </div>
-                  <span style={{ font: "500 12.5px/1 var(--font-ui)", color: current || done ? "var(--ink)" : "var(--ink-4)" }}>
+                  <span className={current ? "inline" : "hidden sm:inline"} style={{ font: "500 12.5px/1 var(--font-ui)", color: current || done ? "var(--ink)" : "var(--ink-4)" }}>
                     {s.label}
                   </span>
                 </div>
